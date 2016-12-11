@@ -24,7 +24,6 @@ module gameanalytics
 
             private constructor()
             {
-                console.debug("constructing GALogger");
                 GALogger.debugEnabled = false;
             }
 

@@ -9,7 +9,6 @@ module gameanalytics
 
         public static configureAvailableCustomDimensions01(customDimensions: Array<string>): void
         {
-
         }
     }
 }

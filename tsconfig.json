@@ -1,0 +1,12 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "sourceMap":  true,
+        "noImplicitAny": true,
+        "removeComments": true,
+        "outFile": "./dist/GameAnalytics.js"
+    },
+    "filesGlob": [
+        "./src/**/*.ts"
+    ]
+}
