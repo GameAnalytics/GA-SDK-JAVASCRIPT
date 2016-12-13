@@ -4,6 +4,13 @@ module gameanalytics
     {
         export class GAUtilities
         {
+            public static getHmac(key:string, data:string): string
+            {
+                var encryptedMessage = CryptoJS.HmacSHA256(data, key);
+                var result:string = CryptoJS.enc.Base64.stringify(encryptedMessage);
+                return result;
+            }
+
             public static stringMatch(s:string, pattern:RegExp): boolean
             {
                 if(!s || !pattern)

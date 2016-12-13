@@ -4,6 +4,7 @@ module gameanalytics
     {
         import GALogger = gameanalytics.logging.GALogger;
         import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
+        import GAUtilities = gameanalytics.utilities.GAUtilities;
 
         export class GAValidator
         {
@@ -55,7 +56,7 @@ module gameanalytics
                 return true;
             }
 
-            public static validateResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string): boolean
+            public static validateResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string, availableCurrencies:Array<string>, availableItemTypes:Array<string>): boolean
             {
                 if (flowType == EGAResourceFlowType.Undefined)
                 {
@@ -67,7 +68,7 @@ module gameanalytics
                     GALogger.i("Validation fail - resource event - currency: Cannot be (null)");
                     return false;
                 }
-                if (!GAState.hasAvailableResourceCurrency(currency))
+                if (!GAUtilities.stringArrayContainsString(availableCurrencies, currency))
                 {
                     GALogger.i("Validation fail - resource event - currency: Not found in list of pre-defined available resource currencies. String: " + currency);
                     return false;
@@ -92,7 +93,7 @@ module gameanalytics
                     GALogger.i("Validation fail - resource event - itemType: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + itemType);
                     return false;
                 }
-                if (!GAState.hasAvailableResourceItemType(itemType))
+                if (!GAUtilities.stringArrayContainsString(availableItemTypes, itemType))
                 {
                     GALogger.i("Validation fail - resource event - itemType: Not found in list of pre-defined available resource itemTypes. String: " + itemType);
                     return false;
@@ -225,9 +226,9 @@ module gameanalytics
 
             public static validateKeys(gameKey:string, gameSecret:string): boolean
             {
-                if (GAUtilities.stringMatch(gameKey, "^[A-z0-9]{32}$"))
+                if (GAUtilities.stringMatch(gameKey, /^[A-z0-9]{32}$/))
                 {
-                    if (GAUtilities.stringMatch(gameSecret, "^[A-z0-9]{40}$"))
+                    if (GAUtilities.stringMatch(gameSecret, /^[A-z0-9]{40}$/))
                     {
                         return true;
                     }
@@ -241,7 +242,7 @@ module gameanalytics
                 {
                     return false;
                 }
-                if (!GAUtilities.stringMatch(currency, "^[A-Z]{3}$"))
+                if (!GAUtilities.stringMatch(currency, /^[A-Z]{3}$/))
                 {
                     return false;
                 }
@@ -269,7 +270,7 @@ module gameanalytics
 
             public static validateEventPartCharacters(eventPart:string): boolean
             {
-                if (!GAUtilities.stringMatch(eventPart, "^[A-Za-z0-9\\s\\-_\\.\\(\\)\\!\\?]{1,64}$"))
+                if (!GAUtilities.stringMatch(eventPart, /^[A-Za-z0-9\s\-_\.\(\)\!\?]{1,64}$/))
                 {
                     return false;
                 }
@@ -283,7 +284,7 @@ module gameanalytics
                     return false;
                 }
 
-                if (!GAUtilities.stringMatch(eventId, "^[^:]{1,64}(?::[^:]{1,64}){0,4}$"))
+                if (!GAUtilities.stringMatch(eventId, /^[^:]{1,64}(?::[^:]{1,64}){0,4}$/))
                 {
                     return false;
                 }
@@ -297,7 +298,7 @@ module gameanalytics
                     return false;
                 }
 
-                if (!GAUtilities.stringMatch(eventId, "^[A-Za-z0-9\\s\\-_\\.\\(\\)\\!\\?]{1,64}(:[A-Za-z0-9\\s\\-_\\.\\(\\)\\!\\?]{1,64}){0,4}$"))
+                if (!GAUtilities.stringMatch(eventId, /^[A-Za-z0-9\s\-_\.\(\)\!\?]{1,64}(:[A-Za-z0-9\s\-_\.\(\)\!\?]{1,64}){0,4}$/))
                 {
                     return false;
                 }
@@ -342,7 +343,7 @@ module gameanalytics
                 }
                 catch (e)
                 {
-                    GALogger.w("validateInitRequestResponse failed - invalid type in 'server_ts' field. value=" + initResponse["server_ts"] + ", " + e);
+                    GALogger.w("validateInitRequestResponse failed - invalid type in 'server_ts' field. type=" + typeof initResponse["server_ts"] + ", value=" + initResponse["server_ts"] + ", " + e);
                     return null;
                 }
 
@@ -360,7 +361,7 @@ module gameanalytics
 
             public static validateSdkWrapperVersion(wrapperVersion:string): boolean
             {
-                if (!GAUtilities.stringMatch(wrapperVersion, "^(unity|unreal) [0-9]{0,5}(\\.[0-9]{0,5}){0,2}$"))
+                if (!GAUtilities.stringMatch(wrapperVersion, /^(unity|unreal) [0-9]{0,5}(\.[0-9]{0,5}){0,2}$/))
                 {
                     return false;
                 }
@@ -369,7 +370,7 @@ module gameanalytics
 
             public static validateEngineVersion(engineVersion:string): boolean
             {
-                if (!engineVersion || !GAUtilities.stringMatch(engineVersion, "^(unity|unreal) [0-9]{0,5}(\\.[0-9]{0,5}){0,2}$"))
+                if (!engineVersion || !GAUtilities.stringMatch(engineVersion, /^(unity|unreal) [0-9]{0,5}(\.[0-9]{0,5}){0,2}$/))
                 {
                     return false;
                 }
@@ -433,7 +434,7 @@ module gameanalytics
 
             public static validateConnectionType(connectionType:string): boolean
             {
-                return GAUtilities.stringMatch(connectionType, "^(wwan|wifi|lan|offline)$");
+                return GAUtilities.stringMatch(connectionType, /^(wwan|wifi|lan|offline)$/);
             }
 
             public static validateCustomDimensions(customDimensions:Array<string>): boolean
@@ -451,7 +452,7 @@ module gameanalytics
                 // validate each string for regex
                 for (let resourceCurrency in resourceCurrencies)
                 {
-                    if (!GAUtilities.stringMatch(resourceCurrency, "^[A-Za-z]+$"))
+                    if (!GAUtilities.stringMatch(resourceCurrency, /^[A-Za-z]+$/))
                     {
                         GALogger.i("resource currencies validation failed: a resource currency can only be A-Z, a-z. String was: " + resourceCurrency);
                         return false;
@@ -462,7 +463,7 @@ module gameanalytics
 
             public static validateResourceItemTypes(resourceItemTypes:Array<string>): boolean
             {
-                if (!ValidateArrayOfStrings(20, 32, false, "resource item types", resourceItemTypes))
+                if (!GAValidator.validateArrayOfStrings(20, 32, false, "resource item types", resourceItemTypes))
                 {
                     return false;
                 }
@@ -479,42 +480,42 @@ module gameanalytics
                 return true;
             }
 
-            public static validateDimension01(dimension01:string): boolean
+            public static validateDimension01(dimension01:string, availableDimensions:Array<string>): boolean
             {
                 // allow nil
                 if (!dimension01)
                 {
                     return true;
                 }
-                if (!GAState.hasAvailableCustomDimensions01(dimension01))
+                if (!GAUtilities.stringArrayContainsString(availableDimensions, dimension01))
                 {
                     return false;
                 }
                 return true;
             }
 
-            public static validateDimension02(dimension02:string): boolean
+            public static validateDimension02(dimension02:string, availableDimensions:Array<string>): boolean
             {
                 // allow nil
                 if (!dimension02)
                 {
                     return true;
                 }
-                if (!GAState.hasAvailableCustomDimensions02(dimension02))
+                if (!GAUtilities.stringArrayContainsString(availableDimensions, dimension02))
                 {
                     return false;
                 }
                 return true;
             }
 
-            public static validateDimension03(dimension03:string): boolean
+            public static validateDimension03(dimension03:string, availableDimensions:Array<string>): boolean
             {
                 // allow nil
                 if (!dimension03)
                 {
                     return true;
                 }
-                if (!GAState.hasAvailableCustomDimensions02(dimension03))
+                if (!GAUtilities.stringArrayContainsString(availableDimensions, dimension03))
                 {
                     return false;
                 }

@@ -24,7 +24,7 @@ module gameanalytics
 
             private constructor()
             {
-                GALogger.debugEnabled = false;
+                GALogger.debugEnabled = true;
             }
 
             // Methods: START

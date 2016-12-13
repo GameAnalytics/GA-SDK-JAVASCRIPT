@@ -7,7 +7,8 @@
         <script type="text/javascript" src='../dist/GameAnalytics.js'></script>
         <script type="text/javascript">
             gameanalytics.logging.GALogger.setInfoLog(true);
-            gameanalytics.GameAnalytics.test();
+            gameanalytics.GameAnalytics.configureAvailableCustomDimensions01([]);
+            gameanalytics.logging.GALogger.i(gameanalytics.utilities.GAUtilities.getHmac("test", "Hello world"));
         </script>
     </body>
 </html>

@@ -13,12 +13,13 @@ module gameanalytics
         {
             GAThreading.performTaskOnGAThread("configureAvailableCustomDimensions01", () =>
             {
+                GALogger.i("Hello");
                 if(GameAnalytics.isSdkReady(true, false))
                 {
                     GALogger.w("Available custom dimensions must be set before SDK is initialized");
                     return;
                 }
-                
+
             });
         }
 
