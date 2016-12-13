@@ -58,6 +58,16 @@ module gameanalytics
                 var date:Date = new Date();
                 return Math.round(date.getTime() / 1000);
             }
+
+            public static createGuid(): string
+            {
+                return (GAUtilities.s4() + GAUtilities.s4() + "-" + GAUtilities.s4() + "-4" + GAUtilities.s4().substr(0,3) + "-" + GAUtilities.s4() + "-" + GAUtilities.s4() + GAUtilities.s4() + GAUtilities.s4()).toLowerCase();
+            }
+
+            private static s4(): string
+            {
+                return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+            }
         }
     }
 }
