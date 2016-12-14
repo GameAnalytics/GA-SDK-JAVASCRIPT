@@ -2,7 +2,6 @@
     "compileOnSave": true,
     "compilerOptions": {
         "sourceMap":  true,
-        "module": "commonjs",
         "noImplicitAny": true,
         "removeComments": true,
         "declaration": true,
@@ -21,11 +20,12 @@
         "./src/device/GADevice.ts",
         "./src/threading/TimedBlock.ts",
         "./src/threading/PriorityQueue.ts",
-        "./src/threading/GAThreading.ts",
-        "./src/http/GAHTTPApi.ts",
-        "./src/events/GAEvents.ts",
         "./src/store/GAStore.ts",
         "./src/state/GAState.ts",
+        "./src/tasks/SdkErrorTask.ts",
+        "./src/http/GAHTTPApi.ts",
+        "./src/events/GAEvents.ts",
+        "./src/threading/GAThreading.ts",
         "./src/GameAnalytics.ts"
     ]
 }

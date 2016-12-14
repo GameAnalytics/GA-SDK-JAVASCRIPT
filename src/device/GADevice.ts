@@ -2,6 +2,8 @@ module gameanalytics
 {
     export module device
     {
+        import GALogger = gameanalytics.logging.GALogger;
+
         export class GADevice
         {
             private static readonly sdkWrapperVersion:string = "javascript 0.1.0";
@@ -39,12 +41,46 @@ module gameanalytics
 
             private static getOSVersionString(): string
             {
-                throw new Error("getOSVersionString not implemented");
+                return GADevice.buildPlatform + " 0.0.0";
             }
 
             private static runtimePlatformToString(): string
             {
-                throw new Error("runtimePlatformToString not implemented");
+                try
+                {
+                    var platform:string = navigator.platform;
+                    platform = platform.toLowerCase();
+
+                    GALogger.d("Finding platform for: " + platform);
+
+                    if(platform.indexOf("mac") != -1)
+                    {
+                        return "mac_osx";
+                    }
+                    else if(platform.indexOf("linux") != -1)
+                    {
+                        return "linux";
+                    }
+                    else if(platform.indexOf("win") != -1)
+                    {
+                        return "windows";
+                    }
+                    else if(platform.indexOf("android") != -1)
+                    {
+                        return "android";
+                    }
+                    else if(platform.indexOf("iphone") != -1 || platform.indexOf("ipad") != -1 || platform.indexOf("ipod") != -1)
+                    {
+                        return "ios";
+                    }
+
+                    GALogger.d("Platform was not found: " + platform);
+                }
+                catch(e)
+                {
+                }
+
+                return "unknown";
             }
         }
     }

@@ -6,17 +6,14 @@ module gameanalytics
         import GAUtilities = gameanalytics.utilities.GAUtilities;
         import GALogger = gameanalytics.logging.GALogger;
         import GAStore = gameanalytics.store.GAStore;
-        import EGAHTTPApiResponse = gameanalytics.http.EGAHTTPApiResponse;
-        import GAThreading = gameanalytics.threading.GAThreading;
-        import GAEvents = gameanalytics.events.GAEvents;
         import GADevice = gameanalytics.device.GADevice;
-        import GAHTTPApi = gameanalytics.http.GAHTTPApi;
+
 
         export class GAState
         {
             private static readonly CategorySdkError:string = "sdk_error";
 
-            private static readonly instance:GAState = new GAState();
+            public static readonly instance:GAState = new GAState();
 
             private constructor()
             {
@@ -40,8 +37,12 @@ module gameanalytics
             {
                 return GAState.instance.initialized;
             }
+            public static setInitialized(value:boolean): void
+            {
+                GAState.instance.initialized = value;
+            }
 
-            private sessionStart:number;
+            public sessionStart:number;
             public static getSessionStart(): number
             {
                 return GAState.instance.sessionStart;
@@ -59,7 +60,7 @@ module gameanalytics
                 return GAState.instance.transactionNum;
             }
 
-            private sessionId:string;
+            public sessionId:string;
             public static getSessionId(): string
             {
                 return GAState.instance.sessionId;
@@ -208,9 +209,9 @@ module gameanalytics
             private facebookId:string;
             private gender:string;
             private birthYear:number;
-            private sdkConfigCached:{[key:string]: any};
-            private initAuthorized:boolean;
-            private clientServerTimeOffset:number;
+            public sdkConfigCached:{[key:string]: any};
+            public initAuthorized:boolean;
+            public clientServerTimeOffset:number;
 
             private defaultUserId:string;
             private setDefaultId(value:string): void
@@ -218,10 +219,14 @@ module gameanalytics
                 this.defaultUserId = !value ? "" : value;
                 GAState.cacheIdentifier();
             }
+            public static getDefaultId(): string
+            {
+                return GAState.instance.defaultUserId;
+            }
 
-            private sdkConfigDefault:{[key:string]: string} = {};
+            public sdkConfigDefault:{[key:string]: string} = {};
 
-            private sdkConfig:{[key:string]: any} = {};
+            public sdkConfig:{[key:string]: any} = {};
             private static getSdkConfig(): {[key:string]: any}
             {
                 {
@@ -263,7 +268,7 @@ module gameanalytics
             }
 
             private progressionTries:{[key:string]: number} = {};
-            private static readonly DefaultUserIdKey:string = "default_user_id";
+            public static readonly DefaultUserIdKey:string = "default_user_id";
             public static readonly SessionNumKey:string = "session_num";
             public static readonly TransactionNumKey:string = "transaction_num";
             private static readonly FacebookIdKey:string = "facebook_id";
@@ -272,7 +277,7 @@ module gameanalytics
             private static readonly Dimension01Key:string = "dimension01";
             private static readonly Dimension02Key:string = "dimension02";
             private static readonly Dimension03Key:string = "dimension03";
-            private static readonly SdkConfigCachedKey:string = "sdk_config_cached";
+            public static readonly SdkConfigCachedKey:string = "sdk_config_cached";
 
             public static isEnabled(): boolean
             {
@@ -295,7 +300,7 @@ module gameanalytics
             public static setCustomDimension01(dimension:string): void
             {
                 GAState.instance.currentCustomDimension01 = dimension;
-                if(GAStore.isTableReady())
+                if(GAStore.isStorageAvailable())
                 {
                     GAStore.setState(GAState.Dimension01Key, dimension);
                 }
@@ -305,7 +310,7 @@ module gameanalytics
             public static setCustomDimension02(dimension:string): void
             {
                 GAState.instance.currentCustomDimension02 = dimension;
-                if(GAStore.isTableReady())
+                if(GAStore.isStorageAvailable())
                 {
                     GAStore.setState(GAState.Dimension02Key, dimension);
                 }
@@ -315,7 +320,7 @@ module gameanalytics
             public static setCustomDimension03(dimension:string): void
             {
                 GAState.instance.currentCustomDimension03 = dimension;
-                if(GAStore.isTableReady())
+                if(GAStore.isStorageAvailable())
                 {
                     GAStore.setState(GAState.Dimension03Key, dimension);
                 }
@@ -325,7 +330,7 @@ module gameanalytics
             public static setFacebookId(facebookId:string): void
             {
                 GAState.instance.facebookId = facebookId;
-                if(GAStore.isTableReady())
+                if(GAStore.isStorageAvailable())
                 {
                     GAStore.setState(GAState.FacebookIdKey, facebookId);
                 }
@@ -335,7 +340,7 @@ module gameanalytics
             public static setGender(gender:EGAGender): void
             {
                 GAState.instance.gender = gender.toString().toLowerCase();
-                if(GAStore.isTableReady())
+                if(GAStore.isStorageAvailable())
                 {
                     GAStore.setState(GAState.GenderKey, GAState.instance.gender);
                 }
@@ -345,7 +350,7 @@ module gameanalytics
             public static setBirthYear(birthYear:number): void
             {
                 GAState.instance.birthYear = birthYear;
-                if(GAStore.isTableReady())
+                if(GAStore.isStorageAvailable())
                 {
                     GAStore.setState(GAState.BirthYearKey, birthYear.toString());
                 }
@@ -419,54 +424,6 @@ module gameanalytics
             {
                 GAState.instance.useManualSessionHandling = flag;
                 GALogger.i("Use manual session handling: " + flag);
-            }
-
-            public static internalInitialize(): void
-            {
-                // Make sure database is ready
-                if (!GAStore.isTableReady())
-                {
-                    return;
-                }
-
-                GAState.ensurePersistedStates();
-                GAStore.setState(GAState.DefaultUserIdKey, GAState.instance.defaultUserId);
-
-                GAState.instance.initialized = true;
-
-                GAState.startNewSession();
-
-                if (GAState.isEnabled())
-                {
-                    GAThreading.ensureEventQueueIsRunning();
-                }
-            }
-
-            public static endSessionAndStopQueue(): void
-            {
-                if(GAState.isInitialized())
-                {
-                    GALogger.i("Ending session.");
-                    GAThreading.stopEventQueue();
-                    if (GAState.isEnabled() && GAState.sessionIsStarted())
-                    {
-                        GAEvents.addSessionEndEvent();
-                        GAState.instance.sessionStart = 0;
-                    }
-                }
-            }
-
-            public static resumeSessionAndStartQueue(): void
-            {
-                if(!GAState.isInitialized())
-                {
-                    return;
-                }
-                GALogger.i("Resuming session.");
-                if(!GAState.sessionIsStarted())
-                {
-                    GAState.startNewSession();
-                }
             }
 
             public static getEventAnnotations(): {[key:string]: any}
@@ -624,7 +581,7 @@ module gameanalytics
                 GALogger.d("identifier, {clean:" + GAState.instance.identifier + "}");
             }
 
-            private static ensurePersistedStates(): void
+            public static ensurePersistedStates(): void
             {
                 throw new Error("ensurePersistedStates not implemented");
                 // get and extract stored states
@@ -756,114 +713,13 @@ module gameanalytics
             //     }
             }
 
-            private static startNewSession(): void
+            public static calculateServerTimeOffset(serverTs:number): number
             {
-                GALogger.i("Starting a new session.");
-
-                // make sure the current custom dimensions are valid
-                GAState.validateAndFixCurrentDimensions();
-
-                GAHTTPApi.instance.requestInit();
+                var clientTs:number = GAUtilities.timeIntervalSince1970();
+                return serverTs - clientTs;
             }
 
-            public static startNewSessionCallback(initResponse:EGAHTTPApiResponse, initResponseDict:{[key:string]: any}): void
-            {
-                // init is ok
-                if(initResponse == EGAHTTPApiResponse.Ok && initResponseDict != null)
-                {
-                    // set the time offset - how many seconds the local time is different from servertime
-                    var timeOffsetSeconds:number = 0;
-                    if(initResponseDict["server_ts"])
-                    {
-                        var serverTs:number = initResponseDict["server_ts"] as number;
-                        timeOffsetSeconds = GAState.calculateServerTimeOffset(serverTs);
-                    }
-                    initResponseDict["time_offset"] = timeOffsetSeconds;
-
-                    // insert new config in sql lite cross session storage
-                    GAStore.setState(GAState.SdkConfigCachedKey, initResponseDict.toString());
-
-                    // set new config and cache in memory
-                    GAState.instance.sdkConfigCached = initResponseDict;
-                    GAState.instance.sdkConfig = initResponseDict;
-
-                    GAState.instance.initAuthorized = true;
-                }
-                else if(initResponse == EGAHTTPApiResponse.Unauthorized)
-                {
-                    GALogger.w("Initialize SDK failed - Unauthorized");
-                    GAState.instance.initAuthorized = false;
-                }
-                else
-                {
-                    // log the status if no connection
-                    if(initResponse == EGAHTTPApiResponse.NoResponse || initResponse == EGAHTTPApiResponse.RequestTimeout)
-                    {
-                        GALogger.i("Init call (session start) failed - no response. Could be offline or timeout.");
-                    }
-                    else if(initResponse == EGAHTTPApiResponse.BadResponse || initResponse == EGAHTTPApiResponse.JsonEncodeFailed || initResponse == EGAHTTPApiResponse.JsonDecodeFailed)
-                    {
-                        GALogger.i("Init call (session start) failed - bad response. Could be bad response from proxy or GA servers.");
-                    }
-                    else if(initResponse == EGAHTTPApiResponse.BadRequest || initResponse == EGAHTTPApiResponse.UnknownResponseCode)
-                    {
-                        GALogger.i("Init call (session start) failed - bad request or unknown response.");
-                    }
-
-                    // init call failed (perhaps offline)
-                    if(GAState.instance.sdkConfig == null)
-                    {
-                        if(GAState.instance.sdkConfigCached != null)
-                        {
-                            GALogger.i("Init call (session start) failed - using cached init values.");
-                            // set last cross session stored config init values
-                            GAState.instance.sdkConfig = GAState.instance.sdkConfigCached;
-                        }
-                        else
-                        {
-                            GALogger.i("Init call (session start) failed - using default init values.");
-                            // set default init values
-                            GAState.instance.sdkConfig = GAState.instance.sdkConfigDefault;
-                        }
-                    }
-                    else
-                    {
-                        GALogger.i("Init call (session start) failed - using cached init values.");
-                    }
-                    GAState.instance.initAuthorized = true;
-                }
-
-                // set offset in state (memory) from current config (config could be from cache etc.)
-                GAState.instance.clientServerTimeOffset = GAState.instance.sdkConfig["time_offset"] ? GAState.instance.sdkConfig["time_offset"] as number : 0;
-
-                // if SDK is disabled in config
-                if(!GAState.isEnabled())
-                {
-                    GALogger.w("Could not start session: SDK is disabled.");
-                    // stop event queue
-                    // + make sure it's able to restart if another session detects it's enabled again
-                    GAThreading.stopEventQueue();
-                    return;
-                }
-                else
-                {
-                    GAThreading.ensureEventQueueIsRunning();
-                }
-
-                // generate the new session
-                var newSessionId:string = GAUtilities.createGuid();
-
-                // Set session id
-                GAState.instance.sessionId = newSessionId;
-
-                // Set session start
-                GAState.instance.sessionStart = GAState.getClientTsAdjusted();
-
-                // Add session start event
-                GAEvents.addSessionStartEvent();
-            }
-
-            private static validateAndFixCurrentDimensions(): void
+            public static validateAndFixCurrentDimensions(): void
             {
                 // validate that there are no current dimension01 not in list
                 if (!GAValidator.validateDimension01(GAState.getCurrentCustomDimension01(), GAState.getAvailableCustomDimensions01()))
@@ -883,12 +739,6 @@ module gameanalytics
                     GALogger.d("Invalid dimension03 found in variable. Setting to nil. Invalid dimension: " + GAState.getCurrentCustomDimension03());
                     GAState.setCustomDimension03("");
                 }
-            }
-
-            private static calculateServerTimeOffset(serverTs:number): number
-            {
-                var clientTs:number = GAUtilities.timeIntervalSince1970();
-                return serverTs - clientTs;
             }
         }
     }

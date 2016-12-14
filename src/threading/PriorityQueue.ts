@@ -22,7 +22,7 @@ module gameanalytics
 
             public enqueue(priority:number, item:TItem): void
             {
-                if(this._sortedKeys.indexOf(priority) == -1)
+                if(this._sortedKeys.indexOf(priority) === -1)
                 {
                     this.addQueueOfPriority(priority);
                 }
@@ -70,7 +70,7 @@ module gameanalytics
             {
                 var firstKey:number = this._sortedKeys[0];
                 var nextItem:TItem = this._subQueues[firstKey].shift();
-                if(this._subQueues[firstKey].length == 0)
+                if(this._subQueues[firstKey].length === 0)
                 {
                     this._sortedKeys.shift();
                     delete this._subQueues[firstKey];

@@ -113,7 +113,7 @@ module gameanalytics
 
             public static ValidateProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string): boolean
             {
-                if (progressionStatus == EGAProgressionStatus.Undefined)
+                if (progressionStatus === EGAProgressionStatus.Undefined)
                 {
                     GALogger.i("Validation fail - progression event: Invalid progression status.");
                     return false;
@@ -196,7 +196,7 @@ module gameanalytics
 
             public static validateErrorEvent(severity:EGAErrorSeverity, message:string): boolean
             {
-                if (severity == EGAErrorSeverity.Undefined)
+                if (severity === EGAErrorSeverity.Undefined)
                 {
                     GALogger.i("Validation fail - error event - severity: Severity was unsupported value.");
                     return false;
@@ -216,7 +216,7 @@ module gameanalytics
                     return false;
                 }
 
-                if (type == EGASdkErrorType.Undefined)
+                if (type === EGASdkErrorType.Undefined)
                 {
                     GALogger.i("Validation fail - sdk error event - type: Type was unsupported value.");
                     return false;
@@ -251,7 +251,7 @@ module gameanalytics
 
             public static validateEventPartLength(eventPart:string, allowNull:boolean): boolean
             {
-                if (allowNull == true && !eventPart)
+                if (allowNull && !eventPart)
                 {
                     return true;
                 }
@@ -557,7 +557,7 @@ module gameanalytics
                 {
                     var stringLength:number = !arrayString ? 0 : arrayString.length;
                     // check if empty (not allowed)
-                    if (stringLength == 0)
+                    if (stringLength === 0)
                     {
                         GALogger.i(arrayTag + " validation failed: contained an empty string.");
                         return false;
@@ -585,7 +585,7 @@ module gameanalytics
 
             public static validateGender(gender:EGAGender): boolean
             {
-                if (gender == EGAGender.Undefined || !(gender == EGAGender.Male || gender == EGAGender.Female))
+                if (gender === EGAGender.Undefined || !(gender === EGAGender.Male || gender === EGAGender.Female))
                 {
                     GALogger.i("Validation fail - gender: Has to be 'male' or 'female'.");
                     return false;
