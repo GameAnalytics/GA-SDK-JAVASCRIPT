@@ -301,60 +301,42 @@ module gameanalytics
             public static setCustomDimension01(dimension:string): void
             {
                 GAState.instance.currentCustomDimension01 = dimension;
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.Dimension01Key, dimension);
-                }
+                GAStore.setItem(GAState.Dimension01Key, dimension);
                 GALogger.i("Set custom01 dimension value: " + dimension);
             }
 
             public static setCustomDimension02(dimension:string): void
             {
                 GAState.instance.currentCustomDimension02 = dimension;
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.Dimension02Key, dimension);
-                }
+                GAStore.setItem(GAState.Dimension02Key, dimension);
                 GALogger.i("Set custom02 dimension value: " + dimension);
             }
 
             public static setCustomDimension03(dimension:string): void
             {
                 GAState.instance.currentCustomDimension03 = dimension;
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.Dimension03Key, dimension);
-                }
+                GAStore.setItem(GAState.Dimension03Key, dimension);
                 GALogger.i("Set custom03 dimension value: " + dimension);
             }
 
             public static setFacebookId(facebookId:string): void
             {
                 GAState.instance.facebookId = facebookId;
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.FacebookIdKey, facebookId);
-                }
+                GAStore.setItem(GAState.FacebookIdKey, facebookId);
                 GALogger.i("Set facebook id: " + facebookId);
             }
 
             public static setGender(gender:EGAGender): void
             {
                 GAState.instance.gender = gender.toString().toLowerCase();
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
-                }
+                GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
                 GALogger.i("Set gender: " + gender);
             }
 
             public static setBirthYear(birthYear:number): void
             {
                 GAState.instance.birthYear = birthYear;
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.BirthYearKey, birthYear.toString());
-                }
+                GAStore.setItem(GAState.BirthYearKey, birthYear.toString());
                 GALogger.i("Set birth year: " + birthYear);
             }
 
@@ -562,11 +544,11 @@ module gameanalytics
 
             private static cacheIdentifier(): void
             {
-                if(!GAState.instance.userId)
+                if(GAState.instance.userId)
                 {
                     GAState.instance.identifier = GAState.instance.userId;
                 }
-                else if(!GAState.instance.defaultUserId)
+                else if(GAState.instance.defaultUserId)
                 {
                     GAState.instance.identifier = GAState.instance.defaultUserId;
                 }
@@ -576,134 +558,126 @@ module gameanalytics
 
             public static ensurePersistedStates(): void
             {
-                throw new Error("ensurePersistedStates not implemented");
                 // get and extract stored states
-            //     JSONClass state_dict = new JSONClass();
-            //     JSONArray results_ga_state = GAStore.ExecuteQuerySync("SELECT * FROM ga_state;");
-            //
-            //     if (results_ga_state != null && results_ga_state.Count != 0)
-            //     {
-            //         for (int i = 0; i < results_ga_state.Count; ++i)
-            //         {
-            //             JSONNode result = results_ga_state[i];
-            //             state_dict.Add(result["key"], result["value"]);
-            //         }
-            //     }
-            //
-            //     // insert into GAState instance
-            //     GAState instance = GAState.Instance;
-            //
-            //     instance.DefaultUserId = state_dict[DefaultUserIdKey] != null ? state_dict[DefaultUserIdKey].AsString : Guid.NewGuid().ToString();
-            //
-            //     SessionNum = state_dict[SessionNumKey] != null ? state_dict[SessionNumKey].AsDouble : 0.0;
-            //
-            //     TransactionNum = state_dict[TransactionNumKey] != null ? state_dict[TransactionNumKey].AsDouble : 0.0;
-            //
-            //     // restore cross session user values
-            //     if(!string.IsNullOrEmpty(instance.FacebookId))
-            //     {
-            //         GAStore.SetState(FacebookIdKey, instance.FacebookId);
-            //     }
-            //     else
-            //     {
-            //         instance.FacebookId = state_dict[FacebookIdKey] != null ? state_dict[FacebookIdKey].AsString : "";
-            //         if(!string.IsNullOrEmpty(instance.FacebookId))
-            //         {
-            //             GALogger.D("facebookid found in DB: " + instance.FacebookId);
-            //         }
-            //     }
-            //
-            //     if(!string.IsNullOrEmpty(instance.FacebookId))
-            //     {
-            //         GAStore.SetState(FacebookIdKey, instance.FacebookId);
-            //     }
-            //     else
-            //     {
-            //         instance.Gender = state_dict[GenderKey] != null ? state_dict[GenderKey].AsString : "";
-            //         if(!string.IsNullOrEmpty(instance.Gender))
-            //         {
-            //             GALogger.D("gender found in DB: " + instance.Gender);
-            //         }
-            //     }
-            //
-            //     if(instance.BirthYear != 0)
-            //     {
-            //         GAStore.SetState(BirthYearKey, instance.BirthYear.ToString());
-            //     }
-            //     else
-            //     {
-            //         instance.BirthYear = state_dict[BirthYearKey] != null ? state_dict[BirthYearKey].AsInt : 0;
-            //         if(instance.BirthYear != 0)
-            //         {
-            //             GALogger.D("birthYear found in DB: " + instance.BirthYear);
-            //         }
-            //     }
-            //
-            //     // restore dimension settings
-            //     if(!string.IsNullOrEmpty(CurrentCustomDimension01))
-            //     {
-            //         GAStore.SetState(Dimension01Key, CurrentCustomDimension01);
-            //     }
-            //     else
-            //     {
-            //         CurrentCustomDimension01 = state_dict[Dimension01Key] != null ? state_dict[Dimension01Key].AsString : "";
-            //         if(!string.IsNullOrEmpty(CurrentCustomDimension01))
-            //         {
-            //             GALogger.D("Dimension01 found in cache: " + CurrentCustomDimension01);
-            //         }
-            //     }
-            //
-            //     if(!string.IsNullOrEmpty(CurrentCustomDimension02))
-            //     {
-            //         GAStore.SetState(Dimension02Key, CurrentCustomDimension02);
-            //     }
-            //     else
-            //     {
-            //         CurrentCustomDimension02 = state_dict[Dimension02Key] != null ? state_dict[Dimension02Key].AsString : "";
-            //         if(!string.IsNullOrEmpty(CurrentCustomDimension02))
-            //         {
-            //             GALogger.D("Dimension02 found in cache: " + CurrentCustomDimension02);
-            //         }
-            //     }
-            //
-            //     if(!string.IsNullOrEmpty(CurrentCustomDimension03))
-            //     {
-            //         GAStore.SetState(Dimension03Key, CurrentCustomDimension03);
-            //     }
-            //     else
-            //     {
-            //         CurrentCustomDimension03 = state_dict[Dimension03Key] != null ? state_dict[Dimension03Key].AsString : "";
-            //         if(!string.IsNullOrEmpty(CurrentCustomDimension03))
-            //         {
-            //             GALogger.D("Dimension03 found in cache: " + CurrentCustomDimension03);
-            //         }
-            //     }
-            //
-            //     // get cached init call values
-            //     string sdkConfigCachedString = state_dict[SdkConfigCachedKey] != null ? state_dict[SdkConfigCachedKey].AsString : "";
-            //     if (!string.IsNullOrEmpty(sdkConfigCachedString))
-            //     {
-            //         // decode JSON
-            //         JSONNode sdkConfigCached = JSONNode.LoadFromBase64(sdkConfigCachedString);
-            //         if (sdkConfigCached != null && sdkConfigCached.Count != 0)
-            //         {
-            //             instance.SdkConfigCached = sdkConfigCached;
-            //         }
-            //     }
-            //
-            //     JSONArray results_ga_progression = GAStore.ExecuteQuerySync("SELECT * FROM ga_progression;");
-            //
-            //     if (results_ga_progression != null && results_ga_progression.Count != 0)
-            //     {
-            //         for (int i = 0; i < results_ga_progression.Count; ++i)
-            //         {
-            //             JSONNode result = results_ga_progression[i];
-            //             if (result != null && result.Count != 0)
-            //             {
-            //                 instance.progressionTries[result["progression"].AsString] = result["tries"].AsInt;
-            //             }
-            //         }
-            //     }
+                if(GAStore.isStorageAvailable())
+                {
+                    GAStore.load();
+                }
+
+                // insert into GAState instance
+                var instance:GAState = GAState.instance;
+
+                instance.setDefaultId(GAStore.getItem(GAState.DefaultUserIdKey) != null ? GAStore.getItem(GAState.DefaultUserIdKey) : GAUtilities.createGuid());
+
+                instance.sessionNum = GAStore.getItem(GAState.SessionNumKey) != null ? Number(GAStore.getItem(GAState.SessionNumKey)) : 0.0;
+
+                instance.transactionNum = GAStore.getItem(GAState.TransactionNumKey) != null ? Number(GAStore.getItem(GAState.TransactionNumKey)) : 0.0;
+
+                // restore cross session user values
+                if(instance.facebookId)
+                {
+                    GAStore.setItem(GAState.FacebookIdKey, instance.facebookId);
+                }
+                else
+                {
+                    instance.facebookId = GAStore.getItem(GAState.FacebookIdKey) != null ? GAStore.getItem(GAState.FacebookIdKey) : "";
+                    if(instance.facebookId)
+                    {
+                        GALogger.d("facebookid found in DB: " + instance.facebookId);
+                    }
+                }
+
+                if(instance.gender)
+                {
+                    GAStore.setItem(GAState.GenderKey, instance.gender);
+                }
+                else
+                {
+                    instance.gender = GAStore.getItem(GAState.GenderKey) != null ? GAStore.getItem(GAState.GenderKey) : "";
+                    if(instance.gender)
+                    {
+                        GALogger.d("gender found in DB: " + instance.gender);
+                    }
+                }
+
+                if(instance.birthYear && instance.birthYear != 0)
+                {
+                    GAStore.setItem(GAState.BirthYearKey, instance.birthYear.toString());
+                }
+                else
+                {
+                    instance.birthYear = GAStore.getItem(GAState.BirthYearKey) != null ? Number(GAStore.getItem(GAState.BirthYearKey)) : 0;
+                    if(instance.birthYear != 0)
+                    {
+                        GALogger.d("birthYear found in DB: " + instance.birthYear);
+                    }
+                }
+
+                // restore dimension settings
+                if(instance.currentCustomDimension01)
+                {
+                    GAStore.setItem(GAState.Dimension01Key, instance.currentCustomDimension01);
+                }
+                else
+                {
+                    instance.currentCustomDimension01 = GAStore.getItem(GAState.Dimension01Key) != null ? GAStore.getItem(GAState.Dimension01Key) : "";
+                    if(instance.currentCustomDimension01)
+                    {
+                        GALogger.d("Dimension01 found in cache: " + instance.currentCustomDimension01);
+                    }
+                }
+
+                if(instance.currentCustomDimension02)
+                {
+                    GAStore.setItem(GAState.Dimension02Key, instance.currentCustomDimension02);
+                }
+                else
+                {
+                    instance.currentCustomDimension02 = GAStore.getItem(GAState.Dimension02Key) != null ? GAStore.getItem(GAState.Dimension02Key) : "";
+                    if(instance.currentCustomDimension02)
+                    {
+                        GALogger.d("Dimension02 found in cache: " + instance.currentCustomDimension02);
+                    }
+                }
+
+                if(instance.currentCustomDimension03)
+                {
+                    GAStore.setItem(GAState.Dimension03Key, instance.currentCustomDimension03);
+                }
+                else
+                {
+                    instance.currentCustomDimension03 = GAStore.getItem(GAState.Dimension03Key) != null ? GAStore.getItem(GAState.Dimension03Key) : "";
+                    if(instance.currentCustomDimension03)
+                    {
+                        GALogger.d("Dimension03 found in cache: " + instance.currentCustomDimension03);
+                    }
+                }
+
+                // get cached init call values
+                var sdkConfigCachedString:string = GAStore.getItem(GAState.SdkConfigCachedKey) != null ? GAStore.getItem(GAState.SdkConfigCachedKey) : "";
+                if (sdkConfigCachedString)
+                {
+                    // decode JSON
+                    var sdkConfigCached = JSON.parse(atob(sdkConfigCachedString));
+                    if (sdkConfigCached)
+                    {
+                        instance.sdkConfigCached = sdkConfigCached;
+                    }
+                }
+
+                var results_ga_progression:Array<{[key:string]: any}> = GAStore.select(EGAStore.Progression);
+
+                if (results_ga_progression)
+                {
+                    for (let i = 0; i < results_ga_progression.length; ++i)
+                    {
+                        var result:{[key:string]: any} = results_ga_progression[i];
+                        if (result)
+                        {
+                            instance.progressionTries[result["progression"] as string] = result["tries"] as number;
+                        }
+                    }
+                }
             }
 
             public static calculateServerTimeOffset(serverTs:number): number

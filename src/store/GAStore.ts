@@ -26,10 +26,12 @@ module gameanalytics
             private eventsStore:Array<{[key:string]: any}> = [];
             private sessionsStore:Array<{[key:string]: any}> = [];
             private progressionStore:Array<{[key:string]: any}> = [];
+            private storeItems:{[key:string]: any} = {};
             private static readonly KeyPrefix:string = "GA::";
             private static readonly EventsStoreKey:string = "ga_event";
             private static readonly SessionsStoreKey:string = "ga_session";
             private static readonly ProgressionStoreKey:string = "ga_progression";
+            private static readonly ItemsStoreKey:string = "ga_items";
 
             private constructor()
             {
@@ -46,7 +48,7 @@ module gameanalytics
                 return GAStore.instance.eventsStore.length + GAStore.instance.sessionsStore.length > GAStore.MaxNumberOfEntries;
             }
 
-            public static select(store:EGAStore, args:Array<[string, EGAStoreArgsOperator, any]>, sort:boolean = false, maxCount:number = 0): Array<{[key:string]: any}>
+            public static select(store:EGAStore, args:Array<[string, EGAStoreArgsOperator, any]> = [], sort:boolean = false, maxCount:number = 0): Array<{[key:string]: any}>
             {
                 var currentStore:Array<{[key:string]: any}> = GAStore.getStore(store);
 
@@ -358,35 +360,46 @@ module gameanalytics
                     GALogger.w("Load failed for 'progression' store. Using empty store.");
                     GAStore.instance.progressionStore = [];
                 }
+
+                try
+                {
+                    GAStore.instance.storeItems = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.ItemsStoreKey));
+                }
+                catch(e)
+                {
+                    GALogger.w("Load failed for 'items' store. Using empty store.");
+                    GAStore.instance.progressionStore = [];
+                }
             }
 
             public static setItem(key:string, value:string): void
             {
-                if(!GAStore.isStorageAvailable())
-                {
-                    GALogger.w("Storage is not available, cannot set item");
-                    return;
-                }
+                var keyWithPrefix:string = GAStore.KeyPrefix + key;
 
                 if(!value)
                 {
-                    localStorage.removeItem(GAStore.KeyPrefix + key);
+                    if(keyWithPrefix in GAStore.instance.storeItems)
+                    {
+                        delete GAStore.instance.storeItems[keyWithPrefix];
+                    }
                 }
                 else
                 {
-                    localStorage.setItem(GAStore.KeyPrefix + key, value);
+                    GAStore.instance.storeItems[keyWithPrefix] = value;
                 }
             }
 
             public static getItem(key:string): string
             {
-                if(!GAStore.isStorageAvailable())
+                var keyWithPrefix:string = GAStore.KeyPrefix + key;
+                if(keyWithPrefix in GAStore.instance.storeItems)
                 {
-                    GALogger.w("Storage is not available, cannot get item");
-                    return;
+                    return GAStore.instance.storeItems[keyWithPrefix] as string;
                 }
-
-                return localStorage.getItem(GAStore.KeyPrefix + key);
+                else
+                {
+                    return null;
+                }
             }
 
             private static getStore(store:EGAStore): Array<{[key:string]: any}>

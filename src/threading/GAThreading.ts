@@ -119,7 +119,7 @@ module gameanalytics
                 catch (e)
                 {
                     GALogger.e("Error on GA thread");
-                    GALogger.e(e);
+                    GALogger.e(e.stack);
                 }
                 GALogger.d("Ending GA thread");
             }

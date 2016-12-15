@@ -36,7 +36,22 @@ module gameanalytics
 
             public static updateConnectionType(): void
             {
-                throw new Error("updateConnectionType not implemented");
+                if(navigator.onLine)
+                {
+                    if(GADevice.buildPlatform === "ios" || GADevice.buildPlatform === "android")
+                    {
+                        GADevice.connectionType = "wwan";
+                    }
+                    else
+                    {
+                        GADevice.connectionType = "lan";
+                    }
+                    // TODO: Detect wifi usage
+                }
+                else
+                {
+                    GADevice.connectionType = "offline";
+                }
             }
 
             private static getOSVersionString(): string

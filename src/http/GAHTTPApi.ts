@@ -176,7 +176,10 @@ module gameanalytics
             {
                 var request:XMLHttpRequest = new XMLHttpRequest();
 
+                // create authorization hash
+                var key:string = GAState.getGameSecret();
                 var authorization:string = GAUtilities.getHmac(key, payloadData);
+                
                 var args:Array<string> = [];
                 args.push(authorization);
 
@@ -195,8 +198,6 @@ module gameanalytics
                 request.open("POST", url, true);
                 request.setRequestHeader("Content-Type", "application/json");
 
-                // create authorization hash
-                var key:string = GAState.getGameSecret();
                 request.setRequestHeader("Authorization", authorization);
 
                 if(gzip)
@@ -211,7 +212,7 @@ module gameanalytics
                 }
                 catch(e)
                 {
-                    console.error(e);
+                    console.error(e.stack);
                 }
             }
 

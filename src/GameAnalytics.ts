@@ -214,17 +214,14 @@ module gameanalytics
                     return;
                 }
                 // Send to events
-                //GAEvents.AddBusinessEvent(currency, amount, itemType, itemId, cartType);
+                GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType);
             });
         }
 
         private static internalInitialize(): void
         {
             GAState.ensurePersistedStates();
-            if(GAStore.isStorageAvailable())
-            {
-                GAStore.setItem(GAState.DefaultUserIdKey, GAState.getDefaultId());
-            }
+            GAStore.setItem(GAState.DefaultUserIdKey, GAState.getDefaultId());
 
             GAState.setInitialized(true);
 
@@ -261,10 +258,7 @@ module gameanalytics
                 initResponseDict["time_offset"] = timeOffsetSeconds;
 
                 // insert new config in sql lite cross session storage
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.SdkConfigCachedKey, btoa(JSON.stringify(initResponseDict)));
-                }
+                GAStore.setItem(GAState.SdkConfigCachedKey, btoa(JSON.stringify(initResponseDict)));
 
                 // set new config and cache in memory
                 GAState.instance.sdkConfigCached = initResponseDict;

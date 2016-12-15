@@ -38,10 +38,7 @@ module gameanalytics
 
                 // Increment session number  and persist
                 GAState.incrementSessionNum();
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.SessionNumKey, GAState.getSessionNum().toString());
-                }
+                GAStore.setItem(GAState.SessionNumKey, GAState.getSessionNum().toString());
 
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
@@ -102,10 +99,7 @@ module gameanalytics
 
                 // Increment transaction number and persist
                 GAState.incrementTransactionNum();
-                if(GAStore.isStorageAvailable())
-                {
-                    GAStore.setItem(GAState.TransactionNumKey, GAState.getTransactionNum().toString());
-                }
+                GAStore.setItem(GAState.TransactionNumKey, GAState.getTransactionNum().toString());
 
                 // Required
                 eventDict["event_id"] = itemType + ":" + itemId;
@@ -383,7 +377,7 @@ module gameanalytics
                 }
                 catch (e)
                 {
-                    GALogger.e("Error during ProcessEvents(): " + e);
+                    GALogger.e("Error during ProcessEvents(): " + e.stack);
                 }
             }
 
@@ -539,17 +533,17 @@ module gameanalytics
                     }
                     else
                     {
-                        values = [];
-                        values.push(["session_id", ev["session_id"]]);
-                        values.push(["timestamp", GAState.getSessionStart()]);
-                        values.push(["event", jsonDefaults]);
+                        values = {};
+                        values["session_id"] = ev["session_id"];
+                        values["timestamp"] = GAState.getSessionStart();
+                        values["event"] = jsonDefaults;
                         GAStore.insert(EGAStore.Sessions, values, true, "session_id");
                     }
                 }
                 catch (e)
                 {
                     GALogger.e("addEventToStore: error");
-                    GALogger.e(e);
+                    GALogger.e(e.stack);
                 }
             }
 
