@@ -221,7 +221,10 @@ module gameanalytics
         private static internalInitialize(): void
         {
             GAState.ensurePersistedStates();
-            GAStore.setState(GAState.DefaultUserIdKey, GAState.getDefaultId());
+            if(GAStore.isStorageAvailable())
+            {
+                GAStore.setItem(GAState.DefaultUserIdKey, GAState.getDefaultId());
+            }
 
             GAState.setInitialized(true);
 
@@ -258,7 +261,10 @@ module gameanalytics
                 initResponseDict["time_offset"] = timeOffsetSeconds;
 
                 // insert new config in sql lite cross session storage
-                GAStore.setState(GAState.SdkConfigCachedKey, btoa(JSON.stringify(initResponseDict)));
+                if(GAStore.isStorageAvailable())
+                {
+                    GAStore.setItem(GAState.SdkConfigCachedKey, btoa(JSON.stringify(initResponseDict)));
+                }
 
                 // set new config and cache in memory
                 GAState.instance.sdkConfigCached = initResponseDict;

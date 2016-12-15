@@ -38,7 +38,10 @@ module gameanalytics
 
                 // Increment session number  and persist
                 GAState.incrementSessionNum();
-                GAStore.setState(GAState.SessionNumKey, GAState.getSessionNum().toString());
+                if(GAStore.isStorageAvailable())
+                {
+                    GAStore.setItem(GAState.SessionNumKey, GAState.getSessionNum().toString());
+                }
 
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
@@ -99,7 +102,10 @@ module gameanalytics
 
                 // Increment transaction number and persist
                 GAState.incrementTransactionNum();
-                GAStore.setState(GAState.TransactionNumKey, GAState.getTransactionNum().toString());
+                if(GAStore.isStorageAvailable())
+                {
+                    GAStore.setItem(GAState.TransactionNumKey, GAState.getTransactionNum().toString());
+                }
 
                 // Required
                 eventDict["event_id"] = itemType + ":" + itemId;
@@ -124,16 +130,166 @@ module gameanalytics
                 GAEvents.addEventToStore(eventDict);
             }
 
-            private static processEventsCallback(responseEnum:EGAHTTPApiResponse, dataDict:{[key:string]: any},  requestId:string, eventCount:number): void
+            public static addResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string): void
             {
-                // var requestIdWhereArgs:Array<[string, EGAStoreArgsOperator, string]> = [];
-                // requestIdWhereArgs.push(["status", EGAStoreArgsOperator.Equal, requestId]);
-                throw new Error("processEvents not implemented");
+                // Validate event params
+                if (!GAValidator.validateResourceEvent(flowType, currency, amount, itemType, itemId, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()))
+                {
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    return;
+                }
+
+                // If flow type is sink reverse amount
+                if (flowType === EGAResourceFlowType.Sink)
+                {
+                    amount *= -1;
+                }
+
+                // Create empty eventData
+                var eventDict:{[key:string]: any} = {};
+
+                // insert event specific values
+                var flowTypeString:string = GAEvents.resourceFlowTypeToString(flowType);
+                eventDict["event_id"] = flowTypeString + ":" + currency + ":" + itemType + ":" + itemId;
+                eventDict["category"] = GAEvents.CategoryResource;
+                eventDict["amount"] = amount;
+
+                // Add custom dimensions
+                GAEvents.addDimensionsToEvent(eventDict);
+
+                // Log
+                GALogger.i("Add RESOURCE event: {currency:" + currency + ", amount:" + amount + ", itemType:" + itemType + ", itemId:" + itemId + "}");
+
+                // Send to store
+                GAEvents.addEventToStore(eventDict);
             }
 
-            private static cleanupEvents(): void
+            public static addProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string, score:number, sendScore:boolean): void
             {
-                GAStore.update(EGAStore.Events, [["status" , "new"]]);
+                var progressionStatusString:string = GAEvents.progressionStatusToString(progressionStatus);
+
+                // Validate event params
+                if (!GAValidator.validateProgressionEvent(progressionStatus, progression01, progression02, progression03))
+                {
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    return;
+                }
+
+                // Create empty eventData
+                var eventDict:{[key:string]: any} = {};
+
+                // Progression identifier
+                var progressionIdentifier:string;
+
+                if (!progression02)
+                {
+                    progressionIdentifier = progression01;
+                }
+                else if (!progression03)
+                {
+                    progressionIdentifier = progression01 + ":" + progression02;
+                }
+                else
+                {
+                    progressionIdentifier = progression01 + ":" + progression02 + ":" + progression03;
+                }
+
+                // Append event specifics
+                eventDict["category"] = GAEvents.CategoryProgression;
+                eventDict["event_id"] = progressionStatusString + ":" + progressionIdentifier;
+
+                // Attempt
+                var attempt_num:number = 0;
+
+                // Add score if specified and status is not start
+                if (sendScore && progressionStatus != EGAProgressionStatus.Start)
+                {
+                    eventDict["score"] = score;
+                }
+
+                // Count attempts on each progression fail and persist
+                if (progressionStatus === EGAProgressionStatus.Fail)
+                {
+                    // Increment attempt number
+                    GAState.incrementProgressionTries(progressionIdentifier);
+                }
+
+                // increment and add attempt_num on complete and delete persisted
+                if (progressionStatus === EGAProgressionStatus.Complete)
+                {
+                    // Increment attempt number
+                    GAState.incrementProgressionTries(progressionIdentifier);
+
+                    // Add to event
+                    attempt_num = GAState.getProgressionTries(progressionIdentifier);
+                    eventDict["attempt_num"] = attempt_num;
+
+                    // Clear
+                    GAState.clearProgressionTries(progressionIdentifier);
+                }
+
+                // Add custom dimensions
+                GAEvents.addDimensionsToEvent(eventDict);
+
+                // Log
+                GALogger.i("Add PROGRESSION event: {status:" + progressionStatusString + ", progression01:" + progression01 + ", progression02:" + progression02 + ", progression03:" + progression03 + ", score:" + score + ", attempt:" + attempt_num + "}");
+
+                // Send to store
+                GAEvents.addEventToStore(eventDict);
+            }
+
+            public static addDesignEvent(eventId:string, value:number, sendValue:boolean): void
+            {
+                // Validate
+                if (!GAValidator.validateDesignEvent(eventId, value))
+                {
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    return;
+                }
+
+                // Create empty eventData
+                var eventData:{[key:string]: any} = {};
+
+                // Append event specifics
+                eventData["category"] = GAEvents.CategoryDesign;
+                eventData["event_id"] = eventId;
+
+                if(sendValue)
+                {
+                    eventData["value"] = value;
+                }
+
+                // Log
+                GALogger.i("Add DESIGN event: {eventId:" + eventId + ", value:" + value + "}");
+
+                // Send to store
+                GAEvents.addEventToStore(eventData);
+            }
+
+            public static addErrorEvent(severity:EGAErrorSeverity, message:string): void
+            {
+                var severityString:string = GAEvents.errorSeverityToString(severity);
+
+                // Validate
+                if (!GAValidator.validateErrorEvent(severity, message))
+                {
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    return;
+                }
+
+                // Create empty eventData
+                var eventData:{[key:string]: any} = {};
+
+                // Append event specifics
+                eventData["category"] = GAEvents.CategoryError;
+                eventData["severity"] = severityString;
+                eventData["message"] = message;
+
+                // Log
+                GALogger.i("Add ERROR event: {severity:" + severityString + ", message:" + message + "}");
+
+                // Send to store
+                GAEvents.addEventToStore(eventData);
             }
 
             public static processEvents(category:string, performCleanUp:boolean): void
@@ -231,6 +387,68 @@ module gameanalytics
                 }
             }
 
+            private static processEventsCallback(responseEnum:EGAHTTPApiResponse, dataDict:{[key:string]: any},  requestId:string, eventCount:number): void
+            {
+                var requestIdWhereArgs:Array<[string, EGAStoreArgsOperator, string]> = [];
+                requestIdWhereArgs.push(["status", EGAStoreArgsOperator.Equal, requestId]);
+
+                if(responseEnum === EGAHTTPApiResponse.Ok)
+                {
+                    // Delete events
+                    GAStore.delete(EGAStore.Events, requestIdWhereArgs);
+                    GALogger.i("Event queue: " + eventCount + " events sent.");
+                }
+                else
+                {
+                    // Put events back (Only in case of no response)
+                    if(responseEnum === EGAHTTPApiResponse.NoResponse)
+                    {
+                        var setArgs:Array<[string, string]> = [];
+                        setArgs.push(["status", "new"]);
+
+                        GALogger.w("Event queue: Failed to send events to collector - Retrying next time");
+                        GAStore.update(EGAStore.Events, setArgs, requestIdWhereArgs);
+                        // Delete events (When getting some anwser back always assume events are processed)
+                    }
+                    else
+                    {
+                        if(dataDict)
+                        {
+                            var json:any;
+                            var count:number = 0;
+                            for(let j in dataDict)
+                            {
+                                if(count == 0)
+                                {
+                                    json = dataDict[j];
+                                }
+                                ++count;
+                            }
+
+                            if(responseEnum === EGAHTTPApiResponse.BadRequest && json.constructor === Array)
+                            {
+                                GALogger.w("Event queue: " + eventCount + " events sent. " + count + " events failed GA server validation.");
+                            }
+                            else
+                            {
+                                GALogger.w("Event queue: Failed to send events.");
+                            }
+                        }
+                        else
+                        {
+                            GALogger.w("Event queue: Failed to send events.");
+                        }
+
+                        GAStore.delete(EGAStore.Events, requestIdWhereArgs);
+                    }
+                }
+            }
+
+            private static cleanupEvents(): void
+            {
+                GAStore.update(EGAStore.Events, [["status" , "new"]]);
+            }
+
             private static fixMissingSessionEndEvents(): void
             {
                 // Get all sessions that are not current
@@ -266,9 +484,177 @@ module gameanalytics
                 }
             }
 
-            private static addEventToStore(event:{[key:string]: any}): void
+            private static addEventToStore(eventData:{[key:string]: any}): void
             {
-                throw new Error("addEventToStore not implemented");
+                // Check if we are initialized
+                if (!GAState.isInitialized())
+                {
+                    GALogger.w("Could not add event: SDK is not initialized");
+                    return;
+                }
+
+                try
+                {
+                    // Check db size limits (10mb)
+                    // If database is too large block all except user, session and business
+                    if (GAStore.isStoreTooLargeForEvents() && !GAUtilities.stringMatch(eventData["category"] as string, /^(user|session_end|business)$/))
+                    {
+                        GALogger.w("Database too large. Event has been blocked.");
+                        return;
+                    }
+
+                    // Get default annotations
+                    var ev:{[key:string]: any} = GAState.getEventAnnotations();
+
+                    // Create json with only default annotations
+                    var jsonDefaults:string = btoa(JSON.stringify(ev));
+
+                    // Merge with eventData
+                    for(let e in eventData)
+                    {
+                        ev[e] = eventData[e];
+                    }
+
+                    // Create json string representation
+                    var json:string = JSON.stringify(ev);
+
+                    // output if VERBOSE LOG enabled
+
+                    GALogger.ii("Event added to queue: " + json);
+
+                    // Add to store
+                    var values:{[key:string]: any} = {};
+                    values["status"] = "new";
+                    values["category"] = ev["category"];
+                    values["session_id"] = ev["session_id"];
+                    values["client_ts"] = ev["client_ts"];
+                    values["event"] = btoa(JSON.stringify(ev));
+
+                    GAStore.insert(EGAStore.Events, values);
+
+                    // Add to session store if not last
+                    if (eventData["category"] == GAEvents.CategorySessionEnd)
+                    {
+                        GAStore.delete(EGAStore.Sessions, [["session_id", EGAStoreArgsOperator.Equal, ev["session_id"] as string]]);
+                    }
+                    else
+                    {
+                        values = [];
+                        values.push(["session_id", ev["session_id"]]);
+                        values.push(["timestamp", GAState.getSessionStart()]);
+                        values.push(["event", jsonDefaults]);
+                        GAStore.insert(EGAStore.Sessions, values, true, "session_id");
+                    }
+                }
+                catch (e)
+                {
+                    GALogger.e("addEventToStore: error");
+                    GALogger.e(e);
+                }
+            }
+
+            private static addDimensionsToEvent(eventData:{[key:string]: any}): void
+            {
+                if (!eventData)
+                {
+                    return;
+                }
+                // add to dict (if not nil)
+                if (GAState.getCurrentCustomDimension01())
+                {
+                    eventData["custom_01"] = GAState.getCurrentCustomDimension01();
+                }
+                if (GAState.getCurrentCustomDimension02())
+                {
+                    eventData["custom_02"] = GAState.getCurrentCustomDimension02();
+                }
+                if (GAState.getCurrentCustomDimension03())
+                {
+                    eventData["custom_03"] = GAState.getCurrentCustomDimension03();
+                }
+            }
+
+            private static resourceFlowTypeToString(value:EGAResourceFlowType): string
+            {
+                switch(value)
+                {
+                    case EGAResourceFlowType.Source:
+                        {
+                            return "Source";
+                        }
+
+                    case EGAResourceFlowType.Sink:
+                        {
+                            return "Sink";
+                        }
+
+                    default:
+                        {
+                            return "";
+                        }
+                }
+            }
+
+            private static progressionStatusToString(value:EGAProgressionStatus): string
+            {
+                switch(value)
+                {
+                    case EGAProgressionStatus.Start:
+                        {
+                            return "Start";
+                        }
+
+                    case EGAProgressionStatus.Complete:
+                        {
+                            return "Complete";
+                        }
+
+                    case EGAProgressionStatus.Fail:
+                        {
+                            return "Fail";
+                        }
+
+                    default:
+                        {
+                            return "";
+                        }
+                }
+            }
+
+            private static errorSeverityToString(value:EGAErrorSeverity): string
+            {
+                switch(value)
+                {
+                    case EGAErrorSeverity.Debug:
+                        {
+                            return "debug";
+                        }
+
+                    case EGAErrorSeverity.Info:
+                        {
+                            return "info";
+                        }
+
+                    case EGAErrorSeverity.Warning:
+                        {
+                            return "warning";
+                        }
+
+                    case EGAErrorSeverity.Error:
+                        {
+                            return "error";
+                        }
+
+                    case EGAErrorSeverity.Critical:
+                        {
+                            return "critical";
+                        }
+
+                    default:
+                        {
+                            return "";
+                        }
+                }
             }
         }
     }

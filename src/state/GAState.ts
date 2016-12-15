@@ -7,7 +7,8 @@ module gameanalytics
         import GALogger = gameanalytics.logging.GALogger;
         import GAStore = gameanalytics.store.GAStore;
         import GADevice = gameanalytics.device.GADevice;
-
+        import EGAStore = gameanalytics.store.EGAStore;
+        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
 
         export class GAState
         {
@@ -302,7 +303,7 @@ module gameanalytics
                 GAState.instance.currentCustomDimension01 = dimension;
                 if(GAStore.isStorageAvailable())
                 {
-                    GAStore.setState(GAState.Dimension01Key, dimension);
+                    GAStore.setItem(GAState.Dimension01Key, dimension);
                 }
                 GALogger.i("Set custom01 dimension value: " + dimension);
             }
@@ -312,7 +313,7 @@ module gameanalytics
                 GAState.instance.currentCustomDimension02 = dimension;
                 if(GAStore.isStorageAvailable())
                 {
-                    GAStore.setState(GAState.Dimension02Key, dimension);
+                    GAStore.setItem(GAState.Dimension02Key, dimension);
                 }
                 GALogger.i("Set custom02 dimension value: " + dimension);
             }
@@ -322,7 +323,7 @@ module gameanalytics
                 GAState.instance.currentCustomDimension03 = dimension;
                 if(GAStore.isStorageAvailable())
                 {
-                    GAStore.setState(GAState.Dimension03Key, dimension);
+                    GAStore.setItem(GAState.Dimension03Key, dimension);
                 }
                 GALogger.i("Set custom03 dimension value: " + dimension);
             }
@@ -332,7 +333,7 @@ module gameanalytics
                 GAState.instance.facebookId = facebookId;
                 if(GAStore.isStorageAvailable())
                 {
-                    GAStore.setState(GAState.FacebookIdKey, facebookId);
+                    GAStore.setItem(GAState.FacebookIdKey, facebookId);
                 }
                 GALogger.i("Set facebook id: " + facebookId);
             }
@@ -342,7 +343,7 @@ module gameanalytics
                 GAState.instance.gender = gender.toString().toLowerCase();
                 if(GAStore.isStorageAvailable())
                 {
-                    GAStore.setState(GAState.GenderKey, GAState.instance.gender);
+                    GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
                 }
                 GALogger.i("Set gender: " + gender);
             }
@@ -352,7 +353,7 @@ module gameanalytics
                 GAState.instance.birthYear = birthYear;
                 if(GAStore.isStorageAvailable())
                 {
-                    GAStore.setState(GAState.BirthYearKey, birthYear.toString());
+                    GAStore.setItem(GAState.BirthYearKey, birthYear.toString());
                 }
                 GALogger.i("Set birth year: " + birthYear);
             }
@@ -369,17 +370,17 @@ module gameanalytics
                 GAState.instance.transactionNum = transactionNumInt;
             }
 
-            // public static incrementProgressionTries(progression:string): void
-            // {
-            //     var tries:number = GAState.getProgressionTries(progression) + 1;
-            //     GAState.instance.progressionTries[progression] = tries;
-            //
-            //     // Persist
-            //     var parms:{[key:string]: any} = {};
-            //     parms["$progression"] = progression;
-            //     parms["$tries"] = tries;
-            //     GAStore.ExecuteQuerySync("INSERT OR REPLACE INTO ga_progression (progression, tries) VALUES($progression, $tries);", parms);
-            // }
+            public static incrementProgressionTries(progression:string): void
+            {
+                var tries:number = GAState.getProgressionTries(progression) + 1;
+                GAState.instance.progressionTries[progression] = tries;
+
+                // Persist
+                var values:{[key:string]: any} = {};
+                values["progression"] = progression;
+                values["tries"] = tries;
+                GAStore.insert(EGAStore.Progression, values, true, "progression");
+            }
 
             public static getProgressionTries(progression:string): number
             {
@@ -393,26 +394,18 @@ module gameanalytics
                 }
             }
 
-            // public static void ClearProgressionTries(string progression)
-            // {
-            //     Dictionary<string, int> progressionTries = Instance.progressionTries;
-            //     if(progressionTries.ContainsKey(progression))
-            //     {
-            //         progressionTries.Remove(progression);
-            //     }
-            //
-            //     if(GAStore.InMemory)
-            //     {
-            //         GALogger.D("Trying to ClearProgressionTries with InMemory=true - cannot. Skipping.");
-            //     }
-            //     else
-            //     {
-            //         // Delete
-            //         Dictionary<string, object> parms = new Dictionary<string, object>();
-            //         parms.Add("$progression", progression);
-            //         GAStore.ExecuteQuerySync("DELETE FROM ga_progression WHERE progression = $progression;", parms);
-            //     }
-            // }
+            public static clearProgressionTries(progression:string): void
+            {
+                if(progression in GAState.instance.progressionTries)
+                {
+                    delete GAState.instance.progressionTries[progression];
+                }
+
+                // Delete
+                var parms:Array<[string, EGAStoreArgsOperator, string]> = [];
+                parms.push(["progression", EGAStoreArgsOperator.Equal, progression]);
+                GAStore.delete(EGAStore.Progression, parms);
+            }
 
             public static setKeys(gameKey:string, gameSecret:string): void
             {

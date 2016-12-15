@@ -111,7 +111,7 @@ module gameanalytics
                 return true;
             }
 
-            public static ValidateProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string): boolean
+            public static validateProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string): boolean
             {
                 if (progressionStatus === EGAProgressionStatus.Undefined)
                 {
