@@ -328,9 +328,9 @@ module gameanalytics
 
             public static setGender(gender:EGAGender): void
             {
-                GAState.instance.gender = gender.toString().toLowerCase();
+                GAState.instance.gender = EGAGender[gender].toString().toLowerCase();
                 GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
-                GALogger.i("Set gender: " + gender);
+                GALogger.i("Set gender: " + GAState.instance.gender);
             }
 
             public static setBirthYear(birthYear:number): void
@@ -658,7 +658,7 @@ module gameanalytics
                 if (sdkConfigCachedString)
                 {
                     // decode JSON
-                    var sdkConfigCached = JSON.parse(atob(sdkConfigCachedString));
+                    var sdkConfigCached = JSON.parse(GAUtilities.decode64(sdkConfigCachedString));
                     if (sdkConfigCached)
                     {
                         instance.sdkConfigCached = sdkConfigCached;

@@ -6,10 +6,47 @@
     <body>
         <script type="text/javascript" src='../dist/GameAnalytics.js'></script>
         <script type="text/javascript">
-            gameanalytics.logging.GALogger.setInfoLog(true);
-            gameanalytics.logging.GALogger.setVerboseLog(true);
+            var ga = gameanalytics;
+            ga.GameAnalytics.setEnabledInfoLog(true);
+            ga.GameAnalytics.setEnabledVerboseLog(true);
+
+            ga.GameAnalytics.configureBuild("0.10");
+
+            ga.GameAnalytics.configureAvailableResourceCurrencies(["gems", "gold"]);
+            ga.GameAnalytics.configureAvailableResourceItemTypes(["boost", "gold"]);
+            ga.GameAnalytics.configureAvailableCustomDimensions01(["ninja", "samurai"]);
+            ga.GameAnalytics.configureAvailableCustomDimensions02(["whale", "dolphin"]);
+            ga.GameAnalytics.configureAvailableCustomDimensions03(["horde", "alliance"]);
+
             gameanalytics.GameAnalytics.initialize("bd624ee6f8e6efb32a054f8d7ba11618", "7f5c3f682cbd217841efba92e92ffb1b3b6612bc");
-            // gameanalytics.GameAnalytics.test();
+
+            setTimeout(sendEvents, 2000);
+
+            function sendEvents()
+            {
+                ga.GameAnalytics.setCustomDimension01("ninja");
+                ga.GameAnalytics.setFacebookId("the_dude");
+                ga.GameAnalytics.setGender(ga.EGAGender.Male);
+                ga.GameAnalytics.setBirthYear(1982);
+
+                ga.GameAnalytics.addDesignEvent("testEvent");
+                ga.GameAnalytics.addBusinessEvent("USD", 100, "boost", "super_boost", "shop");
+
+                ga.GameAnalytics.setCustomDimension02("whale");
+
+                ga.GameAnalytics.addDesignEvent("testEvent", 10);
+                ga.GameAnalytics.addResourceEvent(ga.EGAResourceFlowType.Source, "gems", 10, "lives", "extra_life");
+                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02", "progression03");
+                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02", "progression03", 100);
+
+                ga.GameAnalytics.setCustomDimension03("horde");
+
+                ga.GameAnalytics.addErrorEvent(ga.EGAErrorSeverity.Info, "ERROR!!!!!");
+                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02");
+                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02", 100);
+                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01");
+                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", 100);
+            }
         </script>
     </body>
 </html>

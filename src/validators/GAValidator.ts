@@ -450,11 +450,11 @@ module gameanalytics
                 }
 
                 // validate each string for regex
-                for (let resourceCurrency in resourceCurrencies)
+                for (let i in resourceCurrencies)
                 {
-                    if (!GAUtilities.stringMatch(resourceCurrency, /^[A-Za-z]+$/))
+                    if (!GAUtilities.stringMatch(resourceCurrencies[i], /^[A-Za-z]+$/))
                     {
-                        GALogger.i("resource currencies validation failed: a resource currency can only be A-Z, a-z. String was: " + resourceCurrency);
+                        GALogger.i("resource currencies validation failed: a resource currency can only be A-Z, a-z. String was: " + resourceCurrencies[i]);
                         return false;
                     }
                 }
@@ -469,11 +469,11 @@ module gameanalytics
                 }
 
                 // validate each resourceItemType for eventpart validation
-                for (let resourceItemType in resourceItemTypes)
+                for (let i in resourceItemTypes)
                 {
-                    if (!GAValidator.validateEventPartCharacters(resourceItemType))
+                    if (!GAValidator.validateEventPartCharacters(resourceItemTypes[i]))
                     {
-                        GALogger.i("resource item types validation failed: a resource item type cannot contain other characters than A-z, 0-9, -_., ()!?. String was: " + resourceItemType);
+                        GALogger.i("resource item types validation failed: a resource item type cannot contain other characters than A-z, 0-9, -_., ()!?. String was: " + resourceItemTypes[i]);
                         return false;
                     }
                 }
@@ -553,9 +553,9 @@ module gameanalytics
                 }
 
                 // validate each string
-                for (let arrayString in arrayOfStrings)
+                for (let i in arrayOfStrings)
                 {
-                    var stringLength:number = !arrayString ? 0 : arrayString.length;
+                    var stringLength:number = !arrayOfStrings[i] ? 0 : arrayOfStrings[i].length;
                     // check if empty (not allowed)
                     if (stringLength === 0)
                     {
@@ -566,7 +566,7 @@ module gameanalytics
                     // check if exceeding max length
                     if (maxStringLength > 0 && stringLength > maxStringLength)
                     {
-                        GALogger.i(arrayTag + " validation failed: a string exceeded max allowed length (which is: " + maxStringLength + "). String was: " + arrayString);
+                        GALogger.i(arrayTag + " validation failed: a string exceeded max allowed length (which is: " + maxStringLength + "). String was: " + arrayOfStrings[i]);
                         return false;
                     }
                 }

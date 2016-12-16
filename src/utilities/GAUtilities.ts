@@ -46,7 +46,7 @@ module gameanalytics
 
                 for(let s in array)
                 {
-                    if(s === search)
+                    if(array[s] === search)
                     {
                         return true;
                     }

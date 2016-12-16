@@ -13,38 +13,12 @@ module gameanalytics
 
     export class GameAnalytics
     {
-        public static test(): void
-        {
-            var d:{[key:string]: any} = {};
-
-            d["test"] = 2;
-            d["hello"] = "world";
-            d["123"] = "345";
-            d["uuu"] = 100;
-
-            var a:Array<{[key:string]: any}> = [];
-
-            a.push(d);
-            a.push(d);
-            a.push(d);
-
-            GALogger.d(JSON.stringify(a));
-
-            for(let key in d)
-            {
-                console.log(key);
-            }
-
-            var s:string = JSON.stringify(d);
-            gameanalytics.logging.GALogger.i(gameanalytics.utilities.GAUtilities.getHmac("test", s));
-        }
-
         public static init(): void
         {
             GADevice.touch();
         }
 
-        public static configureAvailableCustomDimensions01(customDimensions:Array<string>): void
+        public static configureAvailableCustomDimensions01(customDimensions:Array<string> = []): void
         {
             GAThreading.performTaskOnGAThread("configureAvailableCustomDimensions01", () =>
             {
@@ -57,7 +31,7 @@ module gameanalytics
             });
         }
 
-        public static configureAvailableCustomDimensions02(customDimensions:Array<string>): void
+        public static configureAvailableCustomDimensions02(customDimensions:Array<string> = []): void
         {
             GAThreading.performTaskOnGAThread("configureAvailableCustomDimensions02", () =>
             {
@@ -70,7 +44,7 @@ module gameanalytics
             });
         }
 
-        public static configureAvailableCustomDimensions03(customDimensions:Array<string>): void
+        public static configureAvailableCustomDimensions03(customDimensions:Array<string> = []): void
         {
             GAThreading.performTaskOnGAThread("configureAvailableCustomDimensions03", () =>
             {
@@ -83,7 +57,7 @@ module gameanalytics
             });
         }
 
-        public static configureAvailableResourceCurrencies(resourceCurrencies:Array<string>): void
+        public static configureAvailableResourceCurrencies(resourceCurrencies:Array<string> = []): void
         {
             GAThreading.performTaskOnGAThread("configureAvailableResourceCurrencies", () =>
             {
@@ -96,7 +70,7 @@ module gameanalytics
             });
         }
 
-        public static configureAvailableResourceItemTypes(resourceItemTypes:Array<string>): void
+        public static configureAvailableResourceItemTypes(resourceItemTypes:Array<string> = []): void
         {
             GAThreading.performTaskOnGAThread("configureAvailableResourceItemTypes", () =>
             {
@@ -109,7 +83,7 @@ module gameanalytics
             });
         }
 
-        public static configureBuild(build:string): void
+        public static configureBuild(build:string = ""): void
         {
             GAThreading.performTaskOnGAThread("configureBuild", () =>
             {
@@ -127,7 +101,7 @@ module gameanalytics
             });
         }
 
-        public static configureSdkGameEngineVersion(sdkGameEngineVersion:string): void
+        public static configureSdkGameEngineVersion(sdkGameEngineVersion:string = ""): void
         {
             GAThreading.performTaskOnGAThread("configureSdkGameEngineVersion", () =>
             {
@@ -144,7 +118,7 @@ module gameanalytics
             });
         }
 
-        public static configureGameEngineVersion(gameEngineVersion:string): void
+        public static configureGameEngineVersion(gameEngineVersion:string = ""): void
         {
             GAThreading.performTaskOnGAThread("configureGameEngineVersion", () =>
             {
@@ -161,7 +135,7 @@ module gameanalytics
             });
         }
 
-        public static configureUserId(uId:string): void
+        public static configureUserId(uId:string = ""): void
         {
             GAThreading.performTaskOnGAThread("configureUserId", () =>
             {
@@ -180,7 +154,7 @@ module gameanalytics
             });
         }
 
-        public static initialize(gameKey:string, gameSecret:string): void
+        public static initialize(gameKey:string = "", gameSecret:string = ""): void
         {
             GADevice.updateConnectionType();
 
@@ -203,7 +177,7 @@ module gameanalytics
             });
         }
 
-        public static addBusinessEvent(currency:string, amount:number, itemType:string, itemId:string, cartType:string): void
+        public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = ""): void
         {
             GADevice.updateConnectionType();
 
@@ -216,6 +190,226 @@ module gameanalytics
                 // Send to events
                 GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType);
             });
+        }
+
+        public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = ""): void
+        {
+            GADevice.updateConnectionType();
+
+            GAThreading.performTaskOnGAThread("addResourceEvent", () =>
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add resource event"))
+                {
+                    return;
+                }
+
+                GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId);
+            });
+        }
+
+        public static addProgressionEvent(progressionStatus:EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01:string = "", progression02:string = "", progression03:string = "", score?:number): void
+        {
+            GADevice.updateConnectionType();
+
+            GAThreading.performTaskOnGAThread("addProgressionEvent", () =>
+            {
+                if(!GameAnalytics.isSdkReady(true, true, "Could not add progression event"))
+                {
+                    return;
+                }
+
+                // Send to events
+                var sendScore:boolean = typeof score != "undefined";
+                GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore);
+            });
+        }
+
+        public static addDesignEvent(eventId:string, value?:number): void
+        {
+            GADevice.updateConnectionType();
+
+            GAThreading.performTaskOnGAThread("addDesignEvent", () =>
+            {
+                if(!GameAnalytics.isSdkReady(true, true, "Could not add design event"))
+                {
+                    return;
+                }
+                var sendValue:boolean = typeof value != "undefined";
+                GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue);
+            });
+        }
+
+        public static addErrorEvent(severity:EGAErrorSeverity = EGAErrorSeverity.Undefined, message:string = ""): void
+        {
+            GADevice.updateConnectionType();
+
+            GAThreading.performTaskOnGAThread("addErrorEvent", () =>
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add error event"))
+                {
+                    return;
+                }
+                GAEvents.addErrorEvent(severity, message);
+            });
+        }
+
+        public static setEnabledInfoLog(flag:boolean = false): void
+        {
+            GAThreading.performTaskOnGAThread("setEnabledInfoLog", () =>
+            {
+                if (flag)
+                {
+                    GALogger.setInfoLog(flag);
+                    GALogger.i("Info logging enabled");
+                }
+                else
+                {
+                    GALogger.i("Info logging disabled");
+                    GALogger.setInfoLog(flag);
+                }
+            });
+        }
+
+        public static setEnabledVerboseLog(flag:boolean = false): void
+        {
+            GAThreading.performTaskOnGAThread("setEnabledVerboseLog", () =>
+            {
+                if (flag)
+                {
+                    GALogger.setVerboseLog(flag);
+                    GALogger.i("Verbose logging enabled");
+                }
+                else
+                {
+                    GALogger.i("Verbose logging disabled");
+                    GALogger.setVerboseLog(flag);
+                }
+            });
+        }
+
+        public static setEnabledManualSessionHandling(flag:boolean = false): void
+        {
+            GAThreading.performTaskOnGAThread("setEnabledManualSessionHandling", () =>
+            {
+                GAState.setManualSessionHandling(flag);
+            });
+        }
+
+        public static setCustomDimension01(dimension:string = ""): void
+        {
+            GAThreading.performTaskOnGAThread("setCustomDimension01", () =>
+            {
+                if (!GAValidator.validateDimension01(dimension, GAState.getAvailableCustomDimensions01()))
+                {
+                    GALogger.w("Could not set custom01 dimension value to '" + dimension + "'. Value not found in available custom01 dimension values");
+                    return;
+                }
+                GAState.setCustomDimension01(dimension);
+            });
+        }
+
+        public static setCustomDimension02(dimension:string = ""): void
+        {
+            GAThreading.performTaskOnGAThread("setCustomDimension02", () =>
+            {
+                if (!GAValidator.validateDimension02(dimension, GAState.getAvailableCustomDimensions02()))
+                {
+                    GALogger.w("Could not set custom02 dimension value to '" + dimension + "'. Value not found in available custom02 dimension values");
+                    return;
+                }
+                GAState.setCustomDimension02(dimension);
+            });
+        }
+
+        public static setCustomDimension03(dimension:string = ""): void
+        {
+            GAThreading.performTaskOnGAThread("setCustomDimension03", () =>
+            {
+                if (!GAValidator.validateDimension03(dimension, GAState.getAvailableCustomDimensions03()))
+                {
+                    GALogger.w("Could not set custom03 dimension value to '" + dimension + "'. Value not found in available custom03 dimension values");
+                    return;
+                }
+                GAState.setCustomDimension03(dimension);
+            });
+        }
+
+        public static setFacebookId(facebookId:string = ""): void
+        {
+            GAThreading.performTaskOnGAThread("setFacebookId", () =>
+            {
+                if (GAValidator.validateFacebookId(facebookId))
+                {
+                    GAState.setFacebookId(facebookId);
+                }
+            });
+        }
+
+        public static setGender(gender:EGAGender = EGAGender.Undefined): void
+        {
+            GAThreading.performTaskOnGAThread("setGender", () =>
+            {
+                if (GAValidator.validateGender(gender))
+                {
+                    GAState.setGender(gender);
+                }
+            });
+        }
+
+        public static setBirthYear(birthYear:number = 0): void
+        {
+            GAThreading.performTaskOnGAThread("setBirthYear", () =>
+            {
+                if (GAValidator.validateBirthyear(birthYear))
+                {
+                    GAState.setBirthYear(birthYear);
+                }
+            });
+        }
+
+        public static startSession(): void
+        {
+            GAThreading.performTaskOnGAThread("startSession", () =>
+            {
+                if(GAState.getUseManualSessionHandling())
+                {
+                    if(!GAState.isInitialized())
+                    {
+                        return;
+                    }
+
+                    if(GAState.isEnabled() && GAState.sessionIsStarted())
+                    {
+                        GAThreading.endSessionAndStopQueue();
+                    }
+
+                    GameAnalytics.resumeSessionAndStartQueue();
+                }
+            });
+        }
+
+        public static endSession(): void
+        {
+            if(GAState.getUseManualSessionHandling())
+            {
+                GameAnalytics.onStop();
+            }
+        }
+
+        public static onStop(): void
+        {
+            try
+            {
+                GAThreading.endSessionAndStopQueue();
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        public static onResume(): void
+        {
+            GameAnalytics.resumeSessionAndStartQueue();
         }
 
         private static internalInitialize(): void
@@ -258,7 +452,7 @@ module gameanalytics
                 initResponseDict["time_offset"] = timeOffsetSeconds;
 
                 // insert new config in sql lite cross session storage
-                GAStore.setItem(GAState.SdkConfigCachedKey, btoa(JSON.stringify(initResponseDict)));
+                GAStore.setItem(GAState.SdkConfigCachedKey, GAUtilities.encode64(JSON.stringify(initResponseDict)));
 
                 // set new config and cache in memory
                 GAState.instance.sdkConfigCached = initResponseDict;

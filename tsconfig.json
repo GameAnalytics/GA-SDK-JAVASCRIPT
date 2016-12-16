@@ -2,10 +2,9 @@
     "compileOnSave": true,
     "compilerOptions": {
         "sourceMap":  true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "removeComments": true,
-        "declaration": true,
-        "declarationDir": "./dist",
+        "noEmit": false,
         "outDir": "./dist",
         "allowJs": true,
         "outFile": "./dist/GameAnalytics.js"

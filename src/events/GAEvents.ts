@@ -366,7 +366,7 @@ module gameanalytics
                     for (var i:number = 0; i < events.length; ++i)
                     {
                         var ev:{[key:string]: any} = events[i];
-                        var eventDict = JSON.parse(atob(ev["event"]));
+                        var eventDict = JSON.parse(GAUtilities.decode64(ev["event"]));
                         if (eventDict.length != 0)
                         {
                             payloadArray.push(eventDict);
@@ -436,6 +436,8 @@ module gameanalytics
                         GAStore.delete(EGAStore.Events, requestIdWhereArgs);
                     }
                 }
+
+                GAEvents.updateSessionStore();
             }
 
             private static cleanupEvents(): void
@@ -459,11 +461,11 @@ module gameanalytics
                 GALogger.i(sessions.length + " session(s) located with missing session_end event.");
 
                 // Add missing session_end events
-                for (let session in sessions)
+                for (let i in sessions)
                 {
-                    var sessionEndEvent:{[key:string]: any} = JSON.parse(GAUtilities.decode64(session["event"] as string));
+                    var sessionEndEvent:{[key:string]: any} = JSON.parse(GAUtilities.decode64(sessions[i]["event"] as string));
                     var event_ts:number = sessionEndEvent["client_ts"] as number;
-                    var start_ts:number = session["timestamp"] as number;
+                    var start_ts:number = sessions[i]["timestamp"] as number;
 
                     var length:number = event_ts - start_ts;
                     length = Math.max(0, length);
@@ -501,7 +503,7 @@ module gameanalytics
                     var ev:{[key:string]: any} = GAState.getEventAnnotations();
 
                     // Create json with only default annotations
-                    var jsonDefaults:string = btoa(JSON.stringify(ev));
+                    var jsonDefaults:string = GAUtilities.encode64(JSON.stringify(ev));
 
                     // Merge with eventData
                     for(let e in eventData)
@@ -522,7 +524,7 @@ module gameanalytics
                     values["category"] = ev["category"];
                     values["session_id"] = ev["session_id"];
                     values["client_ts"] = ev["client_ts"];
-                    values["event"] = btoa(JSON.stringify(ev));
+                    values["event"] = GAUtilities.encode64(JSON.stringify(ev));
 
                     GAStore.insert(EGAStore.Events, values);
 
@@ -539,11 +541,30 @@ module gameanalytics
                         values["event"] = jsonDefaults;
                         GAStore.insert(EGAStore.Sessions, values, true, "session_id");
                     }
+
+                    if(GAStore.isStorageAvailable())
+                    {
+                        GAStore.save();
+                    }
                 }
                 catch (e)
                 {
                     GALogger.e("addEventToStore: error");
                     GALogger.e(e.stack);
+                }
+            }
+
+            private static updateSessionStore(): void
+            {
+                var values:{[key:string]: any} = {};
+                values["session_id"] = GAState.instance.sessionId;
+                values["timestamp"] = GAState.getSessionStart();
+                values["event"] = GAUtilities.encode64(JSON.stringify(GAState.getEventAnnotations()));
+                GAStore.insert(EGAStore.Sessions, values, true, "session_id");
+
+                if(GAStore.isStorageAvailable())
+                {
+                    GAStore.save();
                 }
             }
 

@@ -21,7 +21,7 @@ module gameanalytics
         export class GAStore
         {
             private static readonly instance:GAStore = new GAStore();
-            private static storageAvailable:boolean = false;
+            private static storageAvailable:boolean;
             private static readonly MaxNumberOfEntries:number = 2000;
             private eventsStore:Array<{[key:string]: any}> = [];
             private sessionsStore:Array<{[key:string]: any}> = [];
@@ -35,7 +35,20 @@ module gameanalytics
 
             private constructor()
             {
-                GAStore.storageAvailable = typeof(Storage) !== "undefined";
+                try
+                {
+                    if (typeof localStorage === 'object')
+                    {
+                        localStorage.setItem('testingLocalStorage', 'yes');
+                        localStorage.removeItem('testingLocalStorage');
+                        GAStore.storageAvailable = true;
+                    }
+                }
+                catch (e)
+                {
+                }
+
+                GALogger.d("Storage is available?: " + GAStore.storageAvailable)
             }
 
             public static isStorageAvailable():boolean
@@ -129,7 +142,7 @@ module gameanalytics
                 return result;
             }
 
-            public static update(store:EGAStore, setArgs:Array<[string, any]>, whereArgs:Array<[string, EGAStoreArgsOperator, any]> = null): boolean
+            public static update(store:EGAStore, setArgs:Array<[string, any]>, whereArgs:Array<[string, EGAStoreArgsOperator, any]> = []): boolean
             {
                 var currentStore:Array<{[key:string]: any}> = GAStore.getStore(store);
 
@@ -321,6 +334,7 @@ module gameanalytics
                 localStorage.setItem(GAStore.KeyPrefix + GAStore.EventsStoreKey, JSON.stringify(GAStore.instance.eventsStore));
                 localStorage.setItem(GAStore.KeyPrefix + GAStore.SessionsStoreKey, JSON.stringify(GAStore.instance.sessionsStore));
                 localStorage.setItem(GAStore.KeyPrefix + GAStore.ProgressionStoreKey, JSON.stringify(GAStore.instance.progressionStore));
+                localStorage.setItem(GAStore.KeyPrefix + GAStore.ItemsStoreKey, JSON.stringify(GAStore.instance.storeItems));
             }
 
             public static load(): void
@@ -334,6 +348,11 @@ module gameanalytics
                 try
                 {
                     GAStore.instance.eventsStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.EventsStoreKey));
+
+                    if(!GAStore.instance.eventsStore)
+                    {
+                        GAStore.instance.eventsStore = [];
+                    }
                 }
                 catch(e)
                 {
@@ -344,6 +363,11 @@ module gameanalytics
                 try
                 {
                     GAStore.instance.sessionsStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.SessionsStoreKey));
+
+                    if(!GAStore.instance.sessionsStore)
+                    {
+                        GAStore.instance.sessionsStore = [];
+                    }
                 }
                 catch(e)
                 {
@@ -354,6 +378,11 @@ module gameanalytics
                 try
                 {
                     GAStore.instance.progressionStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.ProgressionStoreKey));
+
+                    if(!GAStore.instance.progressionStore)
+                    {
+                        GAStore.instance.progressionStore = [];
+                    }
                 }
                 catch(e)
                 {
@@ -364,6 +393,11 @@ module gameanalytics
                 try
                 {
                     GAStore.instance.storeItems = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.ItemsStoreKey));
+
+                    if(!GAStore.instance.storeItems)
+                    {
+                        GAStore.instance.storeItems = {};
+                    }
                 }
                 catch(e)
                 {

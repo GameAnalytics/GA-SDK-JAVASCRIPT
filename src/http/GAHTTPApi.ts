@@ -154,7 +154,7 @@ module gameanalytics
                 }
 
                 // decode JSON
-                var requestJsonDict:{[key:string]: any} = JSON.parse(body);
+                var requestJsonDict:{[key:string]: any} = body ? JSON.parse(body) : {};
 
                 if(requestJsonDict == null)
                 {
@@ -179,13 +179,13 @@ module gameanalytics
                 // create authorization hash
                 var key:string = GAState.getGameSecret();
                 var authorization:string = GAUtilities.getHmac(key, payloadData);
-                
+
                 var args:Array<string> = [];
                 args.push(authorization);
 
                 for(let s in extraArgs)
                 {
-                    args.push(s);
+                    args.push(extraArgs[s]);
                 }
 
                 request.onreadystatechange = () => {
@@ -229,7 +229,7 @@ module gameanalytics
                 // process the response
                 GALogger.d("init request content : " + body);
 
-                var requestJsonDict:{[key:string]: any} = JSON.parse(body);
+                var requestJsonDict:{[key:string]: any} = body ? JSON.parse(body) : {};
                 var requestResponseEnum:EGAHTTPApiResponse = GAHTTPApi.instance.processRequestResponse(responseCode, request.statusText, body, "Init");
 
                 // if not 200 result
