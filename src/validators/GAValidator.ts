@@ -130,7 +130,7 @@ module gameanalytics
                     GALogger.i("Validation fail - progression event: 02 found but not 01. Progression must be set as either 01, 01+02 or 01+02+03");
                     return false;
                 }
-                else if (progression01)
+                else if (!progression01)
                 {
                     GALogger.i("Validation fail - progression event: progression01 not valid. Progressions must be set as either 01, 01+02 or 01+02+03");
                     return false;
@@ -256,7 +256,7 @@ module gameanalytics
                     return true;
                 }
 
-                if (eventPart)
+                if (!eventPart)
                 {
                     return false;
                 }
