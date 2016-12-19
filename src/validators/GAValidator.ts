@@ -605,8 +605,7 @@ module gameanalytics
 
             public static validateClientTs(clientTs:number): boolean
             {
-                // TODO(nikolaj): validate other way? (instead of max possible)
-                if (clientTs < (-Number.MAX_VALUE+1) || clientTs > (Number.MAX_VALUE-1))
+                if (clientTs < (-4294967295+1) || clientTs > (4294967295-1))
                 {
                     return false;
                 }
