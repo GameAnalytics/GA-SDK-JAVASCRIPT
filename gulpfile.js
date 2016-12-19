@@ -4,7 +4,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 var Server = require('karma').Server;
 var tsProject = ts.createProject('tsconfig.json');
-var tsMinProject = ts.createProject('tsconfig.json', { outFile: './dist/GameAnalytics.min.js' });
+var tsMinProject = ts.createProject('tsconfigmini.json');
 
 gulp.task('default', function() {
     var tsResult = tsMinProject.src()

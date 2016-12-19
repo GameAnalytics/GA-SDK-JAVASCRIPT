@@ -1,4 +1,4 @@
-module gameanalytics
+module ga
 {
     export enum EGAErrorSeverity
     {

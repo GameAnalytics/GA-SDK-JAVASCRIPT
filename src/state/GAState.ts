@@ -1,14 +1,14 @@
-module gameanalytics
+module ga
 {
     export module state
     {
-        import GAValidator = gameanalytics.validators.GAValidator;
-        import GAUtilities = gameanalytics.utilities.GAUtilities;
-        import GALogger = gameanalytics.logging.GALogger;
-        import GAStore = gameanalytics.store.GAStore;
-        import GADevice = gameanalytics.device.GADevice;
-        import EGAStore = gameanalytics.store.EGAStore;
-        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
+        import GAValidator = ga.validators.GAValidator;
+        import GAUtilities = ga.utilities.GAUtilities;
+        import GALogger = ga.logging.GALogger;
+        import GAStore = ga.store.GAStore;
+        import GADevice = ga.device.GADevice;
+        import EGAStore = ga.store.EGAStore;
+        import EGAStoreArgsOperator = ga.store.EGAStoreArgsOperator;
 
         export class GAState
         {

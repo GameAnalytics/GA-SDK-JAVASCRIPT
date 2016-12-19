@@ -1,14 +1,14 @@
-module gameanalytics
+module ga
 {
     export module http
     {
-        import GAState = gameanalytics.state.GAState;
-        import GALogger = gameanalytics.logging.GALogger;
-        import GAUtilities = gameanalytics.utilities.GAUtilities;
-        import GAStore = gameanalytics.store.GAStore;
-        import GAValidator = gameanalytics.validators.GAValidator;
-        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
-        import SdkErrorTask = gameanalytics.tasks.SdkErrorTask;
+        import GAState = ga.state.GAState;
+        import GALogger = ga.logging.GALogger;
+        import GAUtilities = ga.utilities.GAUtilities;
+        import GAStore = ga.store.GAStore;
+        import GAValidator = ga.validators.GAValidator;
+        import EGAStoreArgsOperator = ga.store.EGAStoreArgsOperator;
+        import SdkErrorTask = ga.tasks.SdkErrorTask;
 
         export class GAHTTPApi
         {

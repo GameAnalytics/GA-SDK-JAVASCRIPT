@@ -1,10 +1,10 @@
-module gameanalytics
+module ga
 {
     export module tasks
     {
-        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
-        import GAUtilities = gameanalytics.utilities.GAUtilities;
-        import GALogger = gameanalytics.logging.GALogger;
+        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import GAUtilities = ga.utilities.GAUtilities;
+        import GALogger = ga.logging.GALogger;
 
         export class SdkErrorTask
         {

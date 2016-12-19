@@ -6,7 +6,6 @@
     <body>
         <script type="text/javascript" src='../dist/GameAnalytics.js'></script>
         <script type="text/javascript">
-            var ga = gameanalytics;
             ga.GameAnalytics.setEnabledInfoLog(true);
             ga.GameAnalytics.setEnabledVerboseLog(true);
 
@@ -18,7 +17,7 @@
             ga.GameAnalytics.configureAvailableCustomDimensions02(["whale", "dolphin"]);
             ga.GameAnalytics.configureAvailableCustomDimensions03(["horde", "alliance"]);
 
-            gameanalytics.GameAnalytics.initialize("bd624ee6f8e6efb32a054f8d7ba11618", "7f5c3f682cbd217841efba92e92ffb1b3b6612bc");
+            ga.GameAnalytics.initialize("bd624ee6f8e6efb32a054f8d7ba11618", "7f5c3f682cbd217841efba92e92ffb1b3b6612bc");
 
             setTimeout(sendEvents, 2000);
 

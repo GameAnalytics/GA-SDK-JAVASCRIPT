@@ -1,10 +1,10 @@
-module gameanalytics
+module ga
 {
     export module validators
     {
-        import GALogger = gameanalytics.logging.GALogger;
-        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
-        import GAUtilities = gameanalytics.utilities.GAUtilities;
+        import GALogger = ga.logging.GALogger;
+        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import GAUtilities = ga.utilities.GAUtilities;
 
         export class GAValidator
         {

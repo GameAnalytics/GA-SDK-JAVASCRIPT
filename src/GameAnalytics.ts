@@ -1,15 +1,15 @@
-module gameanalytics
+module ga
 {
-    import GAThreading = gameanalytics.threading.GAThreading;
-    import GALogger = gameanalytics.logging.GALogger;
-    import GAStore = gameanalytics.store.GAStore;
-    import GAState = gameanalytics.state.GAState;
-    import GAHTTPApi = gameanalytics.http.GAHTTPApi;
-    import GADevice = gameanalytics.device.GADevice;
-    import GAValidator = gameanalytics.validators.GAValidator;
-    import EGAHTTPApiResponse = gameanalytics.http.EGAHTTPApiResponse;
-    import GAUtilities = gameanalytics.utilities.GAUtilities;
-    import GAEvents = gameanalytics.events.GAEvents;
+    import GAThreading = ga.threading.GAThreading;
+    import GALogger = ga.logging.GALogger;
+    import GAStore = ga.store.GAStore;
+    import GAState = ga.state.GAState;
+    import GAHTTPApi = ga.http.GAHTTPApi;
+    import GADevice = ga.device.GADevice;
+    import GAValidator = ga.validators.GAValidator;
+    import EGAHTTPApiResponse = ga.http.EGAHTTPApiResponse;
+    import GAUtilities = ga.utilities.GAUtilities;
+    import GAEvents = ga.events.GAEvents;
 
     export class GameAnalytics
     {

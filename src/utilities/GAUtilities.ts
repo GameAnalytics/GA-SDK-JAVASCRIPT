@@ -1,8 +1,8 @@
-module gameanalytics
+module ga
 {
     export module utilities
     {
-        import GALogger = gameanalytics.logging.GALogger;
+        import GALogger = ga.logging.GALogger;
 
         export class GAUtilities
         {
