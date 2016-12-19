@@ -1,0 +1,30 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "sourceMap":  true,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noEmit": false,
+        "outDir": "./dist",
+        "allowJs": true,
+        "outFile": "./dist/GameAnalytics.js"
+    },
+    "files": [
+        "./vendor/hmac-sha256.js",
+        "./vendor/enc-base64-min.js",
+        "./src/Enums.ts",
+        "./src/logging/GALogger.ts",
+        "./src/utilities/GAUtilities.ts",
+        "./src/validators/GAValidator.ts",
+        "./src/device/GADevice.ts",
+        "./src/threading/TimedBlock.ts",
+        "./src/threading/PriorityQueue.ts",
+        "./src/store/GAStore.ts",
+        "./src/state/GAState.ts",
+        "./src/tasks/SdkErrorTask.ts",
+        "./src/http/GAHTTPApi.ts",
+        "./src/events/GAEvents.ts",
+        "./src/threading/GAThreading.ts",
+        "./src/GameAnalytics.ts"
+    ]
+}
