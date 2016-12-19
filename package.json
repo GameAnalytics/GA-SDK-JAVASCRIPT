@@ -16,20 +16,26 @@
     "licenses": [
         {
             "type": "MIT",
-            "url": "https://raw.githubusercontent.com/orange-games/GA-JavaScript-SDK/master/LICENSE"
+            "url": "https://raw.githubusercontent.com/GameAnalytics/GA-SDK-JAVASCRIPT/master/LICENSE"
         }
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT-DEV"
+        "url": "https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT"
     },
+    "homepage": "http://www.gameanalytics.com/",
     "devDependencies": {
-        "typescript": "1.3.0"
+        "gulp": "^3.9.1",
+        "gulp-sourcemaps": "^1.9.1",
+        "gulp-typescript": "^3.1.3",
+        "gulp-uglify": "^2.0.0",
+        "jasmine": "^2.5.2",
+        "karma": "^1.3.0",
+        "karma-jasmine": "^2.5.2",
+        "karma-phantom-launcher": "^1.0.2",
+        "typescript": "^2.1.4"
     },
     "scripts": {
         "test": "gulp test"
-    },
-    "engines": {
-        "node": "2.5.0"
     }
 }
