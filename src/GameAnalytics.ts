@@ -20,7 +20,7 @@ module ga
 
         public static configureAvailableCustomDimensions01(customDimensions:Array<string> = []): void
         {
-            GAThreading.performTaskOnGAThread("configureAvailableCustomDimensions01", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if(GameAnalytics.isSdkReady(true, false))
                 {
@@ -33,7 +33,7 @@ module ga
 
         public static configureAvailableCustomDimensions02(customDimensions:Array<string> = []): void
         {
-            GAThreading.performTaskOnGAThread("configureAvailableCustomDimensions02", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if(GameAnalytics.isSdkReady(true, false))
                 {
@@ -46,7 +46,7 @@ module ga
 
         public static configureAvailableCustomDimensions03(customDimensions:Array<string> = []): void
         {
-            GAThreading.performTaskOnGAThread("configureAvailableCustomDimensions03", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if(GameAnalytics.isSdkReady(true, false))
                 {
@@ -59,7 +59,7 @@ module ga
 
         public static configureAvailableResourceCurrencies(resourceCurrencies:Array<string> = []): void
         {
-            GAThreading.performTaskOnGAThread("configureAvailableResourceCurrencies", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -72,7 +72,7 @@ module ga
 
         public static configureAvailableResourceItemTypes(resourceItemTypes:Array<string> = []): void
         {
-            GAThreading.performTaskOnGAThread("configureAvailableResourceItemTypes", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -85,7 +85,7 @@ module ga
 
         public static configureBuild(build:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("configureBuild", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -103,7 +103,7 @@ module ga
 
         public static configureSdkGameEngineVersion(sdkGameEngineVersion:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("configureSdkGameEngineVersion", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -120,7 +120,7 @@ module ga
 
         public static configureGameEngineVersion(gameEngineVersion:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("configureGameEngineVersion", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -137,7 +137,7 @@ module ga
 
         public static configureUserId(uId:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("configureUserId", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -158,7 +158,7 @@ module ga
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread("initialize", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -181,7 +181,7 @@ module ga
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread("addBusinessEvent", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (!GameAnalytics.isSdkReady(true, true, "Could not add business event"))
                 {
@@ -196,7 +196,7 @@ module ga
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread("addResourceEvent", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (!GameAnalytics.isSdkReady(true, true, "Could not add resource event"))
                 {
@@ -211,7 +211,7 @@ module ga
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread("addProgressionEvent", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if(!GameAnalytics.isSdkReady(true, true, "Could not add progression event"))
                 {
@@ -228,7 +228,7 @@ module ga
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread("addDesignEvent", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if(!GameAnalytics.isSdkReady(true, true, "Could not add design event"))
                 {
@@ -243,7 +243,7 @@ module ga
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread("addErrorEvent", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (!GameAnalytics.isSdkReady(true, true, "Could not add error event"))
                 {
@@ -255,7 +255,7 @@ module ga
 
         public static setEnabledInfoLog(flag:boolean = false): void
         {
-            GAThreading.performTaskOnGAThread("setEnabledInfoLog", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (flag)
                 {
@@ -272,7 +272,7 @@ module ga
 
         public static setEnabledVerboseLog(flag:boolean = false): void
         {
-            GAThreading.performTaskOnGAThread("setEnabledVerboseLog", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (flag)
                 {
@@ -289,7 +289,7 @@ module ga
 
         public static setEnabledManualSessionHandling(flag:boolean = false): void
         {
-            GAThreading.performTaskOnGAThread("setEnabledManualSessionHandling", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 GAState.setManualSessionHandling(flag);
             });
@@ -297,7 +297,7 @@ module ga
 
         public static setCustomDimension01(dimension:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("setCustomDimension01", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (!GAValidator.validateDimension01(dimension, GAState.getAvailableCustomDimensions01()))
                 {
@@ -310,7 +310,7 @@ module ga
 
         public static setCustomDimension02(dimension:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("setCustomDimension02", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (!GAValidator.validateDimension02(dimension, GAState.getAvailableCustomDimensions02()))
                 {
@@ -323,7 +323,7 @@ module ga
 
         public static setCustomDimension03(dimension:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("setCustomDimension03", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (!GAValidator.validateDimension03(dimension, GAState.getAvailableCustomDimensions03()))
                 {
@@ -336,7 +336,7 @@ module ga
 
         public static setFacebookId(facebookId:string = ""): void
         {
-            GAThreading.performTaskOnGAThread("setFacebookId", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GAValidator.validateFacebookId(facebookId))
                 {
@@ -347,7 +347,7 @@ module ga
 
         public static setGender(gender:EGAGender = EGAGender.Undefined): void
         {
-            GAThreading.performTaskOnGAThread("setGender", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GAValidator.validateGender(gender))
                 {
@@ -358,7 +358,7 @@ module ga
 
         public static setBirthYear(birthYear:number = 0): void
         {
-            GAThreading.performTaskOnGAThread("setBirthYear", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GAValidator.validateBirthyear(birthYear))
                 {
@@ -369,7 +369,7 @@ module ga
 
         public static startSession(): void
         {
-            GAThreading.performTaskOnGAThread("startSession", () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if(GAState.getUseManualSessionHandling())
                 {

@@ -32,22 +32,22 @@ module ga
                 GAThreading.startThread();
             }
 
-            public static performTaskOnGAThread(blockName:string, taskBlock:() => void, delayInSeconds:number = 0): void
+            public static performTaskOnGAThread(taskBlock:() => void, delayInSeconds:number = 0): void
             {
                 var time:Date = new Date();
                 time.setSeconds(time.getSeconds() + delayInSeconds);
 
-                var timedBlock = new TimedBlock(time, taskBlock, blockName);
+                var timedBlock = new TimedBlock(time, taskBlock);
                 GAThreading.instance.id2TimedBlockMap[timedBlock.id] = timedBlock;
                 GAThreading.instance.addTimedBlock(timedBlock);
             }
 
-            public static scheduleTimer(interval:number, blockName:string, callback:() => void): number
+            public static scheduleTimer(interval:number, callback:() => void): number
             {
                 var time:Date = new Date();
                 time.setSeconds(time.getSeconds() + interval);
 
-                var timedBlock:TimedBlock = new TimedBlock(time, callback, blockName);
+                var timedBlock:TimedBlock = new TimedBlock(time, callback);
                 GAThreading.instance.id2TimedBlockMap[timedBlock.id] = timedBlock;
                 GAThreading.instance.addTimedBlock(timedBlock);
 
@@ -61,7 +61,7 @@ module ga
                 if(!GAThreading.instance.isRunning)
                 {
                     GAThreading.instance.isRunning = true;
-                    GAThreading.scheduleTimer(GAThreading.ProcessEventsIntervalInSeconds, "processEventQueue", GAThreading.processEventQueue);
+                    GAThreading.scheduleTimer(GAThreading.ProcessEventsIntervalInSeconds, GAThreading.processEventQueue);
                 }
             }
 
@@ -147,7 +147,7 @@ module ga
                 GAEvents.processEvents("", true);
                 if(GAThreading.instance.keepRunning)
                 {
-                    GAThreading.scheduleTimer(GAThreading.ProcessEventsIntervalInSeconds, "processEventQueue", GAThreading.processEventQueue);
+                    GAThreading.scheduleTimer(GAThreading.ProcessEventsIntervalInSeconds, GAThreading.processEventQueue);
                 }
                 else
                 {
