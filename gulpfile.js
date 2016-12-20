@@ -8,7 +8,7 @@ var tsProjectMini = ts.createProject('tsconfig.json', { outFile: "./dist/GameAna
 var tsProjectDebug = ts.createProject('tsconfig.json', { outFile: "./dist/GameAnalytics.debug.js" });
 var replace = require('gulp-replace');
 
-gulp.task('default', function() {
+gulp.task('mini', function() {
     var tsResult = tsProjectMini.src()
         .pipe(replace('GALogger.d(', '//GALogger.d('))
         .pipe(replace('GALogger.i(', '//GALogger.i('))
@@ -45,3 +45,5 @@ gulp.task('test', function (done) {
         singleRun: true
     }, done).start();
 });
+
+gulp.task('default', ['mini', 'normal']);
