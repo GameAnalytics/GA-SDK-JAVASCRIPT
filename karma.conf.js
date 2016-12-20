@@ -7,7 +7,8 @@ module.exports = function(config) {
             'test/*.js'
         ],
         exclude: [
-            'dist/*.min.js'
+            'dist/*.min.js',
+            'dist/GameAnalytics.js'
         ],
     });
 };
