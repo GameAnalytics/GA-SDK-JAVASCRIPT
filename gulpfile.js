@@ -4,11 +4,25 @@ var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 var Server = require('karma').Server;
 var tsProject = ts.createProject('tsconfig.json');
-var tsMinProject = ts.createProject('tsconfigmini.json');
+var tsProjectMini = ts.createProject('tsconfig.json', { outFile: "./dist/GameAnalytics.min.js" });
+var tsProjectDebug = ts.createProject('tsconfig.json', { outFile: "./dist/GameAnalytics.debug.js" });
+var replace = require('gulp-replace');
 
 gulp.task('default', function() {
-    var tsResult = tsMinProject.src()
-        .pipe(tsMinProject());
+    var tsResult = tsProjectMini.src()
+        .pipe(replace('GALogger.d(', '//GALogger.d('))
+        .pipe(replace('GALogger.i(', '//GALogger.i('))
+        .pipe(replace('GALogger.w(', '//GALogger.w('))
+        .pipe(tsProjectMini());
+
+    return tsResult.js
+        .pipe(uglify())
+        .pipe(gulp.dest('.'));
+});
+
+gulp.task('normal', function() {
+    var tsResult = tsProject.src()
+        .pipe(tsProject());
 
     return tsResult.js
         .pipe(uglify())
@@ -16,9 +30,9 @@ gulp.task('default', function() {
 });
 
 gulp.task('debug', function() {
-    var tsResult = tsProject.src()
+    var tsResult = tsProjectDebug.src()
         .pipe(sourcemaps.init())
-        .pipe(tsProject());
+        .pipe(tsProjectDebug());
 
     return tsResult.js
         .pipe(sourcemaps.write())
