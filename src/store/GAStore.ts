@@ -43,12 +43,16 @@ module ga
                         localStorage.removeItem('testingLocalStorage');
                         GAStore.storageAvailable = true;
                     }
+                    else
+                    {
+                        GAStore.storageAvailable = false;
+                    }
                 }
                 catch (e)
                 {
                 }
 
-                GALogger.d("Storage is available?: " + GAStore.storageAvailable)
+                GALogger.d("Storage is available?: " + GAStore.storageAvailable);
             }
 
             public static isStorageAvailable():boolean
