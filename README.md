@@ -8,6 +8,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**1.0.1**
+* fixed debug log messages to use console.log when console.debug is not available
+
 **1.0.0**
 * bumped to v1.0.0
 
