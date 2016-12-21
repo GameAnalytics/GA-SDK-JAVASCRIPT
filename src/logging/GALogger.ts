@@ -102,7 +102,14 @@ module ga
 
                     case EGALoggerMessageType.Debug:
                     {
-                        console.debug(message);
+                        if(typeof console.debug === "function")
+                        {
+                            console.debug(message);
+                        }
+                        else
+                        {
+                            console.log(message);
+                        }
                     }
                     break;
 

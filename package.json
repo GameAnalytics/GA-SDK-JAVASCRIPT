@@ -1,13 +1,13 @@
 {
     "name": "gameanalytics",
     "author": "GameAnalytics",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Official JavaScript SDK for GameAnalytics. GameAnalytics is a free analytics platform that helps game developers understand their players' behaviour by delivering relevant insights.",
     "keywords": [
         "GameAnalytics",
         "JavaScript"
     ],
-    "main": "dist/GameAnalytics.js",
+    "main": "./dist/GameAnalytics.js",
     "contributors": [
         {
             "name": "Martin Treacy-Schwartz",
@@ -22,6 +22,7 @@
     "homepage": "http://www.gameanalytics.com/",
     "devDependencies": {
         "gulp": "^3.9.1",
+        "gulp-concat": "^2.6.1",
         "gulp-replace": "^0.5.4",
         "gulp-sourcemaps": "^1.9.1",
         "gulp-typescript": "^3.1.3",

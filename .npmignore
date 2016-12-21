@@ -4,4 +4,4 @@ test
 vendor
 gulpfile.js
 karma.conf.js
-tsconfig.js
+tsconfig.json
