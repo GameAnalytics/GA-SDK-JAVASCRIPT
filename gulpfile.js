@@ -13,6 +13,7 @@ var concat = require('gulp-concat');
 gulp.task('mini', ['bundle_js', 'build_mini'], function() {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.min.js'])
         .pipe(concat('GameAnalytics.min.js'))
+        .pipe(uglify())
         .pipe(gulp.dest('./dist'));
 });
 
@@ -24,13 +25,19 @@ gulp.task('build_mini', function() {
         .pipe(tsProjectMini());
 
     return tsResult.js
-        .pipe(uglify())
         .pipe(gulp.dest('.'));
 });
 
 gulp.task('normal', ['bundle_js', 'build_normal'], function() {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('./dist'));
+});
+
+gulp.task('unity', ['bundle_js', 'build_normal'], function() {
+    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+        .pipe(concat('GameAnalytics.jslib'))
         .pipe(gulp.dest('./dist'));
 });
 
@@ -39,7 +46,6 @@ gulp.task('build_normal', function() {
         .pipe(tsProject());
 
     return tsResult.js
-        .pipe(uglify())
         .pipe(gulp.dest('.'));
 });
 
@@ -70,7 +76,6 @@ gulp.task('declaration', function() {
 gulp.task('bundle_js', function() {
     return gulp.src(['./vendor/hmac-sha256.js', './vendor/enc-base64-min.js'])
         .pipe(concat('bundle.js'))
-        .pipe(uglify())
         .pipe(gulp.dest('./vendor'));
 });
 
