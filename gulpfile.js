@@ -86,4 +86,4 @@ gulp.task('test', function (done) {
     }, done).start();
 });
 
-gulp.task('default', ['debug', 'mini', 'normal', 'declaration']);
+gulp.task('default', ['debug', 'mini', 'unity', 'normal', 'declaration']);
