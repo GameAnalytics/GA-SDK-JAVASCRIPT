@@ -74,13 +74,13 @@ gulp.task('declaration', function() {
 });
 
 gulp.task('bundle_min_js', function() {
-    return gulp.src(['./vendor/hmac-sha256.js', './vendor/enc-base64-min.js'])
+    return gulp.src(['./vendor/hmac-sha256-min.js', './vendor/enc-base64-min.js'])
         .pipe(concat('bundle.min.js'))
         .pipe(gulp.dest('./vendor'));
 });
 
 gulp.task('bundle_js', function() {
-    return gulp.src(['./vendor/sha256.js', './vendor/enc-base64.js'])
+    return gulp.src(['./vendor/hmac-sha256.js', './vendor/enc-base64.js'])
         .pipe(concat('bundle.js'))
         .pipe(gulp.dest('./vendor'));
 });

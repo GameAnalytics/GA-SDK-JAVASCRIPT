@@ -4,106 +4,37 @@ code.google.com/p/crypto-js
 (c) 2009-2013 by Jeff Mott. All rights reserved.
 code.google.com/p/crypto-js/wiki/License
 */
-(function () {
-    // Shortcuts
-    var C = CryptoJS;
-    var C_lib = C.lib;
-    var WordArray = C_lib.WordArray;
-    var C_enc = C.enc;
-
-    /**
-     * Base64 encoding strategy.
-     */
-    var Base64 = C_enc.Base64 = {
-        /**
-         * Converts a word array to a Base64 string.
-         *
-         * @param {WordArray} wordArray The word array.
-         *
-         * @return {string} The Base64 string.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var base64String = CryptoJS.enc.Base64.stringify(wordArray);
-         */
-        stringify: function (wordArray) {
-            // Shortcuts
-            var words = wordArray.words;
-            var sigBytes = wordArray.sigBytes;
-            var map = this._map;
-
-            // Clamp excess bits
-            wordArray.clamp();
-
-            // Convert
-            var base64Chars = [];
-            for (var i = 0; i < sigBytes; i += 3) {
-                var byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
-                var byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
-                var byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
-
-                var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
-
-                for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
-                    base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
-                }
-            }
-
-            // Add padding
-            var paddingChar = map.charAt(64);
-            if (paddingChar) {
-                while (base64Chars.length % 4) {
-                    base64Chars.push(paddingChar);
-                }
-            }
-
-            return base64Chars.join('');
+(function() {
+    var h = CryptoJS,
+        j = h.lib.WordArray;
+    h.enc.Base64 = {
+        stringify: function(b) {
+            var e = b.words,
+                f = b.sigBytes,
+                c = this._map;
+            b.clamp();
+            b = [];
+            for (var a = 0; a < f; a += 3)
+                for (var d = (e[a >>> 2] >>> 24 - 8 * (a % 4) & 255) << 16 | (e[a + 1 >>> 2] >>> 24 - 8 * ((a + 1) % 4) & 255) << 8 | e[a + 2 >>> 2] >>> 24 - 8 * ((a + 2) % 4) & 255, g = 0; 4 > g && a + 0.75 * g < f; g++) b.push(c.charAt(d >>> 6 * (3 - g) & 63));
+            if (e = c.charAt(64))
+                for (; b.length % 4;) b.push(e);
+            return b.join("")
         },
-
-        /**
-         * Converts a Base64 string to a word array.
-         *
-         * @param {string} base64Str The Base64 string.
-         *
-         * @return {WordArray} The word array.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var wordArray = CryptoJS.enc.Base64.parse(base64String);
-         */
-        parse: function (base64Str) {
-            // Shortcuts
-            var base64StrLength = base64Str.length;
-            var map = this._map;
-
-            // Ignore padding
-            var paddingChar = map.charAt(64);
-            if (paddingChar) {
-                var paddingIndex = base64Str.indexOf(paddingChar);
-                if (paddingIndex != -1) {
-                    base64StrLength = paddingIndex;
+        parse: function(b) {
+            var e = b.length,
+                f = this._map,
+                c = f.charAt(64);
+            c && (c = b.indexOf(c), -1 != c && (e = c));
+            for (var c = [], a = 0, d = 0; d <
+                e; d++)
+                if (d % 4) {
+                    var g = f.indexOf(b.charAt(d - 1)) << 2 * (d % 4),
+                        h = f.indexOf(b.charAt(d)) >>> 6 - 2 * (d % 4);
+                    c[a >>> 2] |= (g | h) << 24 - 8 * (a % 4);
+                    a++
                 }
-            }
-
-            // Convert
-            var words = [];
-            var nBytes = 0;
-            for (var i = 0; i < base64StrLength; i++) {
-                if (i % 4) {
-                    var bits1 = map.indexOf(base64Str.charAt(i - 1)) << ((i % 4) * 2);
-                    var bits2 = map.indexOf(base64Str.charAt(i)) >>> (6 - (i % 4) * 2);
-                    words[nBytes >>> 2] |= (bits1 | bits2) << (24 - (nBytes % 4) * 8);
-                    nBytes++;
-                }
-            }
-
-            return WordArray.create(words, nBytes);
+            return j.create(c, a)
         },
-
-        _map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-    };
-}());
+        _map: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+    }
+})();
