@@ -10,8 +10,8 @@ var tsDeclaration = ts.createProject('tsconfig.json');
 var replace = require('gulp-replace');
 var concat = require('gulp-concat');
 
-gulp.task('mini', ['bundle_js', 'build_mini'], function() {
-    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.min.js'])
+gulp.task('mini', ['bundle_min_js', 'build_mini'], function() {
+    return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.min.js'])
         .pipe(concat('GameAnalytics.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('./dist'));
@@ -28,8 +28,8 @@ gulp.task('build_mini', function() {
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('normal', ['bundle_js', 'build_normal'], function() {
-    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+gulp.task('normal', ['bundle_min_js', 'build_normal'], function() {
+    return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.js'))
         .pipe(uglify())
         .pipe(gulp.dest('./dist'));
@@ -49,8 +49,8 @@ gulp.task('build_normal', function() {
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('debug', ['bundle_js', 'build_debug'], function() {
-    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.debug.js'])
+gulp.task('debug', ['bundle_min_js', 'build_debug'], function() {
+    return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.debug.js'])
         .pipe(concat('GameAnalytics.debug.js'))
         .pipe(gulp.dest('./dist'));
 });
@@ -73,8 +73,14 @@ gulp.task('declaration', function() {
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('bundle_js', function() {
+gulp.task('bundle_min_js', function() {
     return gulp.src(['./vendor/hmac-sha256.js', './vendor/enc-base64-min.js'])
+        .pipe(concat('bundle.min.js'))
+        .pipe(gulp.dest('./vendor'));
+});
+
+gulp.task('bundle_js', function() {
+    return gulp.src(['./vendor/sha256.js', './vendor/enc-base64.js'])
         .pipe(concat('bundle.js'))
         .pipe(gulp.dest('./vendor'));
 });
