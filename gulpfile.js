@@ -37,7 +37,7 @@ gulp.task('normal', ['bundle_min_js', 'build_normal'], function() {
 
 gulp.task('unity', ['bundle_js', 'build_normal'], function() {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
-        .pipe(concat('GameAnalytics.jslib'))
+        .pipe(concat('GameAnalytics.jspre'))
         .pipe(gulp.dest('./dist'));
 });
 
