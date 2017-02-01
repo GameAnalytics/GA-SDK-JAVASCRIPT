@@ -8,7 +8,8 @@ module.exports = function(config) {
         ],
         exclude: [
             'dist/*.min.js',
-            'dist/GameAnalytics.js'
+            'dist/GameAnalytics.js',
+            'dist/GameAnalytics.node.js'
         ],
     });
 };
