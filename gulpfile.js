@@ -9,10 +9,12 @@ var tsProjectDebug = ts.createProject('tsconfig.json', { outFile: "./dist/GameAn
 var tsDeclaration = ts.createProject('tsconfig.json');
 var replace = require('gulp-replace');
 var concat = require('gulp-concat');
+var insert = require('gulp-insert');
 
-gulp.task('mini', ['bundle_js', 'build_mini'], function() {
-    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.min.js'])
+gulp.task('mini', ['bundle_min_js', 'build_mini'], function() {
+    return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.min.js'])
         .pipe(concat('GameAnalytics.min.js'))
+        .pipe(uglify())
         .pipe(gulp.dest('./dist'));
 });
 
@@ -24,13 +26,26 @@ gulp.task('build_mini', function() {
         .pipe(tsProjectMini());
 
     return tsResult.js
-        .pipe(uglify())
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('normal', ['bundle_js', 'build_normal'], function() {
-    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+gulp.task('normal', ['bundle_min_js', 'build_normal'], function() {
+    return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('./dist'));
+});
+
+gulp.task('unity', ['bundle_js', 'build_normal'], function() {
+    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+        .pipe(concat('GameAnalytics.jspre'))
+        .pipe(gulp.dest('./dist'));
+});
+
+gulp.task('ga_node', ['bundle_js', 'build_normal'], function() {
+    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+        .pipe(concat('GameAnalytics.node.js'))
+        .pipe(insert.wrap("'use strict';\n", "module.exports = ga;"))
         .pipe(gulp.dest('./dist'));
 });
 
@@ -39,12 +54,11 @@ gulp.task('build_normal', function() {
         .pipe(tsProject());
 
     return tsResult.js
-        .pipe(uglify())
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('debug', ['bundle_js', 'build_debug'], function() {
-    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.debug.js'])
+gulp.task('debug', ['bundle_min_js', 'build_debug'], function() {
+    return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.debug.js'])
         .pipe(concat('GameAnalytics.debug.js'))
         .pipe(gulp.dest('./dist'));
 });
@@ -67,10 +81,15 @@ gulp.task('declaration', function() {
         .pipe(gulp.dest('.'));
 });
 
+gulp.task('bundle_min_js', function() {
+    return gulp.src(['./vendor/hmac-sha256-min.js', './vendor/enc-base64-min.js'])
+        .pipe(concat('bundle.min.js'))
+        .pipe(gulp.dest('./vendor'));
+});
+
 gulp.task('bundle_js', function() {
-    return gulp.src(['./vendor/hmac-sha256.js', './vendor/enc-base64-min.js'])
+    return gulp.src(['./vendor/hmac-sha256.js', './vendor/enc-base64.js'])
         .pipe(concat('bundle.js'))
-        .pipe(uglify())
         .pipe(gulp.dest('./vendor'));
 });
 
@@ -81,4 +100,4 @@ gulp.task('test', function (done) {
     }, done).start();
 });
 
-gulp.task('default', ['debug', 'mini', 'normal', 'declaration']);
+gulp.task('default', ['debug', 'mini', 'unity', 'ga_node', 'normal', 'declaration']);

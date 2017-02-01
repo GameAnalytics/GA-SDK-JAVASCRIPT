@@ -128,7 +128,7 @@ module ga
                 }
                 if (!GAValidator.validateEngineVersion(gameEngineVersion))
                 {
-                    GALogger.i("Validation fail - configure sdk version: Sdk version not supported. String: " + gameEngineVersion);
+                    GALogger.i("Validation fail - configure game engine version: Game engine version not supported. String: " + gameEngineVersion);
                     return;
                 }
                 GADevice.gameEngineVersion = gameEngineVersion;
