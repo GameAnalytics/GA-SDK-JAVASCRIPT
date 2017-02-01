@@ -8,6 +8,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**1.0.2**
+* enabled to use sdk via npm
+
 **1.0.1**
 * fixed debug log messages to use console.log when console.debug is not available
 

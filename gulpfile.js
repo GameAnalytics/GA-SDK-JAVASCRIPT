@@ -9,6 +9,7 @@ var tsProjectDebug = ts.createProject('tsconfig.json', { outFile: "./dist/GameAn
 var tsDeclaration = ts.createProject('tsconfig.json');
 var replace = require('gulp-replace');
 var concat = require('gulp-concat');
+var insert = require('gulp-insert');
 
 gulp.task('mini', ['bundle_min_js', 'build_mini'], function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.min.js'])
@@ -38,6 +39,13 @@ gulp.task('normal', ['bundle_min_js', 'build_normal'], function() {
 gulp.task('unity', ['bundle_js', 'build_normal'], function() {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.jspre'))
+        .pipe(gulp.dest('./dist'));
+});
+
+gulp.task('ga_node', ['bundle_js', 'build_normal'], function() {
+    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+        .pipe(concat('GameAnalytics.node.js'))
+        .pipe(insert.wrap("'use strict';\n", "module.exports = ga;"))
         .pipe(gulp.dest('./dist'));
 });
 
@@ -92,4 +100,4 @@ gulp.task('test', function (done) {
     }, done).start();
 });
 
-gulp.task('default', ['debug', 'mini', 'unity', 'normal', 'declaration']);
+gulp.task('default', ['debug', 'mini', 'unity', 'ga_node', 'normal', 'declaration']);
