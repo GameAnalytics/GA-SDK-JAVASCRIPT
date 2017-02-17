@@ -453,7 +453,7 @@ module ga
 
                 var sessions:Array<{[key:string]: any}> = GAStore.select(EGAStore.Sessions, args);
 
-                if (!sessions)
+                if (!sessions || sessions.length == 0)
                 {
                     return;
                 }

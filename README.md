@@ -8,6 +8,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**1.0.4**
+* bug fix for GAEvents.fixMissingSessionEndEvents
+
 **1.0.3**
 * minor dependency fixes
 

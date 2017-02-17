@@ -6,7 +6,7 @@ module ga
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 1.0.3";
+            private static readonly sdkWrapperVersion:string = "javascript 1.0.4";
             public static readonly buildPlatform:string = GADevice.runtimePlatformToString();
             public static readonly deviceModel:string = "unknown";
             public static readonly deviceManufacturer:string = "unknown";
