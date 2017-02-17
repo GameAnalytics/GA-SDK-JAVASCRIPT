@@ -1059,7 +1059,7 @@ var ga;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 1.0.3";
+        GADevice.sdkWrapperVersion = "javascript 1.0.4";
         GADevice.buildPlatform = GADevice.runtimePlatformToString();
         GADevice.deviceModel = "unknown";
         GADevice.deviceManufacturer = "unknown";
@@ -2421,7 +2421,7 @@ var ga;
                 var args = [];
                 args.push(["session_id", EGAStoreArgsOperator.NotEqual, GAState.getSessionId()]);
                 var sessions = GAStore.select(EGAStore.Sessions, args);
-                if (!sessions) {
+                if (!sessions || sessions.length == 0) {
                     return;
                 }
                 GALogger.i(sessions.length + " session(s) located with missing session_end event.");
