@@ -152,6 +152,7 @@ declare module ga {
             private static getOSVersionString();
             private static runtimePlatformToString();
             private static getDeviceModel();
+            private static getDeviceManufacturer();
             private static matchItem(agent, data);
         }
     }

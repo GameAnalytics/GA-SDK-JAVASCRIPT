@@ -1052,15 +1052,16 @@ var ga;
             GADevice.getDeviceModel = function () {
                 var ua = navigator.userAgent;
                 var tem;
-                var M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+                var M = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
                 if (/trident/i.test(M[1])) {
                     tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
                     return 'IE ' + (tem[1] || '');
                 }
                 if (M[1] === 'Chrome') {
-                    tem = ua.match(/\b(OPR|Edge)\/(\d+)/);
-                    if (tem != null)
-                        return tem.slice(1).join(' ').replace('OPR', 'Opera');
+                    tem = ua.match(/\b(OPR|Edge|UBrowser)\/(\d+)/);
+                    if (tem != null) {
+                        return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC');
+                    }
                 }
                 var MString = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
                 if ((tem = ua.match(/version\/(\d+)/i)) != null) {
@@ -1068,7 +1069,30 @@ var ga;
                 }
                 return MString.join(' ');
             };
+            GADevice.getDeviceManufacturer = function () {
+                var result = "unknown";
+                if (GADevice.deviceModel.indexOf("IE") >= 0 || GADevice.deviceModel.indexOf("Edge") >= 0) {
+                    result = "Microsoft";
+                }
+                else if (GADevice.deviceModel.indexOf("Chrome") >= 0) {
+                    result = "Google";
+                }
+                else if (GADevice.deviceModel.indexOf("Opera") >= 0) {
+                    result = "Opera";
+                }
+                else if (GADevice.deviceModel.indexOf("Firefox") >= 0) {
+                    result = "Mozilla";
+                }
+                else if (GADevice.deviceModel.indexOf("Safari") >= 0) {
+                    result = "Apple";
+                }
+                else if (GADevice.deviceModel.indexOf("UC") >= 0) {
+                    result = "Alibaba";
+                }
+                return result;
+            };
             GADevice.matchItem = function (agent, data) {
+                console.log("AGENT: " + agent);
                 var result = new NameVersion("unknown", "0.0.0");
                 var i = 0;
                 var j = 0;
@@ -1129,7 +1153,7 @@ var ga;
         ]);
         GADevice.buildPlatform = GADevice.runtimePlatformToString();
         GADevice.deviceModel = GADevice.getDeviceModel();
-        GADevice.deviceManufacturer = "unknown";
+        GADevice.deviceManufacturer = GADevice.getDeviceManufacturer();
         GADevice.osVersion = GADevice.getOSVersionString();
         GADevice.maxSafeInteger = Math.pow(2, 53) - 1;
         device.GADevice = GADevice;

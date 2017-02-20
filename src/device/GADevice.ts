@@ -54,8 +54,9 @@ module ga
 
             public static readonly buildPlatform:string = GADevice.runtimePlatformToString();
             public static readonly deviceModel:string = GADevice.getDeviceModel();
-            public static readonly deviceManufacturer:string = "unknown";
+            public static readonly deviceManufacturer:string = GADevice.getDeviceManufacturer();
             public static readonly osVersion:string = GADevice.getOSVersionString();
+            public static readonly browserVersion:string = GADevice.getBrowserVersionString();
 
             public static sdkGameEngineVersion:string;
             public static gameEngineVersion:string;
@@ -110,36 +111,54 @@ module ga
                 return GADevice.osVersionPair.name;
             }
 
-            private static getDeviceModel(): string
+            private static getBrowserVersionString(): string
             {
                 var ua:string = navigator.userAgent;
                 var tem:RegExpMatchArray;
-                var M:RegExpMatchArray = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+                var M:RegExpMatchArray = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
 
                 if(/trident/i.test(M[1]))
                 {
-                    tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
-                    return 'IE '+(tem[1] || '');
+                    tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+                    return 'IE ' + (tem[1] || '');
                 }
 
-                if(M[1]=== 'Chrome')
+                if(M[1] === 'Chrome')
                 {
-                    tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
-                    if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+                    tem = ua.match(/\b(OPR|Edge|UBrowser)\/(\d+)/);
+                    if(tem!= null)
+                    {
+                        return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC').toLowerCase();
+                    }
                 }
 
                 var MString:string[] = M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
 
-                if((tem= ua.match(/version\/(\d+)/i))!= null)
+                if((tem = ua.match(/version\/(\d+)/i)) != null)
                 {
                     MString.splice(1, 1, tem[1]);
                 }
 
-                return MString.join(' ');
+                return MString.join(' ').toLowerCase();
+            }
+
+            private static getDeviceModel():string
+            {
+                var result:string = "unknown";
+
+                return result;
+            }
+
+            private static getDeviceManufacturer():string
+            {
+                var result:string = "unknown";
+
+                return result;
             }
 
             private static matchItem(agent:string, data:Array<NameValueVersion>):NameVersion
             {
+                console.log("AGENT: " + agent);
                 var result:NameVersion = new NameVersion("unknown", "0.0.0");
 
                 var i:number = 0;
