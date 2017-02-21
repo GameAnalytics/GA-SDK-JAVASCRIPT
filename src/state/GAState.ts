@@ -422,6 +422,8 @@ module ga
                 annotations["manufacturer"] = GADevice.deviceManufacturer;
                 // Device version
                 annotations["device"] = GADevice.deviceModel;
+                // Browser version
+                annotations["browser_version"] = GADevice.browserVersion;
                 // Platform (operating system)
                 annotations["platform"] = GADevice.buildPlatform;
                 // Session identifier
