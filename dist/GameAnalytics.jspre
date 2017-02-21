@@ -1049,7 +1049,7 @@ var ga;
             GADevice.runtimePlatformToString = function () {
                 return GADevice.osVersionPair.name;
             };
-            GADevice.getDeviceModel = function () {
+            GADevice.getBrowserVersionString = function () {
                 var ua = navigator.userAgent;
                 var tem;
                 var M = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
@@ -1060,35 +1060,21 @@ var ga;
                 if (M[1] === 'Chrome') {
                     tem = ua.match(/\b(OPR|Edge|UBrowser)\/(\d+)/);
                     if (tem != null) {
-                        return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC');
+                        return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC').toLowerCase();
                     }
                 }
                 var MString = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
                 if ((tem = ua.match(/version\/(\d+)/i)) != null) {
                     MString.splice(1, 1, tem[1]);
                 }
-                return MString.join(' ');
+                return MString.join(' ').toLowerCase();
+            };
+            GADevice.getDeviceModel = function () {
+                var result = "unknown";
+                return result;
             };
             GADevice.getDeviceManufacturer = function () {
                 var result = "unknown";
-                if (GADevice.deviceModel.indexOf("IE") >= 0 || GADevice.deviceModel.indexOf("Edge") >= 0) {
-                    result = "Microsoft";
-                }
-                else if (GADevice.deviceModel.indexOf("Chrome") >= 0) {
-                    result = "Google";
-                }
-                else if (GADevice.deviceModel.indexOf("Opera") >= 0) {
-                    result = "Opera";
-                }
-                else if (GADevice.deviceModel.indexOf("Firefox") >= 0) {
-                    result = "Mozilla";
-                }
-                else if (GADevice.deviceModel.indexOf("Safari") >= 0) {
-                    result = "Apple";
-                }
-                else if (GADevice.deviceModel.indexOf("UC") >= 0) {
-                    result = "Alibaba";
-                }
                 return result;
             };
             GADevice.matchItem = function (agent, data) {
@@ -1132,7 +1118,7 @@ var ga;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 1.0.4";
+        GADevice.sdkWrapperVersion = "javascript 1.0.5";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
@@ -1155,6 +1141,7 @@ var ga;
         GADevice.deviceModel = GADevice.getDeviceModel();
         GADevice.deviceManufacturer = GADevice.getDeviceManufacturer();
         GADevice.osVersion = GADevice.getOSVersionString();
+        GADevice.browserVersion = GADevice.getBrowserVersionString();
         GADevice.maxSafeInteger = Math.pow(2, 53) - 1;
         device.GADevice = GADevice;
     })(device = ga.device || (ga.device = {}));
@@ -1821,6 +1808,7 @@ var ga;
                 annotations["os_version"] = GADevice.osVersion;
                 annotations["manufacturer"] = GADevice.deviceManufacturer;
                 annotations["device"] = GADevice.deviceModel;
+                annotations["browser_version"] = GADevice.browserVersion;
                 annotations["platform"] = GADevice.buildPlatform;
                 annotations["session_id"] = GAState.instance.sessionId;
                 annotations[GAState.SessionNumKey] = GAState.instance.sessionNum;

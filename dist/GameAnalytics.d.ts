@@ -141,6 +141,7 @@ declare module ga {
             static readonly deviceModel: string;
             static readonly deviceManufacturer: string;
             static readonly osVersion: string;
+            static readonly browserVersion: string;
             static sdkGameEngineVersion: string;
             static gameEngineVersion: string;
             private static connectionType;
@@ -151,6 +152,7 @@ declare module ga {
             static updateConnectionType(): void;
             private static getOSVersionString();
             private static runtimePlatformToString();
+            private static getBrowserVersionString();
             private static getDeviceModel();
             private static getDeviceManufacturer();
             private static matchItem(agent, data);
