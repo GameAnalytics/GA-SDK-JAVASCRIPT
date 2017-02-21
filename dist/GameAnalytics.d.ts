@@ -123,21 +123,39 @@ declare module ga {
 }
 declare module ga {
     module device {
+        class NameValueVersion {
+            name: string;
+            value: string;
+            version: string;
+            constructor(name: string, value: string, version: string);
+        }
+        class NameVersion {
+            name: string;
+            version: string;
+            constructor(name: string, version: string);
+        }
         class GADevice {
             private static readonly sdkWrapperVersion;
+            private static readonly osVersionPair;
             static readonly buildPlatform: string;
             static readonly deviceModel: string;
             static readonly deviceManufacturer: string;
             static readonly osVersion: string;
+            static readonly browserVersion: string;
             static sdkGameEngineVersion: string;
             static gameEngineVersion: string;
             private static connectionType;
+            private static maxSafeInteger;
             static touch(): void;
             static getRelevantSdkVersion(): string;
             static getConnectionType(): string;
             static updateConnectionType(): void;
             private static getOSVersionString();
             private static runtimePlatformToString();
+            private static getBrowserVersionString();
+            private static getDeviceModel();
+            private static getDeviceManufacturer();
+            private static matchItem(agent, data);
         }
     }
 }

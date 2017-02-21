@@ -999,7 +999,23 @@ var ga;
 (function (ga) {
     var device;
     (function (device) {
-        var GALogger = ga.logging.GALogger;
+        var NameValueVersion = (function () {
+            function NameValueVersion(name, value, version) {
+                this.name = name;
+                this.value = value;
+                this.version = version;
+            }
+            return NameValueVersion;
+        }());
+        device.NameValueVersion = NameValueVersion;
+        var NameVersion = (function () {
+            function NameVersion(name, version) {
+                this.name = name;
+                this.version = version;
+            }
+            return NameVersion;
+        }());
+        device.NameVersion = NameVersion;
         var GADevice = (function () {
             function GADevice() {
             }
@@ -1028,41 +1044,105 @@ var ga;
                 }
             };
             GADevice.getOSVersionString = function () {
-                return GADevice.buildPlatform + " 0.0.0";
+                return GADevice.buildPlatform + " " + GADevice.osVersionPair.version;
             };
             GADevice.runtimePlatformToString = function () {
-                try {
-                    var platform = navigator.platform;
-                    platform = platform.toLowerCase();
-                    GALogger.d("Finding platform for: " + platform);
-                    if (platform.indexOf("mac") != -1) {
-                        return "mac_osx";
-                    }
-                    else if (platform.indexOf("linux") != -1) {
-                        return "linux";
-                    }
-                    else if (platform.indexOf("win") != -1) {
-                        return "windows";
-                    }
-                    else if (platform.indexOf("android") != -1) {
-                        return "android";
-                    }
-                    else if (platform.indexOf("iphone") != -1 || platform.indexOf("ipad") != -1 || platform.indexOf("ipod") != -1) {
-                        return "ios";
-                    }
-                    GALogger.d("Platform was not found: " + platform);
+                return GADevice.osVersionPair.name;
+            };
+            GADevice.getBrowserVersionString = function () {
+                var ua = navigator.userAgent;
+                var tem;
+                var M = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+                if (/trident/i.test(M[1])) {
+                    tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
+                    return 'IE ' + (tem[1] || '');
                 }
-                catch (e) {
+                if (M[1] === 'Chrome') {
+                    tem = ua.match(/\b(OPR|Edge|UBrowser)\/(\d+)/);
+                    if (tem != null) {
+                        return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC').toLowerCase();
+                    }
                 }
-                return "unknown";
+                var MString = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
+                if ((tem = ua.match(/version\/(\d+)/i)) != null) {
+                    MString.splice(1, 1, tem[1]);
+                }
+                return MString.join(' ').toLowerCase();
+            };
+            GADevice.getDeviceModel = function () {
+                var result = "unknown";
+                return result;
+            };
+            GADevice.getDeviceManufacturer = function () {
+                var result = "unknown";
+                return result;
+            };
+            GADevice.matchItem = function (agent, data) {
+                console.log("AGENT: " + agent);
+                var result = new NameVersion("unknown", "0.0.0");
+                var i = 0;
+                var j = 0;
+                var regex;
+                var regexv;
+                var match;
+                var matches;
+                var mathcesResult;
+                var version;
+                for (i = 0; i < data.length; i += 1) {
+                    regex = new RegExp(data[i].value, 'i');
+                    match = regex.test(agent);
+                    if (match) {
+                        regexv = new RegExp(data[i].version + '[- /:;]([\\d._]+)', 'i');
+                        matches = agent.match(regexv);
+                        version = '';
+                        if (matches) {
+                            if (matches[1]) {
+                                mathcesResult = matches[1];
+                            }
+                        }
+                        if (mathcesResult) {
+                            var matchesArray = mathcesResult.split(/[._]+/);
+                            for (j = 0; j < Math.min(matchesArray.length, 3); j += 1) {
+                                version += matchesArray[j] + (j < Math.min(matchesArray.length, 3) - 1 ? '.' : '');
+                            }
+                        }
+                        else {
+                            version = '0.0.0';
+                        }
+                        result.name = data[i].name;
+                        result.version = version;
+                        return result;
+                    }
+                }
+                return result;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 1.0.4";
+        GADevice.sdkWrapperVersion = "javascript 1.0.5";
+        GADevice.osVersionPair = GADevice.matchItem([
+            navigator.platform,
+            navigator.userAgent,
+            navigator.appVersion,
+            navigator.vendor,
+            window.opera
+        ].join(' '), [
+            new NameValueVersion("windows_phone", "Windows Phone", "OS"),
+            new NameValueVersion("windows", "Win", "NT"),
+            new NameValueVersion("ios", "iPhone", "OS"),
+            new NameValueVersion("ios", "iPad", "OS"),
+            new NameValueVersion("ios", "iPod", "OS"),
+            new NameValueVersion("android", "Android", "Android"),
+            new NameValueVersion("blackBerry", "BlackBerry", "/"),
+            new NameValueVersion("mac_osx", "Mac", "OS X"),
+            new NameValueVersion("tizen", "Tizen", "Tizen"),
+            new NameValueVersion("linux", "Linux", "rv")
+        ]);
         GADevice.buildPlatform = GADevice.runtimePlatformToString();
-        GADevice.deviceModel = "unknown";
-        GADevice.deviceManufacturer = "unknown";
+        GADevice.deviceModel = GADevice.getDeviceModel();
+        GADevice.deviceManufacturer = GADevice.getDeviceManufacturer();
         GADevice.osVersion = GADevice.getOSVersionString();
+        GADevice.browserVersion = GADevice.getBrowserVersionString();
+        GADevice.maxSafeInteger = Math.pow(2, 53) - 1;
         device.GADevice = GADevice;
     })(device = ga.device || (ga.device = {}));
 })(ga || (ga = {}));
@@ -1728,6 +1808,7 @@ var ga;
                 annotations["os_version"] = GADevice.osVersion;
                 annotations["manufacturer"] = GADevice.deviceManufacturer;
                 annotations["device"] = GADevice.deviceModel;
+                annotations["browser_version"] = GADevice.browserVersion;
                 annotations["platform"] = GADevice.buildPlatform;
                 annotations["session_id"] = GAState.instance.sessionId;
                 annotations[GAState.SessionNumKey] = GAState.instance.sessionNum;
