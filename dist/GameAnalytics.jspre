@@ -886,7 +886,7 @@ var ga;
                 if (!GAValidator.validateArrayOfStrings(20, 64, false, "resource currencies", resourceCurrencies)) {
                     return false;
                 }
-                for (var i in resourceCurrencies) {
+                for (var i = 0; i < resourceCurrencies.length; ++i) {
                     if (!GAUtilities.stringMatch(resourceCurrencies[i], /^[A-Za-z]+$/)) {
                         GALogger.i("resource currencies validation failed: a resource currency can only be A-Z, a-z. String was: " + resourceCurrencies[i]);
                         return false;
@@ -898,7 +898,7 @@ var ga;
                 if (!GAValidator.validateArrayOfStrings(20, 32, false, "resource item types", resourceItemTypes)) {
                     return false;
                 }
-                for (var i in resourceItemTypes) {
+                for (var i = 0; i < resourceItemTypes.length; ++i) {
                     if (!GAValidator.validateEventPartCharacters(resourceItemTypes[i])) {
                         GALogger.i("resource item types validation failed: a resource item type cannot contain other characters than A-z, 0-9, -_., ()!?. String was: " + resourceItemTypes[i]);
                         return false;
@@ -950,10 +950,10 @@ var ga;
                     GALogger.i(arrayTag + " validation failed: array cannot exceed " + maxCount + " values. It has " + arrayOfStrings.length + " values.");
                     return false;
                 }
-                for (var i in arrayOfStrings) {
+                for (var i = 0; i < arrayOfStrings.length; ++i) {
                     var stringLength = !arrayOfStrings[i] ? 0 : arrayOfStrings[i].length;
                     if (stringLength === 0) {
-                        GALogger.i(arrayTag + " validation failed: contained an empty string.");
+                        GALogger.i(arrayTag + " validation failed: contained an empty string. Array=" + JSON.stringify(arrayOfStrings));
                         return false;
                     }
                     if (maxStringLength > 0 && stringLength > maxStringLength) {
@@ -1118,7 +1118,7 @@ var ga;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 1.0.5";
+        GADevice.sdkWrapperVersion = "javascript 1.0.6";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
@@ -2505,7 +2505,7 @@ var ga;
                     return;
                 }
                 GALogger.i(sessions.length + " session(s) located with missing session_end event.");
-                for (var i in sessions) {
+                for (var i = 0; i < sessions.length; ++i) {
                     var sessionEndEvent = JSON.parse(GAUtilities.decode64(sessions[i]["event"]));
                     var event_ts = sessionEndEvent["client_ts"];
                     var start_ts = sessions[i]["timestamp"];
