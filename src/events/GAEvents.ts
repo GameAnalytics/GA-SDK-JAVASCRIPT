@@ -461,7 +461,7 @@ module ga
                 GALogger.i(sessions.length + " session(s) located with missing session_end event.");
 
                 // Add missing session_end events
-                for (let i in sessions)
+                for (let i = 0; i < sessions.length; ++i)
                 {
                     var sessionEndEvent:{[key:string]: any} = JSON.parse(GAUtilities.decode64(sessions[i]["event"] as string));
                     var event_ts:number = sessionEndEvent["client_ts"] as number;

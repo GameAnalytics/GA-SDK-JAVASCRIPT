@@ -450,7 +450,7 @@ module ga
                 }
 
                 // validate each string for regex
-                for (let i in resourceCurrencies)
+                for (let i = 0; i < resourceCurrencies.length; ++i)
                 {
                     if (!GAUtilities.stringMatch(resourceCurrencies[i], /^[A-Za-z]+$/))
                     {
@@ -469,7 +469,7 @@ module ga
                 }
 
                 // validate each resourceItemType for eventpart validation
-                for (let i in resourceItemTypes)
+                for (let i = 0; i < resourceItemTypes.length; ++i)
                 {
                     if (!GAValidator.validateEventPartCharacters(resourceItemTypes[i]))
                     {
@@ -553,13 +553,13 @@ module ga
                 }
 
                 // validate each string
-                for (let i in arrayOfStrings)
+                for (let i = 0; i < arrayOfStrings.length; ++i)
                 {
                     var stringLength:number = !arrayOfStrings[i] ? 0 : arrayOfStrings[i].length;
                     // check if empty (not allowed)
                     if (stringLength === 0)
                     {
-                        GALogger.i(arrayTag + " validation failed: contained an empty string.");
+                        GALogger.i(arrayTag + " validation failed: contained an empty string. Array=" + JSON.stringify(arrayOfStrings));
                         return false;
                     }
 

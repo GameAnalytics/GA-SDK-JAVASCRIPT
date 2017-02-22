@@ -32,7 +32,7 @@ module ga
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 1.0.5";
+            private static readonly sdkWrapperVersion:string = "javascript 1.0.6";
             private static readonly osVersionPair:NameVersion = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
