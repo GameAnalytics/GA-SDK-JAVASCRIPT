@@ -1678,6 +1678,7 @@ var ga;
             };
             GAState.setBuild = function (value) {
                 GAState.instance.build = value;
+                GALogger.i("Set build version: " + value);
             };
             GAState.getUseManualSessionHandling = function () {
                 return GAState.instance.useManualSessionHandling;
