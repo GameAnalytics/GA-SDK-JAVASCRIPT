@@ -199,6 +199,7 @@ module ga
             public static setBuild(value:string): void
             {
                 GAState.instance.build = value;
+                GALogger.i("Set build version: " + value);
             }
 
             private useManualSessionHandling:boolean;
