@@ -8,6 +8,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**1.0.7**
+* version validator updated with gamemaker
+
 **1.0.6**
 * small bug fix in validator
 
