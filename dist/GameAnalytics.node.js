@@ -396,7 +396,7 @@ var ga;
         })(EGALoggerMessageType || (EGALoggerMessageType = {}));
         var GALogger = (function () {
             function GALogger() {
-                GALogger.debugEnabled = true;
+                GALogger.debugEnabled = false;
             }
             GALogger.setInfoLog = function (value) {
                 GALogger.instance.infoLogEnabled = value;
@@ -1119,7 +1119,7 @@ var ga;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 1.0.7";
+        GADevice.sdkWrapperVersion = "javascript 1.0.8";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,

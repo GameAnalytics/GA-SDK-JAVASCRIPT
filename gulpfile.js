@@ -20,6 +20,7 @@ gulp.task('mini', ['bundle_min_js', 'build_mini'], function() {
 
 gulp.task('build_mini', function() {
     var tsResult = tsProjectMini.src()
+        .pipe(replace('GALogger.debugEnabled = true', 'GALogger.debugEnabled = false'))
         .pipe(replace('GALogger.d(', '//GALogger.d('))
         .pipe(replace('GALogger.i(', '//GALogger.i('))
         .pipe(replace('GALogger.w(', '//GALogger.w('))
@@ -51,6 +52,7 @@ gulp.task('ga_node', ['bundle_js', 'build_normal'], function() {
 
 gulp.task('build_normal', function() {
     var tsResult = tsProject.src()
+        .pipe(replace('GALogger.debugEnabled = true', 'GALogger.debugEnabled = false'))
         .pipe(tsProject());
 
     return tsResult.js
