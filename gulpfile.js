@@ -53,6 +53,7 @@ gulp.task('ga_node', ['bundle_js', 'build_normal'], function() {
 gulp.task('build_normal', function() {
     var tsResult = tsProject.src()
         .pipe(replace('GALogger.debugEnabled = true', 'GALogger.debugEnabled = false'))
+        .pipe(replace('GALogger.d(', '//GALogger.d('))
         .pipe(tsProject());
 
     return tsResult.js
