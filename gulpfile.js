@@ -3,6 +3,8 @@ var ts = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 var Server = require('karma').Server;
+var argv = require('yargs').argv;
+var gulpif = require('gulp-if');
 var tsProject = ts.createProject('tsconfig.json');
 var tsProjectMini = ts.createProject('tsconfig.json', { outFile: "./dist/GameAnalytics.min.js" });
 var tsProjectDebug = ts.createProject('tsconfig.json', { outFile: "./dist/GameAnalytics.debug.js" });
@@ -21,9 +23,10 @@ gulp.task('mini', ['bundle_min_js', 'build_mini'], function() {
 gulp.task('build_mini', function() {
     var tsResult = tsProjectMini.src()
         .pipe(replace('GALogger.debugEnabled = true', 'GALogger.debugEnabled = false'))
-        .pipe(replace('GALogger.d(', '//GALogger.d('))
-        .pipe(replace('GALogger.i(', '//GALogger.i('))
-        .pipe(replace('GALogger.w(', '//GALogger.w('))
+        .pipe(gulpif(argv.nologging, replace('GALogger.', '//GALogger.')))
+        .pipe(gulpif(argv.nologging, replace('//GALOGGER_START', '/*GALOGGER_START')))
+        .pipe(gulpif(argv.nologging, replace('//GALOGGER_END', '//GALOGGER_END*/')))
+        .pipe(gulpif(argv.nologging, replace('import GALogger = ga.logging.GALogger', '//import GALogger = ga.logging.GALogger')))
         .pipe(tsProjectMini());
 
     return tsResult.js
