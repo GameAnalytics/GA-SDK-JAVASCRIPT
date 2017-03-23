@@ -377,23 +377,28 @@ module ga
 
         public static startSession(): void
         {
-            GAThreading.performTaskOnGAThread(() =>
+            if(GAState.getUseManualSessionHandling())
             {
-                if(GAState.getUseManualSessionHandling())
+                if(!GAState.isInitialized())
                 {
-                    if(!GAState.isInitialized())
-                    {
-                        return;
-                    }
+                    return;
+                }
 
+                var timedBlock:TimedBlock = GAThreading.createTimedBlock();
+                timedBlock.async = true;
+                GameAnalytics.initTimedBlockId = timedBlock.id;
+                timedBlock.block = () =>
+                {
                     if(GAState.isEnabled() && GAState.sessionIsStarted())
                     {
                         GAThreading.endSessionAndStopQueue();
                     }
 
                     GameAnalytics.resumeSessionAndStartQueue();
-                }
-            });
+                };
+
+                GAThreading.performTimedBlockOnGAThread(timedBlock);
+            }
         }
 
         public static endSession(): void
@@ -406,18 +411,29 @@ module ga
 
         public static onStop(): void
         {
-            try
+            GAThreading.performTaskOnGAThread(() =>
             {
-                GAThreading.endSessionAndStopQueue();
-            }
-            catch (Exception)
-            {
-            }
+                try
+                {
+                    GAThreading.endSessionAndStopQueue();
+                }
+                catch (Exception)
+                {
+                }
+            });
         }
 
         public static onResume(): void
         {
-            GameAnalytics.resumeSessionAndStartQueue();
+            var timedBlock:TimedBlock = GAThreading.createTimedBlock();
+            timedBlock.async = true;
+            GameAnalytics.initTimedBlockId = timedBlock.id;
+            timedBlock.block = () =>
+            {
+                GameAnalytics.resumeSessionAndStartQueue();
+            };
+
+            GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
         private static internalInitialize(): void
@@ -543,6 +559,7 @@ module ga
 
             var timedBlock:TimedBlock = GAThreading.getTimedBlockById(GameAnalytics.initTimedBlockId);
             timedBlock.running = false;
+            GameAnalytics.initTimedBlockId = -1;
         }
 
         private static resumeSessionAndStartQueue(): void

@@ -556,15 +556,18 @@ module ga
 
             private static updateSessionStore(): void
             {
-                var values:{[key:string]: any} = {};
-                values["session_id"] = GAState.instance.sessionId;
-                values["timestamp"] = GAState.getSessionStart();
-                values["event"] = GAUtilities.encode64(JSON.stringify(GAState.getEventAnnotations()));
-                GAStore.insert(EGAStore.Sessions, values, true, "session_id");
-
-                if(GAStore.isStorageAvailable())
+                if(GAState.sessionIsStarted())
                 {
-                    GAStore.save();
+                    var values:{[key:string]: any} = {};
+                    values["session_id"] = GAState.instance.sessionId;
+                    values["timestamp"] = GAState.getSessionStart();
+                    values["event"] = GAUtilities.encode64(JSON.stringify(GAState.getEventAnnotations()));
+                    GAStore.insert(EGAStore.Sessions, values, true, "session_id");
+
+                    if(GAStore.isStorageAvailable())
+                    {
+                        GAStore.save();
+                    }
                 }
             }
 
