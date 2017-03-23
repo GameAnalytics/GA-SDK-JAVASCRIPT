@@ -32,12 +32,28 @@ module ga
                 GAThreading.startThread();
             }
 
+            public static createTimedBlock(delayInSeconds:number = 0): TimedBlock
+            {
+                var time:Date = new Date();
+                time.setSeconds(time.getSeconds() + delayInSeconds);
+
+                var timedBlock:TimedBlock = new TimedBlock(time);
+                return timedBlock;
+            }
+
             public static performTaskOnGAThread(taskBlock:() => void, delayInSeconds:number = 0): void
             {
                 var time:Date = new Date();
                 time.setSeconds(time.getSeconds() + delayInSeconds);
 
-                var timedBlock = new TimedBlock(time, taskBlock);
+                var timedBlock:TimedBlock = new TimedBlock(time);
+                timedBlock.block = taskBlock;
+                GAThreading.instance.id2TimedBlockMap[timedBlock.id] = timedBlock;
+                GAThreading.instance.addTimedBlock(timedBlock);
+            }
+
+            public static performTimedBlockOnGAThread(timedBlock:TimedBlock): void
+            {
                 GAThreading.instance.id2TimedBlockMap[timedBlock.id] = timedBlock;
                 GAThreading.instance.addTimedBlock(timedBlock);
             }
@@ -47,11 +63,24 @@ module ga
                 var time:Date = new Date();
                 time.setSeconds(time.getSeconds() + interval);
 
-                var timedBlock:TimedBlock = new TimedBlock(time, callback);
+                var timedBlock:TimedBlock = new TimedBlock(time);
+                timedBlock.block = callback;
                 GAThreading.instance.id2TimedBlockMap[timedBlock.id] = timedBlock;
                 GAThreading.instance.addTimedBlock(timedBlock);
 
                 return timedBlock.id;
+            }
+
+            public static getTimedBlockById(blockIdentifier:number): TimedBlock
+            {
+                if (blockIdentifier in GAThreading.instance.id2TimedBlockMap)
+                {
+                    return GAThreading.instance.id2TimedBlockMap[blockIdentifier]
+                }
+                else
+                {
+                    return null;
+                }
             }
 
             public static ensureEventQueueIsRunning(): void
@@ -109,7 +138,19 @@ module ga
                     {
                         if (!timedBlock.ignore)
                         {
-                            timedBlock.block();
+                            if(timedBlock.async)
+                            {
+                                if(!timedBlock.running)
+                                {
+                                    timedBlock.running = true;
+                                    timedBlock.block();
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                timedBlock.block();
+                            }
                         }
                     }
 
@@ -136,7 +177,21 @@ module ga
 
                 if (GAThreading.instance.blocks.hasItems() && GAThreading.instance.blocks.peek().deadline.getTime() <= now.getTime())
                 {
-                    return GAThreading.instance.blocks.dequeue();
+                    if(GAThreading.instance.blocks.peek().async)
+                    {
+                        if(GAThreading.instance.blocks.peek().running)
+                        {
+                            return GAThreading.instance.blocks.peek();
+                        }
+                        else
+                        {
+                            return GAThreading.instance.blocks.dequeue();
+                        }
+                    }
+                    else
+                    {
+                        return GAThreading.instance.blocks.dequeue();
+                    }
                 }
 
                 return null;

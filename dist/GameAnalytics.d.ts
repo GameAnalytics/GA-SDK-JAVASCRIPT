@@ -163,11 +163,13 @@ declare module ga {
     module threading {
         class TimedBlock {
             readonly deadline: Date;
-            readonly block: () => void;
+            block: () => void;
             readonly id: number;
             ignore: boolean;
+            async: boolean;
+            running: boolean;
             private static idCounter;
-            constructor(deadline: Date, block: () => void);
+            constructor(deadline: Date);
         }
     }
 }
@@ -431,8 +433,11 @@ declare module ga {
             private keepRunning;
             private isRunning;
             private constructor();
+            static createTimedBlock(delayInSeconds?: number): TimedBlock;
             static performTaskOnGAThread(taskBlock: () => void, delayInSeconds?: number): void;
+            static performTimedBlockOnGAThread(timedBlock: TimedBlock): void;
             static scheduleTimer(interval: number, callback: () => void): number;
+            static getTimedBlockById(blockIdentifier: number): TimedBlock;
             static ensureEventQueueIsRunning(): void;
             static endSessionAndStopQueue(): void;
             static stopEventQueue(): void;
@@ -447,6 +452,7 @@ declare module ga {
 }
 declare module ga {
     class GameAnalytics {
+        private static initTimedBlockId;
         static init(): void;
         static configureAvailableCustomDimensions01(customDimensions?: Array<string>): void;
         static configureAvailableCustomDimensions02(customDimensions?: Array<string>): void;

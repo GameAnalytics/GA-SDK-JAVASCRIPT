@@ -8,6 +8,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**1.0.9**
+* bug fix for sending events straight after initializing sdk
+
 **1.0.8**
 * removed debug log messages for release distribution versions
 
