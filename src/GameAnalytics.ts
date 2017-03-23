@@ -1,6 +1,7 @@
 module ga
 {
     import GAThreading = ga.threading.GAThreading;
+    import TimedBlock = ga.threading.TimedBlock;
     import GALogger = ga.logging.GALogger;
     import GAStore = ga.store.GAStore;
     import GAState = ga.state.GAState;
@@ -13,6 +14,8 @@ module ga
 
     export class GameAnalytics
     {
+        private static initTimedBlockId:number = -1;
+
         public static init(): void
         {
             GADevice.touch();
@@ -158,7 +161,10 @@ module ga
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            var timedBlock:TimedBlock = GAThreading.createTimedBlock();
+            timedBlock.async = true;
+            GameAnalytics.initTimedBlockId = timedBlock.id;
+            timedBlock.block = () =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -174,7 +180,9 @@ module ga
                 GAState.setKeys(gameKey, gameSecret);
 
                 GameAnalytics.internalInitialize();
-            });
+            };
+
+            GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
         public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = ""): void
@@ -532,6 +540,9 @@ module ga
 
             // Add session start event
             GAEvents.addSessionStartEvent();
+
+            var timedBlock:TimedBlock = GAThreading.getTimedBlockById(GameAnalytics.initTimedBlockId);
+            timedBlock.running = false;
         }
 
         private static resumeSessionAndStartQueue(): void

@@ -1,3 +1,4 @@
+//GALOGGER_START
 module ga
 {
     export module logging
@@ -125,3 +126,4 @@ module ga
         }
     }
 }
+//GALOGGER_END

@@ -238,6 +238,7 @@ describe("Validator", function () {
             expect(GAValidator.validateEngineVersion("unity 1.2")).toEqual(true);
             expect(GAValidator.validateEngineVersion("unity 1")).toEqual(true);
             expect(GAValidator.validateEngineVersion("unreal 1.2.3")).toEqual(true);
+            expect(GAValidator.validateEngineVersion("cocos2d 1.2.3")).toEqual(true);
         });
 
         it("should be invalid engine version", function() {
@@ -253,7 +254,6 @@ describe("Validator", function () {
             expect(GAValidator.validateEngineVersion("UNITY 1.2.3")).toEqual(false);
             expect(GAValidator.validateEngineVersion("marmalade 1.2.3")).toEqual(false);
             expect(GAValidator.validateEngineVersion("xamarin 1.2.3")).toEqual(false);
-            expect(GAValidator.validateEngineVersion("cocos2d 1.2.3")).toEqual(false);
         });
     });
 
