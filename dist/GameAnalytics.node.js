@@ -1119,7 +1119,7 @@ var ga;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 1.0.9";
+        GADevice.sdkWrapperVersion = "javascript 1.0.10";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
@@ -2534,13 +2534,15 @@ var ga;
                 }
             };
             GAEvents.updateSessionStore = function () {
-                var values = {};
-                values["session_id"] = GAState.instance.sessionId;
-                values["timestamp"] = GAState.getSessionStart();
-                values["event"] = GAUtilities.encode64(JSON.stringify(GAState.getEventAnnotations()));
-                GAStore.insert(EGAStore.Sessions, values, true, "session_id");
-                if (GAStore.isStorageAvailable()) {
-                    GAStore.save();
+                if (GAState.sessionIsStarted()) {
+                    var values = {};
+                    values["session_id"] = GAState.instance.sessionId;
+                    values["timestamp"] = GAState.getSessionStart();
+                    values["event"] = GAUtilities.encode64(JSON.stringify(GAState.getEventAnnotations()));
+                    GAStore.insert(EGAStore.Sessions, values, true, "session_id");
+                    if (GAStore.isStorageAvailable()) {
+                        GAStore.save();
+                    }
                 }
             };
             GAEvents.addDimensionsToEvent = function (eventData) {
@@ -3073,17 +3075,21 @@ var ga;
             });
         };
         GameAnalytics.startSession = function () {
-            GAThreading.performTaskOnGAThread(function () {
-                if (GAState.getUseManualSessionHandling()) {
-                    if (!GAState.isInitialized()) {
-                        return;
-                    }
+            if (GAState.getUseManualSessionHandling()) {
+                if (!GAState.isInitialized()) {
+                    return;
+                }
+                var timedBlock = GAThreading.createTimedBlock();
+                timedBlock.async = true;
+                GameAnalytics.initTimedBlockId = timedBlock.id;
+                timedBlock.block = function () {
                     if (GAState.isEnabled() && GAState.sessionIsStarted()) {
                         GAThreading.endSessionAndStopQueue();
                     }
                     GameAnalytics.resumeSessionAndStartQueue();
-                }
-            });
+                };
+                GAThreading.performTimedBlockOnGAThread(timedBlock);
+            }
         };
         GameAnalytics.endSession = function () {
             if (GAState.getUseManualSessionHandling()) {
@@ -3091,14 +3097,22 @@ var ga;
             }
         };
         GameAnalytics.onStop = function () {
-            try {
-                GAThreading.endSessionAndStopQueue();
-            }
-            catch (Exception) {
-            }
+            GAThreading.performTaskOnGAThread(function () {
+                try {
+                    GAThreading.endSessionAndStopQueue();
+                }
+                catch (Exception) {
+                }
+            });
         };
         GameAnalytics.onResume = function () {
-            GameAnalytics.resumeSessionAndStartQueue();
+            var timedBlock = GAThreading.createTimedBlock();
+            timedBlock.async = true;
+            GameAnalytics.initTimedBlockId = timedBlock.id;
+            timedBlock.block = function () {
+                GameAnalytics.resumeSessionAndStartQueue();
+            };
+            GAThreading.performTimedBlockOnGAThread(timedBlock);
         };
         GameAnalytics.internalInitialize = function () {
             GAState.ensurePersistedStates();
@@ -3171,6 +3185,7 @@ var ga;
             GAEvents.addSessionStartEvent();
             var timedBlock = GAThreading.getTimedBlockById(GameAnalytics.initTimedBlockId);
             timedBlock.running = false;
+            GameAnalytics.initTimedBlockId = -1;
         };
         GameAnalytics.resumeSessionAndStartQueue = function () {
             if (!GAState.isInitialized()) {

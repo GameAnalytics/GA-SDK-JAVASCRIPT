@@ -23,6 +23,7 @@ gulp.task('mini', ['bundle_min_js', 'build_mini'], function() {
 gulp.task('build_mini', function() {
     var tsResult = tsProjectMini.src()
         .pipe(replace('GALogger.debugEnabled = true', 'GALogger.debugEnabled = false'))
+        .pipe(replace('GALogger.d(', '//GALogger.d('))
         .pipe(gulpif(argv.nologging, replace('GALogger.', '//GALogger.')))
         .pipe(gulpif(argv.nologging, replace('//GALOGGER_START', '/*GALOGGER_START')))
         .pipe(gulpif(argv.nologging, replace('//GALOGGER_END', '//GALOGGER_END*/')))
