@@ -8,6 +8,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**1.1.11**
+* added 'construct' to version validator
+
 **1.0.10**
 * bug fix for end session when using manual session handling
 
