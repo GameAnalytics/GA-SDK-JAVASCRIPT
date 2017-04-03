@@ -1,6 +1,6 @@
 describe("Validator", function () {
     describe("Currency", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid currency", function() {
             expect(GAValidator.validateCurrency("USD")).toEqual(true);
@@ -20,7 +20,7 @@ describe("Validator", function () {
     });
 
     describe("ResourceCurrencies", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid resource currency", function() {
             expect(GAValidator.validateResourceCurrencies(["gems", "gold"])).toEqual(true);
@@ -35,7 +35,7 @@ describe("Validator", function () {
     });
 
     describe("ResourceItemTypes", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid resource item types", function() {
             expect(GAValidator.validateResourceItemTypes(["gems", "gold"])).toEqual(true);
@@ -50,8 +50,8 @@ describe("Validator", function () {
     });
 
     describe("ProgressionEvent", function () {
-        var GAValidator = ga.validators.GAValidator;
-        var EGAProgressionStatus = ga.EGAProgressionStatus;
+        var GAValidator = gameanalytics.validators.GAValidator;
+        var EGAProgressionStatus = gameanalytics.EGAProgressionStatus;
 
         it("should be valid progression event", function() {
             expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "level_001", "phase_001")).toEqual(true);
@@ -81,7 +81,7 @@ describe("Validator", function () {
     });
 
     describe("BusinessEvent", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid business event", function() {
             expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", "itemId")).toEqual(true);
@@ -103,9 +103,9 @@ describe("Validator", function () {
     });
 
     describe("ResourceEvent", function () {
-        var GAValidator = ga.validators.GAValidator;
-        var EGAResourceFlowType = ga.EGAResourceFlowType;
-        var GAState = ga.state.GAState;
+        var GAValidator = gameanalytics.validators.GAValidator;
+        var EGAResourceFlowType = gameanalytics.EGAResourceFlowType;
+        var GAState = gameanalytics.state.GAState;
 
         GAState.setAvailableResourceCurrencies(["gems", "gold"]);
         GAState.setAvailableResourceItemTypes(["guns", "powerups"]);
@@ -130,7 +130,7 @@ describe("Validator", function () {
     });
 
     describe("DesignEvent", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid design event", function() {
             expect(GAValidator.validateDesignEvent("name:name", 100)).toEqual(true);
@@ -149,8 +149,8 @@ describe("Validator", function () {
     });
 
     describe("ErrorEvent", function () {
-        var GAValidator = ga.validators.GAValidator;
-        var EGAErrorSeverity = ga.EGAErrorSeverity;
+        var GAValidator = gameanalytics.validators.GAValidator;
+        var EGAErrorSeverity = gameanalytics.EGAErrorSeverity;
 
         it("should be valid error event", function() {
             expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, "This is a message")).toEqual(true);
@@ -164,8 +164,8 @@ describe("Validator", function () {
     });
 
     describe("SdkErrorEvent", function () {
-        var GAValidator = ga.validators.GAValidator;
-        var EGASdkErrorType = ga.http.EGASdkErrorType;
+        var GAValidator = gameanalytics.validators.GAValidator;
+        var EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
 
         it("should be valid sdk error event", function() {
             expect(GAValidator.validateSdkErrorEvent("c6cfc80ff69d1e7316bf1e0c8194eda6", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorType.Rejected)).toEqual(true);
@@ -177,7 +177,7 @@ describe("Validator", function () {
     });
 
     describe("CustomDimensions", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid custom dimensions", function() {
             expect(GAValidator.validateCustomDimensions(["abc", "def", "ghi"])).toEqual(true);
@@ -192,7 +192,7 @@ describe("Validator", function () {
     });
 
     describe("SdkWrapperVersion", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid sdk wrapper version", function() {
             expect(GAValidator.validateSdkWrapperVersion("unity 1.2.3")).toEqual(true);
@@ -214,7 +214,7 @@ describe("Validator", function () {
     });
 
     describe("Build", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid build", function() {
             expect(GAValidator.validateBuild("alpha 1.2.3")).toEqual(true);
@@ -231,7 +231,7 @@ describe("Validator", function () {
     });
 
     describe("EngineVersion", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid engine version", function() {
             expect(GAValidator.validateEngineVersion("unity 1.2.3")).toEqual(true);
@@ -258,7 +258,7 @@ describe("Validator", function () {
     });
 
     describe("Keys", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
         var validGameKey = "123456789012345678901234567890ab";
         var validSecretKey = "123456789012345678901234567890123456789a";
         var tooLongKey = "123456789012345678901234567890123456789abcdefg";
@@ -282,7 +282,7 @@ describe("Validator", function () {
     });
 
     describe("EventPartLength", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid event part length", function() {
             expect(GAValidator.validateEventPartLength("sdfdf", false)).toEqual(true);
@@ -304,7 +304,7 @@ describe("Validator", function () {
     });
 
     describe("EventPartCharacters", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid event part characters", function() {
             expect(GAValidator.validateEventPartCharacters("sdfdffdgdfg")).toEqual(true);
@@ -321,7 +321,7 @@ describe("Validator", function () {
     });
 
     describe("EventIdLength", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid event id length", function() {
             expect(GAValidator.validateEventIdLength(getRandomString(40))).toEqual(true);
@@ -338,7 +338,7 @@ describe("Validator", function () {
     });
 
     describe("EventIdCharacters", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid event id characters", function() {
             expect(GAValidator.validateEventIdCharacters("GHj:df(g?h d_fk7-58.9)3!47")).toEqual(true);
@@ -353,7 +353,7 @@ describe("Validator", function () {
     });
 
     describe("ShortString", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid short string", function() {
             expect(GAValidator.validateShortString(getRandomString(32), false)).toEqual(true);
@@ -375,7 +375,7 @@ describe("Validator", function () {
     });
 
     describe("String", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid string", function() {
             expect(GAValidator.validateString(getRandomString(64), false)).toEqual(true);
@@ -397,7 +397,7 @@ describe("Validator", function () {
     });
 
     describe("String", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid string", function() {
             expect(GAValidator.validateString(getRandomString(64), false)).toEqual(true);
@@ -419,7 +419,7 @@ describe("Validator", function () {
     });
 
     describe("LongString", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid long string", function() {
             expect(GAValidator.validateLongString(getRandomString(8192), false)).toEqual(true);
@@ -441,7 +441,7 @@ describe("Validator", function () {
     });
 
     describe("ArrayOfStrings", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid array of strings", function() {
             expect(GAValidator.validateArrayOfStrings(3, 10, false, "test", [getRandomString(3), getRandomString(10), getRandomString(7)])).toEqual(true);
@@ -461,7 +461,7 @@ describe("Validator", function () {
     });
 
     describe("Birthyear", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid birthyear", function() {
             expect(GAValidator.validateBirthyear(1982)).toEqual(true);
@@ -476,8 +476,8 @@ describe("Validator", function () {
     });
 
     describe("ClientTs", function () {
-        var GAValidator = ga.validators.GAValidator;
-        var GAUtilities = ga.utilities.GAUtilities;
+        var GAValidator = gameanalytics.validators.GAValidator;
+        var GAUtilities = gameanalytics.utilities.GAUtilities;
 
         it("should be valid client ts", function() {
             expect(GAValidator.validateClientTs(GAUtilities.timeIntervalSince1970())).toEqual(true);
@@ -490,7 +490,7 @@ describe("Validator", function () {
     });
 
     describe("UserId", function () {
-        var GAValidator = ga.validators.GAValidator;
+        var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid client ts", function() {
             expect(GAValidator.validateUserId("fhjkdfghdfjkgh")).toEqual(true);
