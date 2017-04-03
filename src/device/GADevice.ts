@@ -1,8 +1,8 @@
-module ga
+module gameanalytics
 {
     export module device
     {
-        import GALogger = ga.logging.GALogger;
+        import GALogger = gameanalytics.logging.GALogger;
 
         export class NameValueVersion
         {

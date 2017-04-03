@@ -1,4 +1,4 @@
-declare module ga {
+declare module gameanalytics {
     enum EGAErrorSeverity {
         Undefined = 0,
         Debug = 1,
@@ -42,7 +42,11 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
+declare var EGAGender: typeof gameanalytics.EGAGender;
+declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
+declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
+declare module gameanalytics {
     module logging {
         class GALogger {
             private static readonly instance;
@@ -62,7 +66,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module utilities {
         class GAUtilities {
             static getHmac(key: string, data: string): string;
@@ -78,9 +82,9 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module validators {
-        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
         class GAValidator {
             static validateBusinessEvent(currency: string, amount: number, cartType: string, itemType: string, itemId: string): boolean;
             static validateResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string, availableCurrencies: Array<string>, availableItemTypes: Array<string>): boolean;
@@ -121,7 +125,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module device {
         class NameValueVersion {
             name: string;
@@ -159,7 +163,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module threading {
         class TimedBlock {
             readonly deadline: Date;
@@ -173,7 +177,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module threading {
         interface IComparer<T> {
             compare(x: T, y: T): number;
@@ -192,7 +196,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module store {
         enum EGAStoreArgsOperator {
             Equal = 0,
@@ -236,7 +240,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module state {
         class GAState {
             private static readonly CategorySdkError;
@@ -348,9 +352,9 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module tasks {
-        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
         class SdkErrorTask {
             private static readonly MaxCount;
             private static readonly countMap;
@@ -358,7 +362,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module http {
         class GAHTTPApi {
             static readonly instance: GAHTTPApi;
@@ -388,7 +392,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module events {
         class GAEvents {
             private static readonly instance;
@@ -421,7 +425,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module threading {
         class GAThreading {
             private static readonly instance;
@@ -450,7 +454,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     class GameAnalytics {
         private static initTimedBlockId;
         static init(): void;
@@ -489,3 +493,4 @@ declare module ga {
         private static isSdkReady(needsInitialized, warn?, message?);
     }
 }
+declare var GameAnalytics: typeof gameanalytics.GameAnalytics;

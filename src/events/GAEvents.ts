@@ -1,17 +1,17 @@
-module ga
+module gameanalytics
 {
     export module events
     {
-        import GAStore = ga.store.GAStore;
-        import EGAStore = ga.store.EGAStore;
-        import EGAStoreArgsOperator = ga.store.EGAStoreArgsOperator;
-        import GAState = ga.state.GAState;
-        import GALogger = ga.logging.GALogger;
-        import GAUtilities = ga.utilities.GAUtilities;
-        import EGAHTTPApiResponse = ga.http.EGAHTTPApiResponse;
-        import GAHTTPApi = ga.http.GAHTTPApi;
-        import GAValidator = ga.validators.GAValidator;
-        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import GAStore = gameanalytics.store.GAStore;
+        import EGAStore = gameanalytics.store.EGAStore;
+        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
+        import GAState = gameanalytics.state.GAState;
+        import GALogger = gameanalytics.logging.GALogger;
+        import GAUtilities = gameanalytics.utilities.GAUtilities;
+        import EGAHTTPApiResponse = gameanalytics.http.EGAHTTPApiResponse;
+        import GAHTTPApi = gameanalytics.http.GAHTTPApi;
+        import GAValidator = gameanalytics.validators.GAValidator;
+        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
 
         export class GAEvents
         {

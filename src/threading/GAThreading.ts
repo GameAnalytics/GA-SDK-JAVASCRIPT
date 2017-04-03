@@ -1,15 +1,15 @@
-module ga
+module gameanalytics
 {
     export module threading
     {
-        import GALogger = ga.logging.GALogger;
-        import GAUtilities = ga.utilities.GAUtilities;
-        import GAStore = ga.store.GAStore;
-        import EGAStoreArgsOperator = ga.store.EGAStoreArgsOperator;
-        import EGAStore = ga.store.EGAStore;
-        import GAState = ga.state.GAState;
-        import GAEvents = ga.events.GAEvents;
-        import GAHTTPApi = ga.http.GAHTTPApi;
+        import GALogger = gameanalytics.logging.GALogger;
+        import GAUtilities = gameanalytics.utilities.GAUtilities;
+        import GAStore = gameanalytics.store.GAStore;
+        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
+        import EGAStore = gameanalytics.store.EGAStore;
+        import GAState = gameanalytics.state.GAState;
+        import GAEvents = gameanalytics.events.GAEvents;
+        import GAHTTPApi = gameanalytics.http.GAHTTPApi;
 
         export class GAThreading
         {

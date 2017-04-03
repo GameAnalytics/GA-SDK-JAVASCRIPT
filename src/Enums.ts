@@ -1,4 +1,4 @@
-module ga
+module gameanalytics
 {
     export enum EGAErrorSeverity
     {
@@ -57,3 +57,7 @@ module ga
         }
     }
 }
+var EGAErrorSeverity = gameanalytics.EGAErrorSeverity;
+var EGAGender = gameanalytics.EGAGender;
+var EGAProgressionStatus = gameanalytics.EGAProgressionStatus;
+var EGAResourceFlowType = gameanalytics.EGAResourceFlowType;

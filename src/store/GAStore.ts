@@ -1,8 +1,8 @@
-module ga
+module gameanalytics
 {
     export module store
     {
-        import GALogger = ga.logging.GALogger;
+        import GALogger = gameanalytics.logging.GALogger;
 
         export enum EGAStoreArgsOperator
         {
