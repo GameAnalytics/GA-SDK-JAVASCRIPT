@@ -669,7 +669,7 @@ var gameanalytics;
                 return true;
             };
             GAValidator.validateProgressionEvent = function (progressionStatus, progression01, progression02, progression03) {
-                if (progressionStatus === gameanalytics.EGAProgressionStatus.Undefined) {
+                if (progressionStatus == gameanalytics.EGAProgressionStatus.Undefined) {
                     GALogger.i("Validation fail - progression event: Invalid progression status.");
                     return false;
                 }
@@ -727,7 +727,7 @@ var gameanalytics;
                 return true;
             };
             GAValidator.validateErrorEvent = function (severity, message) {
-                if (severity === gameanalytics.EGAErrorSeverity.Undefined) {
+                if (severity == gameanalytics.EGAErrorSeverity.Undefined) {
                     GALogger.i("Validation fail - error event - severity: Severity was unsupported value.");
                     return false;
                 }
@@ -976,9 +976,17 @@ var gameanalytics;
                 return true;
             };
             GAValidator.validateGender = function (gender) {
-                if (gender === gameanalytics.EGAGender.Undefined || !(gender === gameanalytics.EGAGender.Male || gender === gameanalytics.EGAGender.Female)) {
-                    GALogger.i("Validation fail - gender: Has to be 'male' or 'female'.");
-                    return false;
+                if (isNaN(Number(gameanalytics.EGAGender[gender]))) {
+                    if (gender == gameanalytics.EGAGender.Undefined || !(gender == gameanalytics.EGAGender.Male || gender == gameanalytics.EGAGender.Female)) {
+                        GALogger.i("Validation fail - gender: Has to be 'male' or 'female'. Was: " + gender);
+                        return false;
+                    }
+                }
+                else {
+                    if (gender == gameanalytics.EGAGender[gameanalytics.EGAGender.Undefined] || !(gender == gameanalytics.EGAGender[gameanalytics.EGAGender.Male] || gender == gameanalytics.EGAGender[gameanalytics.EGAGender.Female])) {
+                        GALogger.i("Validation fail - gender: Has to be 'male' or 'female'. Was: " + gender);
+                        return false;
+                    }
                 }
                 return true;
             };
@@ -1756,7 +1764,7 @@ var gameanalytics;
                 GALogger.i("Set facebook id: " + facebookId);
             };
             GAState.setGender = function (gender) {
-                GAState.instance.gender = gameanalytics.EGAGender[gender].toString().toLowerCase();
+                GAState.instance.gender = isNaN(Number(gameanalytics.EGAGender[gender])) ? gameanalytics.EGAGender[gender].toString().toLowerCase() : gameanalytics.EGAGender[gameanalytics.EGAGender[gender]].toString().toLowerCase();
                 GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
                 GALogger.i("Set gender: " + GAState.instance.gender);
             };
@@ -2803,6 +2811,35 @@ var gameanalytics;
         }
         GameAnalytics.init = function () {
             GADevice.touch();
+            GameAnalytics.methodMap['configureAvailableCustomDimensions01'] = GameAnalytics.configureAvailableCustomDimensions01;
+            GameAnalytics.methodMap['configureAvailableCustomDimensions02'] = GameAnalytics.configureAvailableCustomDimensions02;
+            GameAnalytics.methodMap['configureAvailableCustomDimensions03'] = GameAnalytics.configureAvailableCustomDimensions03;
+            GameAnalytics.methodMap['configureAvailableResourceCurrencies'] = GameAnalytics.configureAvailableResourceCurrencies;
+            GameAnalytics.methodMap['configureAvailableResourceItemTypes'] = GameAnalytics.configureAvailableResourceCurrencies;
+            GameAnalytics.methodMap['configureBuild'] = GameAnalytics.configureBuild;
+            GameAnalytics.methodMap['configureSdkGameEngineVersion'] = GameAnalytics.configureSdkGameEngineVersion;
+            GameAnalytics.methodMap['configureGameEngineVersion'] = GameAnalytics.configureGameEngineVersion;
+            GameAnalytics.methodMap['configureUserId'] = GameAnalytics.configureUserId;
+            GameAnalytics.methodMap['initialize'] = GameAnalytics.initialize;
+            GameAnalytics.methodMap['addBusinessEvent'] = GameAnalytics.addBusinessEvent;
+            GameAnalytics.methodMap['addResourceEvent'] = GameAnalytics.addResourceEvent;
+            GameAnalytics.methodMap['addProgressionEvent'] = GameAnalytics.addProgressionEvent;
+            GameAnalytics.methodMap['addDesignEvent'] = GameAnalytics.addDesignEvent;
+            GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
+            GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
+            GameAnalytics.methodMap['setEnabledInfoLog'] = GameAnalytics.setEnabledInfoLog;
+            GameAnalytics.methodMap['setEnabledVerboseLog'] = GameAnalytics.setEnabledVerboseLog;
+            GameAnalytics.methodMap['setEnabledManualSessionHandling'] = GameAnalytics.setEnabledManualSessionHandling;
+            GameAnalytics.methodMap['setCustomDimension01'] = GameAnalytics.setCustomDimension01;
+            GameAnalytics.methodMap['setCustomDimension02'] = GameAnalytics.setCustomDimension02;
+            GameAnalytics.methodMap['setCustomDimension03'] = GameAnalytics.setCustomDimension03;
+            GameAnalytics.methodMap['setFacebookId'] = GameAnalytics.setFacebookId;
+            GameAnalytics.methodMap['setGender'] = GameAnalytics.setGender;
+            GameAnalytics.methodMap['setBirthYear'] = GameAnalytics.setBirthYear;
+            GameAnalytics.methodMap['startSession'] = GameAnalytics.startSession;
+            GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
+            GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
+            GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
         };
         GameAnalytics.configureAvailableCustomDimensions01 = function (customDimensions) {
             if (customDimensions === void 0) { customDimensions = []; }
@@ -3223,8 +3260,24 @@ var gameanalytics;
         return GameAnalytics;
     }());
     GameAnalytics.initTimedBlockId = -1;
+    GameAnalytics.methodMap = {};
     gameanalytics.GameAnalytics = GameAnalytics;
     GameAnalytics.init();
 })(gameanalytics || (gameanalytics = {}));
-var GameAnalytics = gameanalytics.GameAnalytics;
+var GameAnalytics = function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    if (arguments.length > 0) {
+        if (arguments[0] in gameanalytics.GameAnalytics.methodMap) {
+            if (arguments.length > 1) {
+                gameanalytics.GameAnalytics.methodMap[arguments[0]](Array.prototype.slice.call(arguments, 1));
+            }
+            else {
+                gameanalytics.GameAnalytics.methodMap[arguments[0]]();
+            }
+        }
+    }
+};
 module.exports = gameanalytics;

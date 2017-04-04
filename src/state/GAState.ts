@@ -329,7 +329,7 @@ module gameanalytics
 
             public static setGender(gender:EGAGender): void
             {
-                GAState.instance.gender = EGAGender[gender].toString().toLowerCase();
+                GAState.instance.gender = isNaN(Number(EGAGender[gender])) ? EGAGender[gender].toString().toLowerCase() : EGAGender[EGAGender[gender]].toString().toLowerCase();
                 GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
                 GALogger.i("Set gender: " + GAState.instance.gender);
             }

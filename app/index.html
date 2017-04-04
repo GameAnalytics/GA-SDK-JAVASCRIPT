@@ -6,51 +6,11 @@
     <body>
         <script type="text/javascript" src='../dist/GameAnalytics.js'></script>
         <script type="text/javascript">
-            GameAnalytics.setEnabledInfoLog(true);
-            GameAnalytics.setEnabledVerboseLog(true);
-            GameAnalytics.setEnabledManualSessionHandling(true);
-
-            GameAnalytics.configureBuild("0.10");
-
-            GameAnalytics.configureAvailableResourceCurrencies(["gems", "gold"]);
-            GameAnalytics.configureAvailableResourceItemTypes(["boost", "lives"]);
-            GameAnalytics.configureAvailableCustomDimensions01(["ninja", "samurai"]);
-            GameAnalytics.configureAvailableCustomDimensions02(["whale", "dolphin"]);
-            GameAnalytics.configureAvailableCustomDimensions03(["horde", "alliance"]);
-
-            GameAnalytics.initialize("bd624ee6f8e6efb32a054f8d7ba11618", "7f5c3f682cbd217841efba92e92ffb1b3b6612bc");
-
-            GameAnalytics.setCustomDimension01("ninja");
-            GameAnalytics.setFacebookId("the_dude");
-            GameAnalytics.setGender(EGAGender.Male);
-            GameAnalytics.setBirthYear(1982);
-
-            setTimeout(() =>
-            {
-                GameAnalytics.addDesignEvent("testEvent");
-                GameAnalytics.addBusinessEvent("USD", 100, "boost", "super_boost", "shop");
-
-                GameAnalytics.setCustomDimension02("whale");
-
-                GameAnalytics.addDesignEvent("testEvent", 10);
-                GameAnalytics.addResourceEvent(EGAResourceFlowType.Source, "gems", 10, "lives", "extra_life");
-                GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, "progression01", "progression02", "progression03");
-                GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, "progression01", "progression02", "progression03", 100);
-                GameAnalytics.endSession();
-                GameAnalytics.startSession();
-            }, 10000);
-
-            setTimeout(() =>
-            {
-                GameAnalytics.setCustomDimension03("horde");
-
-                GameAnalytics.addErrorEvent(EGAErrorSeverity.Info, "ERROR!!!!!");
-                GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, "progression01", "progression02");
-                GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, "progression01", "progression02", 100);
-                GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, "progression01");
-                GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, "progression01", 100);
-            }, 20000);
-
+            GameAnalytics("setEnabledInfoLog", true);
+            GameAnalytics("setEnabledVerboseLog", true);
+            GameAnalytics("configureAvailableCustomDimensions01", ["ninja", "samurai"]);
+            GameAnalytics("setFacebookId", "my_facebook");
+            GameAnalytics("setGender", 2);
         </script>
     </body>
 </html>

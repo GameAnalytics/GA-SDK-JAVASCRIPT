@@ -15,10 +15,40 @@ module gameanalytics
     export class GameAnalytics
     {
         private static initTimedBlockId:number = -1;
+        public static methodMap:{[id:string]: (...args: any[]) => void} = {};
 
         public static init(): void
         {
             GADevice.touch();
+            GameAnalytics.methodMap['configureAvailableCustomDimensions01'] = GameAnalytics.configureAvailableCustomDimensions01;
+            GameAnalytics.methodMap['configureAvailableCustomDimensions02'] = GameAnalytics.configureAvailableCustomDimensions02;
+            GameAnalytics.methodMap['configureAvailableCustomDimensions03'] = GameAnalytics.configureAvailableCustomDimensions03;
+            GameAnalytics.methodMap['configureAvailableResourceCurrencies'] = GameAnalytics.configureAvailableResourceCurrencies;
+            GameAnalytics.methodMap['configureAvailableResourceItemTypes'] = GameAnalytics.configureAvailableResourceCurrencies;
+            GameAnalytics.methodMap['configureBuild'] = GameAnalytics.configureBuild;
+            GameAnalytics.methodMap['configureSdkGameEngineVersion'] = GameAnalytics.configureSdkGameEngineVersion;
+            GameAnalytics.methodMap['configureGameEngineVersion'] = GameAnalytics.configureGameEngineVersion;
+            GameAnalytics.methodMap['configureUserId'] = GameAnalytics.configureUserId;
+            GameAnalytics.methodMap['initialize'] = GameAnalytics.initialize;
+            GameAnalytics.methodMap['addBusinessEvent'] = GameAnalytics.addBusinessEvent;
+            GameAnalytics.methodMap['addResourceEvent'] = GameAnalytics.addResourceEvent;
+            GameAnalytics.methodMap['addProgressionEvent'] = GameAnalytics.addProgressionEvent;
+            GameAnalytics.methodMap['addDesignEvent'] = GameAnalytics.addDesignEvent;
+            GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
+            GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
+            GameAnalytics.methodMap['setEnabledInfoLog'] = GameAnalytics.setEnabledInfoLog;
+            GameAnalytics.methodMap['setEnabledVerboseLog'] = GameAnalytics.setEnabledVerboseLog;
+            GameAnalytics.methodMap['setEnabledManualSessionHandling'] = GameAnalytics.setEnabledManualSessionHandling;
+            GameAnalytics.methodMap['setCustomDimension01'] = GameAnalytics.setCustomDimension01;
+            GameAnalytics.methodMap['setCustomDimension02'] = GameAnalytics.setCustomDimension02;
+            GameAnalytics.methodMap['setCustomDimension03'] = GameAnalytics.setCustomDimension03;
+            GameAnalytics.methodMap['setFacebookId'] = GameAnalytics.setFacebookId;
+            GameAnalytics.methodMap['setGender'] = GameAnalytics.setGender;
+            GameAnalytics.methodMap['setBirthYear'] = GameAnalytics.setBirthYear;
+            GameAnalytics.methodMap['startSession'] = GameAnalytics.startSession;
+            GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
+            GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
+            GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
         }
 
         public static configureAvailableCustomDimensions01(customDimensions:Array<string> = []): void
@@ -606,4 +636,20 @@ module gameanalytics
 
     GameAnalytics.init();
 }
-var GameAnalytics = gameanalytics.GameAnalytics;
+var GameAnalytics = function(...args: any[])
+{
+    if(arguments.length > 0)
+    {
+        if(arguments[0] in gameanalytics.GameAnalytics.methodMap)
+        {
+            if(arguments.length > 1)
+            {
+                gameanalytics.GameAnalytics.methodMap[arguments[0]](Array.prototype.slice.call(arguments, 1));
+            }
+            else
+            {
+                gameanalytics.GameAnalytics.methodMap[arguments[0]]();
+            }
+        }
+    }
+};
