@@ -461,6 +461,7 @@ declare module gameanalytics {
             [id: string]: (...args: any[]) => void;
         };
         static init(): void;
+        static gaCommand(...args: any[]): void;
         static configureAvailableCustomDimensions01(customDimensions?: Array<string>): void;
         static configureAvailableCustomDimensions02(customDimensions?: Array<string>): void;
         static configureAvailableCustomDimensions03(customDimensions?: Array<string>): void;
@@ -496,4 +497,4 @@ declare module gameanalytics {
         private static isSdkReady(needsInitialized, warn?, message?);
     }
 }
-declare var GameAnalytics: (...args: any[]) => void;
+declare var GameAnalytics: typeof gameanalytics.GameAnalytics.gaCommand;

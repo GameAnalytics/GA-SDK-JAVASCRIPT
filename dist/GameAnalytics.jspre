@@ -1090,7 +1090,6 @@ var gameanalytics;
                 return result;
             };
             GADevice.matchItem = function (agent, data) {
-                console.log("AGENT: " + agent);
                 var result = new NameVersion("unknown", "0.0.0");
                 var i = 0;
                 var j = 0;
@@ -2571,67 +2570,48 @@ var gameanalytics;
                 }
             };
             GAEvents.resourceFlowTypeToString = function (value) {
-                switch (value) {
-                    case gameanalytics.EGAResourceFlowType.Source:
-                        {
-                            return "Source";
-                        }
-                    case gameanalytics.EGAResourceFlowType.Sink:
-                        {
-                            return "Sink";
-                        }
-                    default:
-                        {
-                            return "";
-                        }
+                if (value == gameanalytics.EGAResourceFlowType.Source || value == gameanalytics.EGAResourceFlowType[gameanalytics.EGAResourceFlowType.Source]) {
+                    return "Source";
+                }
+                else if (value == gameanalytics.EGAResourceFlowType.Sink || value == gameanalytics.EGAResourceFlowType[gameanalytics.EGAResourceFlowType.Sink]) {
+                    return "Sink";
+                }
+                else {
+                    return "";
                 }
             };
             GAEvents.progressionStatusToString = function (value) {
-                switch (value) {
-                    case gameanalytics.EGAProgressionStatus.Start:
-                        {
-                            return "Start";
-                        }
-                    case gameanalytics.EGAProgressionStatus.Complete:
-                        {
-                            return "Complete";
-                        }
-                    case gameanalytics.EGAProgressionStatus.Fail:
-                        {
-                            return "Fail";
-                        }
-                    default:
-                        {
-                            return "";
-                        }
+                if (value == gameanalytics.EGAProgressionStatus.Start || value == gameanalytics.EGAProgressionStatus[gameanalytics.EGAProgressionStatus.Start]) {
+                    return "Start";
+                }
+                else if (value == gameanalytics.EGAProgressionStatus.Complete || value == gameanalytics.EGAProgressionStatus[gameanalytics.EGAProgressionStatus.Complete]) {
+                    return "Complete";
+                }
+                else if (value == gameanalytics.EGAProgressionStatus.Fail || value == gameanalytics.EGAProgressionStatus[gameanalytics.EGAProgressionStatus.Fail]) {
+                    return "Fail";
+                }
+                else {
+                    return "";
                 }
             };
             GAEvents.errorSeverityToString = function (value) {
-                switch (value) {
-                    case gameanalytics.EGAErrorSeverity.Debug:
-                        {
-                            return "debug";
-                        }
-                    case gameanalytics.EGAErrorSeverity.Info:
-                        {
-                            return "info";
-                        }
-                    case gameanalytics.EGAErrorSeverity.Warning:
-                        {
-                            return "warning";
-                        }
-                    case gameanalytics.EGAErrorSeverity.Error:
-                        {
-                            return "error";
-                        }
-                    case gameanalytics.EGAErrorSeverity.Critical:
-                        {
-                            return "critical";
-                        }
-                    default:
-                        {
-                            return "";
-                        }
+                if (value == gameanalytics.EGAErrorSeverity.Debug || value == gameanalytics.EGAErrorSeverity[gameanalytics.EGAErrorSeverity.Debug]) {
+                    return "debug";
+                }
+                else if (value == gameanalytics.EGAErrorSeverity.Info || value == gameanalytics.EGAErrorSeverity[gameanalytics.EGAErrorSeverity.Info]) {
+                    return "info";
+                }
+                else if (value == gameanalytics.EGAErrorSeverity.Warning || value == gameanalytics.EGAErrorSeverity[gameanalytics.EGAErrorSeverity.Warning]) {
+                    return "warning";
+                }
+                else if (value == gameanalytics.EGAErrorSeverity.Error || value == gameanalytics.EGAErrorSeverity[gameanalytics.EGAErrorSeverity.Error]) {
+                    return "error";
+                }
+                else if (value == gameanalytics.EGAErrorSeverity.Critical || value == gameanalytics.EGAErrorSeverity[gameanalytics.EGAErrorSeverity.Critical]) {
+                    return "critical";
+                }
+                else {
+                    return "";
                 }
             };
             return GAEvents;
@@ -2839,6 +2819,28 @@ var gameanalytics;
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
+            if (typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined') {
+                var q = window['GameAnalytics']['q'];
+                for (var i in q) {
+                    GameAnalytics.gaCommand.apply(null, q[i]);
+                }
+            }
+        };
+        GameAnalytics.gaCommand = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            if (args.length > 0) {
+                if (args[0] in gameanalytics.GameAnalytics.methodMap) {
+                    if (args.length > 1) {
+                        gameanalytics.GameAnalytics.methodMap[args[0]](Array.prototype.slice.call(args, 1));
+                    }
+                    else {
+                        gameanalytics.GameAnalytics.methodMap[args[0]]();
+                    }
+                }
+            }
         };
         GameAnalytics.configureAvailableCustomDimensions01 = function (customDimensions) {
             if (customDimensions === void 0) { customDimensions = []; }
@@ -3261,21 +3263,6 @@ var gameanalytics;
     GameAnalytics.initTimedBlockId = -1;
     GameAnalytics.methodMap = {};
     gameanalytics.GameAnalytics = GameAnalytics;
-    GameAnalytics.init();
 })(gameanalytics || (gameanalytics = {}));
-var GameAnalytics = function () {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    if (arguments.length > 0) {
-        if (arguments[0] in gameanalytics.GameAnalytics.methodMap) {
-            if (arguments.length > 1) {
-                gameanalytics.GameAnalytics.methodMap[arguments[0]](Array.prototype.slice.call(arguments, 1));
-            }
-            else {
-                gameanalytics.GameAnalytics.methodMap[arguments[0]]();
-            }
-        }
-    }
-};
+gameanalytics.GameAnalytics.init();
+var GameAnalytics = gameanalytics.GameAnalytics.gaCommand;

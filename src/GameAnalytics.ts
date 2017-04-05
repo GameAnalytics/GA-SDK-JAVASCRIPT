@@ -49,6 +49,33 @@ module gameanalytics
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
+
+            if(typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined')
+            {
+                var q:any[] = window['GameAnalytics']['q'];
+                for (let i in q)
+                {
+                    GameAnalytics.gaCommand.apply(null, q[i]);
+                }
+            }
+        }
+
+        public static gaCommand(...args: any[]): void
+        {
+            if(args.length > 0)
+            {
+                if(args[0] in gameanalytics.GameAnalytics.methodMap)
+                {
+                    if(args.length > 1)
+                    {
+                        gameanalytics.GameAnalytics.methodMap[args[0]](Array.prototype.slice.call(args, 1));
+                    }
+                    else
+                    {
+                        gameanalytics.GameAnalytics.methodMap[args[0]]();
+                    }
+                }
+            }
         }
 
         public static configureAvailableCustomDimensions01(customDimensions:Array<string> = []): void
@@ -633,23 +660,6 @@ module gameanalytics
             return true;
         }
     }
-
-    GameAnalytics.init();
 }
-var GameAnalytics = function(...args: any[])
-{
-    if(arguments.length > 0)
-    {
-        if(arguments[0] in gameanalytics.GameAnalytics.methodMap)
-        {
-            if(arguments.length > 1)
-            {
-                gameanalytics.GameAnalytics.methodMap[arguments[0]](Array.prototype.slice.call(arguments, 1));
-            }
-            else
-            {
-                gameanalytics.GameAnalytics.methodMap[arguments[0]]();
-            }
-        }
-    }
-};
+gameanalytics.GameAnalytics.init();
+var GameAnalytics = gameanalytics.GameAnalytics.gaCommand;
