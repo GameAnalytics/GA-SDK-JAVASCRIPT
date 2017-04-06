@@ -158,7 +158,6 @@ module gameanalytics
 
             private static matchItem(agent:string, data:Array<NameValueVersion>):NameVersion
             {
-                console.log("AGENT: " + agent);
                 var result:NameVersion = new NameVersion("unknown", "0.0.0");
 
                 var i:number = 0;

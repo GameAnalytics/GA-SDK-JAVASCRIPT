@@ -119,7 +119,7 @@ declare module gameanalytics {
             static validateDimension03(dimension03: string, availableDimensions: Array<string>): boolean;
             static validateArrayOfStrings(maxCount: number, maxStringLength: number, allowNoValues: boolean, logTag: string, arrayOfStrings: Array<string>): boolean;
             static validateFacebookId(facebookId: string): boolean;
-            static validateGender(gender: EGAGender): boolean;
+            static validateGender(gender: any): boolean;
             static validateBirthyear(birthYear: number): boolean;
             static validateClientTs(clientTs: number): boolean;
         }
@@ -457,7 +457,11 @@ declare module gameanalytics {
 declare module gameanalytics {
     class GameAnalytics {
         private static initTimedBlockId;
+        static methodMap: {
+            [id: string]: (...args: any[]) => void;
+        };
         static init(): void;
+        static gaCommand(...args: any[]): void;
         static configureAvailableCustomDimensions01(customDimensions?: Array<string>): void;
         static configureAvailableCustomDimensions02(customDimensions?: Array<string>): void;
         static configureAvailableCustomDimensions03(customDimensions?: Array<string>): void;
@@ -493,4 +497,4 @@ declare module gameanalytics {
         private static isSdkReady(needsInitialized, warn?, message?);
     }
 }
-declare var GameAnalytics: typeof gameanalytics.GameAnalytics;
+declare var GameAnalytics: typeof gameanalytics.GameAnalytics.gaCommand;
