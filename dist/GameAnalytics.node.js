@@ -635,7 +635,7 @@ var gameanalytics;
                     return false;
                 }
                 if (!GAUtilities.stringArrayContainsString(availableCurrencies, currency)) {
-                    GALogger.i("Validation fail - resource event - currency: Not found in list of pre-defined available resource currencies. String: " + currency + " Array: " + availableCurrencies);
+                    GALogger.i("Validation fail - resource event - currency: Not found in list of pre-defined available resource currencies. String: " + currency);
                     return false;
                 }
                 if (!(amount > 0)) {
@@ -655,7 +655,7 @@ var gameanalytics;
                     return false;
                 }
                 if (!GAUtilities.stringArrayContainsString(availableItemTypes, itemType)) {
-                    GALogger.i("Validation fail - resource event - itemType: Not found in list of pre-defined available resource itemTypes. String: " + itemType + " Array: " + availableItemTypes);
+                    GALogger.i("Validation fail - resource event - itemType: Not found in list of pre-defined available resource itemTypes. String: " + itemType);
                     return false;
                 }
                 if (!GAValidator.validateEventPartLength(itemId, false)) {
@@ -1130,7 +1130,7 @@ var gameanalytics;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 1.1.11";
+        GADevice.sdkWrapperVersion = "javascript 2.0.0";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
