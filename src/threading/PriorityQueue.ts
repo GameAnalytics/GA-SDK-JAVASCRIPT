@@ -9,8 +9,8 @@ module gameanalytics
 
         export class PriorityQueue<TItem>
         {
-            private _subQueues:{[key:number]: Array<TItem>};
-            private _sortedKeys:Array<number>;
+            public _subQueues:{[key:number]: Array<TItem>};
+            public _sortedKeys:Array<number>;
             private comparer:IComparer<number>;
 
             public constructor(priorityComparer:IComparer<number>)

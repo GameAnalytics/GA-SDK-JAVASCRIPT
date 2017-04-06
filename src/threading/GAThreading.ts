@@ -14,7 +14,7 @@ module gameanalytics
         export class GAThreading
         {
             private static readonly instance:GAThreading = new GAThreading();
-            private readonly blocks:PriorityQueue<TimedBlock> = new PriorityQueue<TimedBlock>(<IComparer<number>>{
+            public readonly blocks:PriorityQueue<TimedBlock> = new PriorityQueue<TimedBlock>(<IComparer<number>>{
                 compare: (x:number, y:number) => {
                     return x - y;
                 }

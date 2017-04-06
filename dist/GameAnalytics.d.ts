@@ -183,8 +183,10 @@ declare module gameanalytics {
             compare(x: T, y: T): number;
         }
         class PriorityQueue<TItem> {
-            private _subQueues;
-            private _sortedKeys;
+            _subQueues: {
+                [key: number]: Array<TItem>;
+            };
+            _sortedKeys: Array<number>;
             private comparer;
             constructor(priorityComparer: IComparer<number>);
             enqueue(priority: number, item: TItem): void;
@@ -429,7 +431,7 @@ declare module gameanalytics {
     module threading {
         class GAThreading {
             private static readonly instance;
-            private readonly blocks;
+            readonly blocks: PriorityQueue<TimedBlock>;
             private readonly id2TimedBlockMap;
             private static runTimeoutId;
             private static readonly ThreadWaitTimeInMs;

@@ -634,7 +634,7 @@ var gameanalytics;
                     return false;
                 }
                 if (!GAUtilities.stringArrayContainsString(availableCurrencies, currency)) {
-                    GALogger.i("Validation fail - resource event - currency: Not found in list of pre-defined available resource currencies. String: " + currency);
+                    GALogger.i("Validation fail - resource event - currency: Not found in list of pre-defined available resource currencies. String: " + currency + " Array: " + availableCurrencies);
                     return false;
                 }
                 if (!(amount > 0)) {
@@ -654,7 +654,7 @@ var gameanalytics;
                     return false;
                 }
                 if (!GAUtilities.stringArrayContainsString(availableItemTypes, itemType)) {
-                    GALogger.i("Validation fail - resource event - itemType: Not found in list of pre-defined available resource itemTypes. String: " + itemType);
+                    GALogger.i("Validation fail - resource event - itemType: Not found in list of pre-defined available resource itemTypes. String: " + itemType + " Array: " + availableItemTypes);
                     return false;
                 }
                 if (!GAValidator.validateEventPartLength(itemId, false)) {
@@ -2794,7 +2794,7 @@ var gameanalytics;
             GameAnalytics.methodMap['configureAvailableCustomDimensions02'] = GameAnalytics.configureAvailableCustomDimensions02;
             GameAnalytics.methodMap['configureAvailableCustomDimensions03'] = GameAnalytics.configureAvailableCustomDimensions03;
             GameAnalytics.methodMap['configureAvailableResourceCurrencies'] = GameAnalytics.configureAvailableResourceCurrencies;
-            GameAnalytics.methodMap['configureAvailableResourceItemTypes'] = GameAnalytics.configureAvailableResourceCurrencies;
+            GameAnalytics.methodMap['configureAvailableResourceItemTypes'] = GameAnalytics.configureAvailableResourceItemTypes;
             GameAnalytics.methodMap['configureBuild'] = GameAnalytics.configureBuild;
             GameAnalytics.methodMap['configureSdkGameEngineVersion'] = GameAnalytics.configureSdkGameEngineVersion;
             GameAnalytics.methodMap['configureGameEngineVersion'] = GameAnalytics.configureGameEngineVersion;
