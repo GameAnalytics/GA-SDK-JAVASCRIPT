@@ -1,8 +1,8 @@
-module ga
+module gameanalytics
 {
     export module device
     {
-        import GALogger = ga.logging.GALogger;
+        import GALogger = gameanalytics.logging.GALogger;
 
         export class NameValueVersion
         {
@@ -32,7 +32,7 @@ module ga
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 1.0.10";
+            private static readonly sdkWrapperVersion:string = "javascript 2.0.0";
             private static readonly osVersionPair:NameVersion = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -158,7 +158,6 @@ module ga
 
             private static matchItem(agent:string, data:Array<NameValueVersion>):NameVersion
             {
-                console.log("AGENT: " + agent);
                 var result:NameVersion = new NameVersion("unknown", "0.0.0");
 
                 var i:number = 0;

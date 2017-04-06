@@ -1,4 +1,4 @@
-module ga
+module gameanalytics
 {
     export module threading
     {

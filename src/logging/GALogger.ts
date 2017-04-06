@@ -1,5 +1,5 @@
 //GALOGGER_START
-module ga
+module gameanalytics
 {
     export module logging
     {

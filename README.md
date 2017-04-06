@@ -8,6 +8,13 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**2.0.0**
+* changed root namespace from 'ga' to 'gameanalytics'
+* it is now possible to async load library on websites to avoid any delays when loading the website (just like it is possible with Google Analytics)
+
+**1.1.11**
+* added 'construct' to version validator
+
 **1.0.10**
 * bug fix for end session when using manual session handling
 

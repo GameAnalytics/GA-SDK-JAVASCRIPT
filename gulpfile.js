@@ -27,7 +27,7 @@ gulp.task('build_mini', function() {
         .pipe(gulpif(argv.nologging, replace('GALogger.', '//GALogger.')))
         .pipe(gulpif(argv.nologging, replace('//GALOGGER_START', '/*GALOGGER_START')))
         .pipe(gulpif(argv.nologging, replace('//GALOGGER_END', '//GALOGGER_END*/')))
-        .pipe(gulpif(argv.nologging, replace('import GALogger = ga.logging.GALogger', '//import GALogger = ga.logging.GALogger')))
+        .pipe(gulpif(argv.nologging, replace('import GALogger = gameanalytics.logging.GALogger', '//import GALogger = gameanalytics.logging.GALogger')))
         .pipe(tsProjectMini());
 
     return tsResult.js
@@ -50,7 +50,7 @@ gulp.task('unity', ['bundle_js', 'build_normal'], function() {
 gulp.task('ga_node', ['bundle_js', 'build_normal'], function() {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.node.js'))
-        .pipe(insert.wrap("'use strict';\n", "module.exports = ga;"))
+        .pipe(insert.wrap("'use strict';\n", "module.exports = gameanalytics;"))
         .pipe(gulp.dest('./dist'));
 });
 

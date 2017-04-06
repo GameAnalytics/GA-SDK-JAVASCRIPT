@@ -1,4 +1,4 @@
-declare module ga {
+declare module gameanalytics {
     enum EGAErrorSeverity {
         Undefined = 0,
         Debug = 1,
@@ -42,7 +42,11 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
+declare var EGAGender: typeof gameanalytics.EGAGender;
+declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
+declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
+declare module gameanalytics {
     module logging {
         class GALogger {
             private static readonly instance;
@@ -62,7 +66,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module utilities {
         class GAUtilities {
             static getHmac(key: string, data: string): string;
@@ -78,9 +82,9 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module validators {
-        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
         class GAValidator {
             static validateBusinessEvent(currency: string, amount: number, cartType: string, itemType: string, itemId: string): boolean;
             static validateResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string, availableCurrencies: Array<string>, availableItemTypes: Array<string>): boolean;
@@ -115,13 +119,13 @@ declare module ga {
             static validateDimension03(dimension03: string, availableDimensions: Array<string>): boolean;
             static validateArrayOfStrings(maxCount: number, maxStringLength: number, allowNoValues: boolean, logTag: string, arrayOfStrings: Array<string>): boolean;
             static validateFacebookId(facebookId: string): boolean;
-            static validateGender(gender: EGAGender): boolean;
+            static validateGender(gender: any): boolean;
             static validateBirthyear(birthYear: number): boolean;
             static validateClientTs(clientTs: number): boolean;
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module device {
         class NameValueVersion {
             name: string;
@@ -159,7 +163,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module threading {
         class TimedBlock {
             readonly deadline: Date;
@@ -173,14 +177,16 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module threading {
         interface IComparer<T> {
             compare(x: T, y: T): number;
         }
         class PriorityQueue<TItem> {
-            private _subQueues;
-            private _sortedKeys;
+            _subQueues: {
+                [key: number]: Array<TItem>;
+            };
+            _sortedKeys: Array<number>;
             private comparer;
             constructor(priorityComparer: IComparer<number>);
             enqueue(priority: number, item: TItem): void;
@@ -192,7 +198,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module store {
         enum EGAStoreArgsOperator {
             Equal = 0,
@@ -236,7 +242,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module state {
         class GAState {
             private static readonly CategorySdkError;
@@ -348,9 +354,9 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module tasks {
-        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
         class SdkErrorTask {
             private static readonly MaxCount;
             private static readonly countMap;
@@ -358,7 +364,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module http {
         class GAHTTPApi {
             static readonly instance: GAHTTPApi;
@@ -388,7 +394,7 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module events {
         class GAEvents {
             private static readonly instance;
@@ -421,11 +427,11 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     module threading {
         class GAThreading {
             private static readonly instance;
-            private readonly blocks;
+            readonly blocks: PriorityQueue<TimedBlock>;
             private readonly id2TimedBlockMap;
             private static runTimeoutId;
             private static readonly ThreadWaitTimeInMs;
@@ -450,10 +456,14 @@ declare module ga {
         }
     }
 }
-declare module ga {
+declare module gameanalytics {
     class GameAnalytics {
         private static initTimedBlockId;
+        static methodMap: {
+            [id: string]: (...args: any[]) => void;
+        };
         static init(): void;
+        static gaCommand(...args: any[]): void;
         static configureAvailableCustomDimensions01(customDimensions?: Array<string>): void;
         static configureAvailableCustomDimensions02(customDimensions?: Array<string>): void;
         static configureAvailableCustomDimensions03(customDimensions?: Array<string>): void;
@@ -489,3 +499,4 @@ declare module ga {
         private static isSdkReady(needsInitialized, warn?, message?);
     }
 }
+declare var GameAnalytics: typeof gameanalytics.GameAnalytics.gaCommand;

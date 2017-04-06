@@ -1,24 +1,81 @@
-module ga
+module gameanalytics
 {
-    import GAThreading = ga.threading.GAThreading;
-    import TimedBlock = ga.threading.TimedBlock;
-    import GALogger = ga.logging.GALogger;
-    import GAStore = ga.store.GAStore;
-    import GAState = ga.state.GAState;
-    import GAHTTPApi = ga.http.GAHTTPApi;
-    import GADevice = ga.device.GADevice;
-    import GAValidator = ga.validators.GAValidator;
-    import EGAHTTPApiResponse = ga.http.EGAHTTPApiResponse;
-    import GAUtilities = ga.utilities.GAUtilities;
-    import GAEvents = ga.events.GAEvents;
+    import GAThreading = gameanalytics.threading.GAThreading;
+    import TimedBlock = gameanalytics.threading.TimedBlock;
+    import GALogger = gameanalytics.logging.GALogger;
+    import GAStore = gameanalytics.store.GAStore;
+    import GAState = gameanalytics.state.GAState;
+    import GAHTTPApi = gameanalytics.http.GAHTTPApi;
+    import GADevice = gameanalytics.device.GADevice;
+    import GAValidator = gameanalytics.validators.GAValidator;
+    import EGAHTTPApiResponse = gameanalytics.http.EGAHTTPApiResponse;
+    import GAUtilities = gameanalytics.utilities.GAUtilities;
+    import GAEvents = gameanalytics.events.GAEvents;
 
     export class GameAnalytics
     {
         private static initTimedBlockId:number = -1;
+        public static methodMap:{[id:string]: (...args: any[]) => void} = {};
 
         public static init(): void
         {
             GADevice.touch();
+            GameAnalytics.methodMap['configureAvailableCustomDimensions01'] = GameAnalytics.configureAvailableCustomDimensions01;
+            GameAnalytics.methodMap['configureAvailableCustomDimensions02'] = GameAnalytics.configureAvailableCustomDimensions02;
+            GameAnalytics.methodMap['configureAvailableCustomDimensions03'] = GameAnalytics.configureAvailableCustomDimensions03;
+            GameAnalytics.methodMap['configureAvailableResourceCurrencies'] = GameAnalytics.configureAvailableResourceCurrencies;
+            GameAnalytics.methodMap['configureAvailableResourceItemTypes'] = GameAnalytics.configureAvailableResourceItemTypes;
+            GameAnalytics.methodMap['configureBuild'] = GameAnalytics.configureBuild;
+            GameAnalytics.methodMap['configureSdkGameEngineVersion'] = GameAnalytics.configureSdkGameEngineVersion;
+            GameAnalytics.methodMap['configureGameEngineVersion'] = GameAnalytics.configureGameEngineVersion;
+            GameAnalytics.methodMap['configureUserId'] = GameAnalytics.configureUserId;
+            GameAnalytics.methodMap['initialize'] = GameAnalytics.initialize;
+            GameAnalytics.methodMap['addBusinessEvent'] = GameAnalytics.addBusinessEvent;
+            GameAnalytics.methodMap['addResourceEvent'] = GameAnalytics.addResourceEvent;
+            GameAnalytics.methodMap['addProgressionEvent'] = GameAnalytics.addProgressionEvent;
+            GameAnalytics.methodMap['addDesignEvent'] = GameAnalytics.addDesignEvent;
+            GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
+            GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
+            GameAnalytics.methodMap['setEnabledInfoLog'] = GameAnalytics.setEnabledInfoLog;
+            GameAnalytics.methodMap['setEnabledVerboseLog'] = GameAnalytics.setEnabledVerboseLog;
+            GameAnalytics.methodMap['setEnabledManualSessionHandling'] = GameAnalytics.setEnabledManualSessionHandling;
+            GameAnalytics.methodMap['setCustomDimension01'] = GameAnalytics.setCustomDimension01;
+            GameAnalytics.methodMap['setCustomDimension02'] = GameAnalytics.setCustomDimension02;
+            GameAnalytics.methodMap['setCustomDimension03'] = GameAnalytics.setCustomDimension03;
+            GameAnalytics.methodMap['setFacebookId'] = GameAnalytics.setFacebookId;
+            GameAnalytics.methodMap['setGender'] = GameAnalytics.setGender;
+            GameAnalytics.methodMap['setBirthYear'] = GameAnalytics.setBirthYear;
+            GameAnalytics.methodMap['startSession'] = GameAnalytics.startSession;
+            GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
+            GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
+            GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
+
+            if(typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined')
+            {
+                var q:any[] = window['GameAnalytics']['q'];
+                for (let i in q)
+                {
+                    GameAnalytics.gaCommand.apply(null, q[i]);
+                }
+            }
+        }
+
+        public static gaCommand(...args: any[]): void
+        {
+            if(args.length > 0)
+            {
+                if(args[0] in gameanalytics.GameAnalytics.methodMap)
+                {
+                    if(args.length > 1)
+                    {
+                        gameanalytics.GameAnalytics.methodMap[args[0]](Array.prototype.slice.call(args, 1));
+                    }
+                    else
+                    {
+                        gameanalytics.GameAnalytics.methodMap[args[0]]();
+                    }
+                }
+            }
         }
 
         public static configureAvailableCustomDimensions01(customDimensions:Array<string> = []): void
@@ -603,6 +660,6 @@ module ga
             return true;
         }
     }
-
-    GameAnalytics.init();
 }
+gameanalytics.GameAnalytics.init();
+var GameAnalytics = gameanalytics.GameAnalytics.gaCommand;

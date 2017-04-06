@@ -2,55 +2,26 @@
 <html>
     <head>
         <title>GameAnalytics JavaScript SDK Test </title>
+        <!-- GameAnalytics -->
+        <script>
+        (function(w,d,a,m){var s='script';var g='GameAnalytics';w[g]=w[g]||function(){
+        (w[g].q=w[g].q||[]).push(arguments)},a=d.createElement(s),
+        m=d.getElementsByTagName(s)[0];a.async=1;a.src='http://download.gameanalytics.com/js/GameAnalytics.js';m.parentNode.insertBefore(a,m)
+        })(window,document);
+
+        GameAnalytics("setEnabledInfoLog", true);
+        GameAnalytics("setEnabledVerboseLog", true);
+        </script>
+        <!-- End GameAnalytics -->
     </head>
     <body>
-        <script type="text/javascript" src='../dist/GameAnalytics.js'></script>
+        <!--<script type="text/javascript" src='../dist/GameAnalytics.js'></script>
         <script type="text/javascript">
-            ga.GameAnalytics.setEnabledInfoLog(true);
-            ga.GameAnalytics.setEnabledVerboseLog(true);
-            ga.GameAnalytics.setEnabledManualSessionHandling(true);
-
-            ga.GameAnalytics.configureBuild("0.10");
-
-            ga.GameAnalytics.configureAvailableResourceCurrencies(["gems", "gold"]);
-            ga.GameAnalytics.configureAvailableResourceItemTypes(["boost", "gold"]);
-            ga.GameAnalytics.configureAvailableCustomDimensions01(["ninja", "samurai"]);
-            ga.GameAnalytics.configureAvailableCustomDimensions02(["whale", "dolphin"]);
-            ga.GameAnalytics.configureAvailableCustomDimensions03(["horde", "alliance"]);
-
-            ga.GameAnalytics.initialize("bd624ee6f8e6efb32a054f8d7ba11618", "7f5c3f682cbd217841efba92e92ffb1b3b6612bc");
-
-            ga.GameAnalytics.setCustomDimension01("ninja");
-            ga.GameAnalytics.setFacebookId("the_dude");
-            ga.GameAnalytics.setGender(ga.EGAGender.Male);
-            ga.GameAnalytics.setBirthYear(1982);
-
-            setTimeout(() =>
-            {
-                ga.GameAnalytics.addDesignEvent("testEvent");
-                ga.GameAnalytics.addBusinessEvent("USD", 100, "boost", "super_boost", "shop");
-
-                ga.GameAnalytics.setCustomDimension02("whale");
-
-                ga.GameAnalytics.addDesignEvent("testEvent", 10);
-                ga.GameAnalytics.addResourceEvent(ga.EGAResourceFlowType.Source, "gems", 10, "lives", "extra_life");
-                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02", "progression03");
-                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02", "progression03", 100);
-                ga.GameAnalytics.endSession();
-                ga.GameAnalytics.startSession();
-            }, 10000);
-
-            setTimeout(() =>
-            {
-                ga.GameAnalytics.setCustomDimension03("horde");
-
-                ga.GameAnalytics.addErrorEvent(ga.EGAErrorSeverity.Info, "ERROR!!!!!");
-                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02");
-                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", "progression02", 100);
-                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01");
-                ga.GameAnalytics.addProgressionEvent(ga.EGAProgressionStatus.Start, "progression01", 100);
-            }, 20000);
-
-        </script>
+            GameAnalytics("setEnabledInfoLog", true);
+            GameAnalytics("setEnabledVerboseLog", true);
+            GameAnalytics("configureAvailableCustomDimensions01", ["ninja", "samurai"]);
+            GameAnalytics("setFacebookId", "my_facebook");
+            GameAnalytics("setGender", 2);
+        </script>-->
     </body>
 </html>

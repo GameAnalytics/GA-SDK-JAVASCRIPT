@@ -1,14 +1,14 @@
-module ga
+module gameanalytics
 {
     export module state
     {
-        import GAValidator = ga.validators.GAValidator;
-        import GAUtilities = ga.utilities.GAUtilities;
-        import GALogger = ga.logging.GALogger;
-        import GAStore = ga.store.GAStore;
-        import GADevice = ga.device.GADevice;
-        import EGAStore = ga.store.EGAStore;
-        import EGAStoreArgsOperator = ga.store.EGAStoreArgsOperator;
+        import GAValidator = gameanalytics.validators.GAValidator;
+        import GAUtilities = gameanalytics.utilities.GAUtilities;
+        import GALogger = gameanalytics.logging.GALogger;
+        import GAStore = gameanalytics.store.GAStore;
+        import GADevice = gameanalytics.device.GADevice;
+        import EGAStore = gameanalytics.store.EGAStore;
+        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
 
         export class GAState
         {
@@ -329,7 +329,7 @@ module ga
 
             public static setGender(gender:EGAGender): void
             {
-                GAState.instance.gender = EGAGender[gender].toString().toLowerCase();
+                GAState.instance.gender = isNaN(Number(EGAGender[gender])) ? EGAGender[gender].toString().toLowerCase() : EGAGender[EGAGender[gender]].toString().toLowerCase();
                 GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
                 GALogger.i("Set gender: " + GAState.instance.gender);
             }

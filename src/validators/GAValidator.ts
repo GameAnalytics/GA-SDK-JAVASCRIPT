@@ -1,10 +1,10 @@
-module ga
+module gameanalytics
 {
     export module validators
     {
-        import GALogger = ga.logging.GALogger;
-        import EGASdkErrorType = ga.http.EGASdkErrorType;
-        import GAUtilities = ga.utilities.GAUtilities;
+        import GALogger = gameanalytics.logging.GALogger;
+        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
+        import GAUtilities = gameanalytics.utilities.GAUtilities;
 
         export class GAValidator
         {
@@ -113,7 +113,7 @@ module ga
 
             public static validateProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string): boolean
             {
-                if (progressionStatus === EGAProgressionStatus.Undefined)
+                if (progressionStatus == EGAProgressionStatus.Undefined)
                 {
                     GALogger.i("Validation fail - progression event: Invalid progression status.");
                     return false;
@@ -196,7 +196,7 @@ module ga
 
             public static validateErrorEvent(severity:EGAErrorSeverity, message:string): boolean
             {
-                if (severity === EGAErrorSeverity.Undefined)
+                if (severity == EGAErrorSeverity.Undefined)
                 {
                     GALogger.i("Validation fail - error event - severity: Severity was unsupported value.");
                     return false;
@@ -361,7 +361,7 @@ module ga
 
             public static validateSdkWrapperVersion(wrapperVersion:string): boolean
             {
-                if (!GAUtilities.stringMatch(wrapperVersion, /^(unity|unreal|gamemaker|cocos2d) [0-9]{0,5}(\.[0-9]{0,5}){0,2}$/))
+                if (!GAUtilities.stringMatch(wrapperVersion, /^(unity|unreal|gamemaker|cocos2d|construct) [0-9]{0,5}(\.[0-9]{0,5}){0,2}$/))
                 {
                     return false;
                 }
@@ -370,7 +370,7 @@ module ga
 
             public static validateEngineVersion(engineVersion:string): boolean
             {
-                if (!engineVersion || !GAUtilities.stringMatch(engineVersion, /^(unity|unreal|gamemaker|cocos2d) [0-9]{0,5}(\.[0-9]{0,5}){0,2}$/))
+                if (!engineVersion || !GAUtilities.stringMatch(engineVersion, /^(unity|unreal|gamemaker|cocos2d|construct) [0-9]{0,5}(\.[0-9]{0,5}){0,2}$/))
                 {
                     return false;
                 }
@@ -583,12 +583,23 @@ module ga
                 return true;
             }
 
-            public static validateGender(gender:EGAGender): boolean
+            public static validateGender(gender:any): boolean
             {
-                if (gender === EGAGender.Undefined || !(gender === EGAGender.Male || gender === EGAGender.Female))
+                if(isNaN(Number(EGAGender[gender])))
                 {
-                    GALogger.i("Validation fail - gender: Has to be 'male' or 'female'.");
-                    return false;
+                    if (gender == EGAGender.Undefined || !(gender == EGAGender.Male || gender == EGAGender.Female))
+                    {
+                        GALogger.i("Validation fail - gender: Has to be 'male' or 'female'. Was: " + gender);
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (gender == EGAGender[EGAGender.Undefined] || !(gender == EGAGender[EGAGender.Male] || gender == EGAGender[EGAGender.Female]))
+                    {
+                        GALogger.i("Validation fail - gender: Has to be 'male' or 'female'. Was: " + gender);
+                        return false;
+                    }
                 }
                 return true;
             }

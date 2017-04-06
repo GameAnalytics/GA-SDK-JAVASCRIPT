@@ -1,17 +1,17 @@
-module ga
+module gameanalytics
 {
     export module events
     {
-        import GAStore = ga.store.GAStore;
-        import EGAStore = ga.store.EGAStore;
-        import EGAStoreArgsOperator = ga.store.EGAStoreArgsOperator;
-        import GAState = ga.state.GAState;
-        import GALogger = ga.logging.GALogger;
-        import GAUtilities = ga.utilities.GAUtilities;
-        import EGAHTTPApiResponse = ga.http.EGAHTTPApiResponse;
-        import GAHTTPApi = ga.http.GAHTTPApi;
-        import GAValidator = ga.validators.GAValidator;
-        import EGASdkErrorType = ga.http.EGASdkErrorType;
+        import GAStore = gameanalytics.store.GAStore;
+        import EGAStore = gameanalytics.store.EGAStore;
+        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
+        import GAState = gameanalytics.state.GAState;
+        import GALogger = gameanalytics.logging.GALogger;
+        import GAUtilities = gameanalytics.utilities.GAUtilities;
+        import EGAHTTPApiResponse = gameanalytics.http.EGAHTTPApiResponse;
+        import GAHTTPApi = gameanalytics.http.GAHTTPApi;
+        import GAValidator = gameanalytics.validators.GAValidator;
+        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
 
         export class GAEvents
         {
@@ -592,86 +592,67 @@ module ga
                 }
             }
 
-            private static resourceFlowTypeToString(value:EGAResourceFlowType): string
+            private static resourceFlowTypeToString(value:any): string
             {
-                switch(value)
+                if(value == EGAResourceFlowType.Source || value == EGAResourceFlowType[EGAResourceFlowType.Source])
                 {
-                    case EGAResourceFlowType.Source:
-                        {
-                            return "Source";
-                        }
-
-                    case EGAResourceFlowType.Sink:
-                        {
-                            return "Sink";
-                        }
-
-                    default:
-                        {
-                            return "";
-                        }
+                    return "Source";
+                }
+                else if(value == EGAResourceFlowType.Sink || value == EGAResourceFlowType[EGAResourceFlowType.Sink])
+                {
+                    return "Sink";
+                }
+                else
+                {
+                    return "";
                 }
             }
 
-            private static progressionStatusToString(value:EGAProgressionStatus): string
+            private static progressionStatusToString(value:any): string
             {
-                switch(value)
+                if(value == EGAProgressionStatus.Start || value == EGAProgressionStatus[EGAProgressionStatus.Start])
                 {
-                    case EGAProgressionStatus.Start:
-                        {
-                            return "Start";
-                        }
-
-                    case EGAProgressionStatus.Complete:
-                        {
-                            return "Complete";
-                        }
-
-                    case EGAProgressionStatus.Fail:
-                        {
-                            return "Fail";
-                        }
-
-                    default:
-                        {
-                            return "";
-                        }
+                    return "Start";
+                }
+                else if(value == EGAProgressionStatus.Complete || value == EGAProgressionStatus[EGAProgressionStatus.Complete])
+                {
+                    return "Complete";
+                }
+                else if(value == EGAProgressionStatus.Fail || value == EGAProgressionStatus[EGAProgressionStatus.Fail])
+                {
+                    return "Fail";
+                }
+                else
+                {
+                    return "";
                 }
             }
 
-            private static errorSeverityToString(value:EGAErrorSeverity): string
+            private static errorSeverityToString(value:any): string
             {
-                switch(value)
+                if(value == EGAErrorSeverity.Debug || value == EGAErrorSeverity[EGAErrorSeverity.Debug])
                 {
-                    case EGAErrorSeverity.Debug:
-                        {
-                            return "debug";
-                        }
-
-                    case EGAErrorSeverity.Info:
-                        {
-                            return "info";
-                        }
-
-                    case EGAErrorSeverity.Warning:
-                        {
-                            return "warning";
-                        }
-
-                    case EGAErrorSeverity.Error:
-                        {
-                            return "error";
-                        }
-
-                    case EGAErrorSeverity.Critical:
-                        {
-                            return "critical";
-                        }
-
-                    default:
-                        {
-                            return "";
-                        }
+                    return "debug";
+                }
+                else if(value == EGAErrorSeverity.Info || value == EGAErrorSeverity[EGAErrorSeverity.Info])
+                {
+                    return "info";
+                }
+                else if(value == EGAErrorSeverity.Warning || value == EGAErrorSeverity[EGAErrorSeverity.Warning])
+                {
+                    return "warning";
+                }
+                else if(value == EGAErrorSeverity.Error || value == EGAErrorSeverity[EGAErrorSeverity.Error])
+                {
+                    return "error";
+                }
+                else if(value == EGAErrorSeverity.Critical || value == EGAErrorSeverity[EGAErrorSeverity.Critical])
+                {
+                    return "critical";
+                }
+                else
+                {
+                    return "";
                 }
             }
         }
