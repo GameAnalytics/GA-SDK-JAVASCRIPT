@@ -17,6 +17,7 @@ gulp.task('mini', ['bundle_min_js', 'build_mini'], function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.min.js'])
         .pipe(concat('GameAnalytics.min.js'))
         .pipe(uglify())
+        .pipe(insert.wrap("(function(scope){\n", "\nscope.gameanalytics=gameanalytics;\nscope.GameAnalytics=GameAnalytics;\n})(this);\n"))
         .pipe(gulp.dest('./dist'));
 });
 
@@ -38,6 +39,7 @@ gulp.task('normal', ['bundle_min_js', 'build_normal'], function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.js'))
         .pipe(uglify())
+        .pipe(insert.wrap("(function(scope){\n", "\nscope.gameanalytics=gameanalytics;\nscope.GameAnalytics=GameAnalytics;\n})(this);\n"))
         .pipe(gulp.dest('./dist'));
 });
 
@@ -67,6 +69,7 @@ gulp.task('build_normal', function() {
 gulp.task('debug', ['bundle_min_js', 'build_debug'], function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.debug.js'])
         .pipe(concat('GameAnalytics.debug.js'))
+        .pipe(insert.wrap("(function(scope){\n", "\nscope.gameanalytics=gameanalytics;\nscope.GameAnalytics=GameAnalytics;\n})(this);\n"))
         .pipe(gulp.dest('./dist'));
 });
 
