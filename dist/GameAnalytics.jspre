@@ -1129,7 +1129,7 @@ var gameanalytics;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 2.0.0";
+        GADevice.sdkWrapperVersion = "javascript 2.0.1";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
@@ -2834,7 +2834,7 @@ var gameanalytics;
             if (args.length > 0) {
                 if (args[0] in gameanalytics.GameAnalytics.methodMap) {
                     if (args.length > 1) {
-                        gameanalytics.GameAnalytics.methodMap[args[0]](Array.prototype.slice.call(args, 1));
+                        gameanalytics.GameAnalytics.methodMap[args[0]].apply(null, Array.prototype.slice.call(args, 1));
                     }
                     else {
                         gameanalytics.GameAnalytics.methodMap[args[0]]();

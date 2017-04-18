@@ -68,7 +68,7 @@ module gameanalytics
                 {
                     if(args.length > 1)
                     {
-                        gameanalytics.GameAnalytics.methodMap[args[0]](Array.prototype.slice.call(args, 1));
+                        gameanalytics.GameAnalytics.methodMap[args[0]].apply(null, Array.prototype.slice.call(args, 1));
                     }
                     else
                     {

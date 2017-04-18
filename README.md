@@ -8,6 +8,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**2.0.1**
+* scoped javascript sdk namespace
+
 **2.0.0**
 * changed root namespace from 'ga' to 'gameanalytics'
 * it is now possible to async load library on websites to avoid any delays when loading the website (just like it is possible with Google Analytics)
