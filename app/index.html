@@ -3,13 +3,13 @@
     <head>
         <title>GameAnalytics JavaScript SDK Test </title>
         <!-- GameAnalytics -->
-        <script>
+        <!--<script>
         window.GameAnalytics=window.GameAnalytics||function(){(GameAnalytics.q=GameAnalytics.q||[]).push(arguments)};
         GameAnalytics("setEnabledInfoLog", true);
-        GameAnalytics("initialize", "GAME_KEY", "SECRET_KEY");
+        GameAnalytics("initialize", "bd624ee6f8e6efb32a054f8d7ba11618", "7f5c3f682cbd217841efba92e92ffb1b3b6612bc");
         console.log(GameAnalytics.q);
         </script>
-        <script async src='http://download.gameanalytics.com/js/GameAnalytics-2.0.1.min.js'></script>
+        <script async src='http://download.gameanalytics.com/js/GameAnalytics-2.0.1.min.js'></script>-->
         <!-- <script>
         (function(w,d,a,m){var s='script';var g='GameAnalytics';w[g]=w[g]||function(){
         (w[g].q=w[g].q||[]).push(arguments)},a=d.createElement(s),
@@ -22,13 +22,15 @@
         <!-- End GameAnalytics -->
     </head>
     <body>
-        <!--<script type="text/javascript" src='../dist/GameAnalytics.js'></script>
+        <script type="text/javascript" src='../dist/GameAnalytics.js'></script>
         <script type="text/javascript">
             GameAnalytics("setEnabledInfoLog", true);
             GameAnalytics("setEnabledVerboseLog", true);
             GameAnalytics("configureAvailableCustomDimensions01", ["ninja", "samurai"]);
             GameAnalytics("setFacebookId", "my_facebook");
             GameAnalytics("setGender", 2);
-        </script>-->
+            GameAnalytics("setEventProcessInterval", 15);
+            GameAnalytics("initialize", "bd624ee6f8e6efb32a054f8d7ba11618", "7f5c3f682cbd217841efba92e92ffb1b3b6612bc");
+        </script>
     </body>
 </html>

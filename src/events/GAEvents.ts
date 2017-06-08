@@ -319,7 +319,7 @@ module gameanalytics
                     var events:Array<{[key:string]: any}> = GAStore.select(EGAStore.Events, selectArgs);
 
                     // Check for errors or empty
-                    if(!events)
+                    if(!events || events.length == 0)
                     {
                         GALogger.i("Event queue: No events to send");
                         return;

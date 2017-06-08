@@ -45,6 +45,7 @@ module gameanalytics
             GameAnalytics.methodMap['setFacebookId'] = GameAnalytics.setFacebookId;
             GameAnalytics.methodMap['setGender'] = GameAnalytics.setGender;
             GameAnalytics.methodMap['setBirthYear'] = GameAnalytics.setBirthYear;
+            GameAnalytics.methodMap['setEventProcessInterval'] = GameAnalytics.setEventProcessInterval;
             GameAnalytics.methodMap['startSession'] = GameAnalytics.startSession;
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
@@ -429,6 +430,14 @@ module gameanalytics
                 {
                     GAState.setBirthYear(birthYear);
                 }
+            });
+        }
+
+        public static setEventProcessInterval(intervalInSeconds:number): void
+        {
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                GAThreading.setEventProcessInterval(intervalInSeconds);
             });
         }
 

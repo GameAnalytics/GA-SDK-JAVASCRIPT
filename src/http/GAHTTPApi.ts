@@ -67,6 +67,7 @@ module gameanalytics
                 if(eventArray.length == 0)
                 {
                     GALogger.d("sendEventsInArray called with missing eventArray");
+                    return;
                 }
 
                 var gameKey:string = GAState.getGameKey();
@@ -196,7 +197,7 @@ module gameanalytics
                 };
 
                 request.open("POST", url, true);
-                request.setRequestHeader("Content-Type", "application/json");
+                request.setRequestHeader("Content-Type", "text/plain");
 
                 request.setRequestHeader("Authorization", authorization);
 

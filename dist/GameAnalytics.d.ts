@@ -435,7 +435,7 @@ declare module gameanalytics {
             private readonly id2TimedBlockMap;
             private static runTimeoutId;
             private static readonly ThreadWaitTimeInMs;
-            private static readonly ProcessEventsIntervalInSeconds;
+            private static ProcessEventsIntervalInSeconds;
             private keepRunning;
             private isRunning;
             private constructor();
@@ -448,6 +448,7 @@ declare module gameanalytics {
             static endSessionAndStopQueue(): void;
             static stopEventQueue(): void;
             static ignoreTimer(blockIdentifier: number): void;
+            static setEventProcessInterval(interval: number): void;
             private addTimedBlock(timedBlock);
             private static run();
             private static startThread();
@@ -488,6 +489,7 @@ declare module gameanalytics {
         static setFacebookId(facebookId?: string): void;
         static setGender(gender?: EGAGender): void;
         static setBirthYear(birthYear?: number): void;
+        static setEventProcessInterval(intervalInSeconds: number): void;
         static startSession(): void;
         static endSession(): void;
         static onStop(): void;

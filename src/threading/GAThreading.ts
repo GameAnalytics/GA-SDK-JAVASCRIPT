@@ -22,7 +22,7 @@ module gameanalytics
             private readonly id2TimedBlockMap:{[key:number]: TimedBlock} = {};
             private static runTimeoutId:number;
             private static readonly ThreadWaitTimeInMs:number = 1000;
-            private static readonly ProcessEventsIntervalInSeconds:number = 8.0;
+            private static ProcessEventsIntervalInSeconds:number = 8.0;
             private keepRunning:boolean;
             private isRunning:boolean;
 
@@ -118,6 +118,14 @@ module gameanalytics
                 if (blockIdentifier in GAThreading.instance.id2TimedBlockMap)
                 {
                     GAThreading.instance.id2TimedBlockMap[blockIdentifier].ignore = true;
+                }
+            }
+
+            public static setEventProcessInterval(interval:number): void
+            {
+                if (interval > 0)
+                {
+                    GAThreading.ProcessEventsIntervalInSeconds = interval;
                 }
             }
 

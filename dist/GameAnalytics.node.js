@@ -1130,7 +1130,7 @@ var gameanalytics;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 2.0.1";
+        GADevice.sdkWrapperVersion = "javascript 2.1.0";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
@@ -2081,6 +2081,7 @@ var gameanalytics;
             };
             GAHTTPApi.prototype.sendEventsInArray = function (eventArray, requestId, callback) {
                 if (eventArray.length == 0) {
+                    return;
                 }
                 var gameKey = GAState.getGameKey();
                 var url = this.baseUrl + "/" + gameKey + "/" + this.eventsUrlPath;
@@ -2155,7 +2156,7 @@ var gameanalytics;
                     }
                 };
                 request.open("POST", url, true);
-                request.setRequestHeader("Content-Type", "application/json");
+                request.setRequestHeader("Content-Type", "text/plain");
                 request.setRequestHeader("Authorization", authorization);
                 if (gzip) {
                     throw new Error("gzip not supported");
@@ -2404,7 +2405,7 @@ var gameanalytics;
                     var updateSetArgs = [];
                     updateSetArgs.push(["status", requestIdentifier]);
                     var events = GAStore.select(EGAStore.Events, selectArgs);
-                    if (!events) {
+                    if (!events || events.length == 0) {
                         GALogger.i("Event queue: No events to send");
                         return;
                     }
@@ -2708,6 +2709,11 @@ var gameanalytics;
                     GAThreading.instance.id2TimedBlockMap[blockIdentifier].ignore = true;
                 }
             };
+            GAThreading.setEventProcessInterval = function (interval) {
+                if (interval > 0) {
+                    GAThreading.ProcessEventsIntervalInSeconds = interval;
+                }
+            };
             GAThreading.prototype.addTimedBlock = function (timedBlock) {
                 this.blocks.enqueue(timedBlock.deadline.getTime(), timedBlock);
             };
@@ -2816,6 +2822,7 @@ var gameanalytics;
             GameAnalytics.methodMap['setFacebookId'] = GameAnalytics.setFacebookId;
             GameAnalytics.methodMap['setGender'] = GameAnalytics.setGender;
             GameAnalytics.methodMap['setBirthYear'] = GameAnalytics.setBirthYear;
+            GameAnalytics.methodMap['setEventProcessInterval'] = GameAnalytics.setEventProcessInterval;
             GameAnalytics.methodMap['startSession'] = GameAnalytics.startSession;
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
@@ -3115,6 +3122,11 @@ var gameanalytics;
                 if (GAValidator.validateBirthyear(birthYear)) {
                     GAState.setBirthYear(birthYear);
                 }
+            });
+        };
+        GameAnalytics.setEventProcessInterval = function (intervalInSeconds) {
+            GAThreading.performTaskOnGAThread(function () {
+                GAThreading.setEventProcessInterval(intervalInSeconds);
             });
         };
         GameAnalytics.startSession = function () {
