@@ -13,6 +13,9 @@ module gameanalytics
         export class GAState
         {
             private static readonly CategorySdkError:string = "sdk_error";
+            private static readonly MAX_CUSTOM_FIELDS_COUNT:number = 50;
+            private static readonly MAX_CUSTOM_FIELDS_KEY_LENGTH:number = 64;
+            private static readonly MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH:number = 256;
 
             public static readonly instance:GAState = new GAState();
 
@@ -687,6 +690,70 @@ module gameanalytics
             {
                 var clientTs:number = GAUtilities.timeIntervalSince1970();
                 return serverTs - clientTs;
+            }
+
+            public static validateAndCleanCustomFields(fields:{[id:string]: any}): {[id:string]: any}
+            {
+                var result:{[id:string]: any} = {};
+
+                if(fields)
+                {
+                    var count:number = 0;
+
+                    for(var key in fields)
+                    {
+                        var value:any = fields[key];
+
+                        if(!key || !value)
+                        {
+                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value +
+                            " has been omitted because its key or value is null");
+                        }
+                        else if(count < GAState.MAX_CUSTOM_FIELDS_COUNT)
+                        {
+                            var regex = new RegExp("^[a-zA-Z0-9_]{1," + GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH + "}$");
+                            if(GAUtilities.stringMatch(key, regex))
+                            {
+                                var type = typeof value;
+                                if(type === "string" || value instanceof String)
+                                {
+                                    var valueAsString:string = value as string;
+
+                                    if(valueAsString.length <= GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH && valueAsString.length > 0)
+                                    {
+                                        result[key] = valueAsString;
+                                        ++count;
+                                    }
+                                    else
+                                    {
+                                        GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its value is an empty string or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH + ")");
+                                    }
+                                }
+                                else if(type === "number" || value instanceof Number)
+                                {
+                                    var valueAsNumber:number = value as number;
+
+                                    result[key] = valueAsNumber;
+                                    ++count;
+                                }
+                                else
+                                {
+                                    GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its value is not a string or number");
+                                }
+                            }
+                            else
+                            {
+                                GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its key contains illegal character, is empty or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH + ")");
+                            }
+                        }
+                        else
+                        {
+                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because it exceeds the max number of custom fields (" + GAState.MAX_CUSTOM_FIELDS_COUNT + ")");
+                        }
+                    }
+                }
+
+                return result;
             }
 
             public static validateAndFixCurrentDimensions(): void

@@ -31,6 +31,8 @@
             GameAnalytics("setGender", 2);
             GameAnalytics("setEventProcessInterval", 15);
             GameAnalytics("initialize", "GAME_KEY", "SECRET_KEY");
+            var fields = {"hello": "world"};
+            GameAnalytics("addDesignEvent", "test", fields);
         </script>
     </body>
 </html>

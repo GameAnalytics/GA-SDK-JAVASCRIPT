@@ -246,6 +246,9 @@ declare module gameanalytics {
     module state {
         class GAState {
             private static readonly CategorySdkError;
+            private static readonly MAX_CUSTOM_FIELDS_COUNT;
+            private static readonly MAX_CUSTOM_FIELDS_KEY_LENGTH;
+            private static readonly MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH;
             static readonly instance: GAState;
             private constructor();
             private userId;
@@ -350,6 +353,11 @@ declare module gameanalytics {
             private static cacheIdentifier();
             static ensurePersistedStates(): void;
             static calculateServerTimeOffset(serverTs: number): number;
+            static validateAndCleanCustomFields(fields: {
+                [id: string]: any;
+            }): {
+                [id: string]: any;
+            };
             static validateAndFixCurrentDimensions(): void;
         }
     }
@@ -409,11 +417,21 @@ declare module gameanalytics {
             private constructor();
             static addSessionStartEvent(): void;
             static addSessionEndEvent(): void;
-            static addBusinessEvent(currency: string, amount: number, itemType: string, itemId: string, cartType?: string): void;
-            static addResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string): void;
-            static addProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string, score: number, sendScore: boolean): void;
-            static addDesignEvent(eventId: string, value: number, sendValue: boolean): void;
-            static addErrorEvent(severity: EGAErrorSeverity, message: string): void;
+            static addBusinessEvent(currency: string, amount: number, itemType: string, itemId: string, cartType: string, fields: {
+                [id: string]: any;
+            }): void;
+            static addResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string, fields: {
+                [id: string]: any;
+            }): void;
+            static addProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string, score: number, sendScore: boolean, fields: {
+                [id: string]: any;
+            }): void;
+            static addDesignEvent(eventId: string, value: number, sendValue: boolean, fields: {
+                [id: string]: any;
+            }): void;
+            static addErrorEvent(severity: EGAErrorSeverity, message: string, fields: {
+                [id: string]: any;
+            }): void;
             static processEvents(category: string, performCleanUp: boolean): void;
             private static processEventsCallback(responseEnum, dataDict, requestId, eventCount);
             private static cleanupEvents();
@@ -421,6 +439,7 @@ declare module gameanalytics {
             private static addEventToStore(eventData);
             private static updateSessionStore();
             private static addDimensionsToEvent(eventData);
+            private static addFieldsToEvent(eventData, fields);
             private static resourceFlowTypeToString(value);
             private static progressionStatusToString(value);
             private static errorSeverityToString(value);
@@ -475,11 +494,21 @@ declare module gameanalytics {
         static configureGameEngineVersion(gameEngineVersion?: string): void;
         static configureUserId(uId?: string): void;
         static initialize(gameKey?: string, gameSecret?: string): void;
-        static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string): void;
-        static addResourceEvent(flowType?: EGAResourceFlowType, currency?: string, amount?: number, itemType?: string, itemId?: string): void;
-        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: number): void;
-        static addDesignEvent(eventId: string, value?: number): void;
-        static addErrorEvent(severity?: EGAErrorSeverity, message?: string): void;
+        static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string, fields?: {
+            [id: string]: any;
+        }): void;
+        static addResourceEvent(flowType?: EGAResourceFlowType, currency?: string, amount?: number, itemType?: string, itemId?: string, fields?: {
+            [id: string]: any;
+        }): void;
+        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: any, fields?: {
+            [id: string]: any;
+        }): void;
+        static addDesignEvent(eventId: string, value?: any, fields?: {
+            [id: string]: any;
+        }): void;
+        static addErrorEvent(severity?: EGAErrorSeverity, message?: string, fields?: {
+            [id: string]: any;
+        }): void;
         static setEnabledInfoLog(flag?: boolean): void;
         static setEnabledVerboseLog(flag?: boolean): void;
         static setEnabledManualSessionHandling(flag?: boolean): void;
