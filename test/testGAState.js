@@ -20,17 +20,11 @@ describe("GAState", function () {
             expect(Object.keys(GAState.validateAndCleanCustomFields(map)).length).toEqual(50);
 
             map = {};
-            for(var i = 0; i < 50; ++i)
-            {
-                map[getRandomString(4)] = "";
-            }
+            map[getRandomString(4)] = "";
             expect(Object.keys(GAState.validateAndCleanCustomFields(map)).length).toEqual(0);
 
             map = {};
-            for(var i = 0; i < 50; ++i)
-            {
-                map[getRandomString(4)] = getRandomString(257);
-            }
+            map[getRandomString(4)] = getRandomString(257);
             expect(Object.keys(GAState.validateAndCleanCustomFields(map)).length).toEqual(0);
 
             map = {};
