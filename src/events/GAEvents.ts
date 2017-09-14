@@ -259,6 +259,9 @@ module gameanalytics
                     eventData["value"] = value;
                 }
 
+                // Add custom dimensions
+                GAEvents.addDimensionsToEvent(eventData);
+
                 GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
 
                 // Log
@@ -286,6 +289,9 @@ module gameanalytics
                 eventData["category"] = GAEvents.CategoryError;
                 eventData["severity"] = severityString;
                 eventData["message"] = message;
+
+                // Add custom dimensions
+                GAEvents.addDimensionsToEvent(eventData);
 
                 GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
 
