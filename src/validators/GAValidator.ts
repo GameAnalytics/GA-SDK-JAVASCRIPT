@@ -347,6 +347,18 @@ module gameanalytics
                     return null;
                 }
 
+                // validate configurations field
+                try
+                {
+                    var configurations:any[] = initResponse["configurations"];
+                    validatedDict["configurations"] = configurations;
+                }
+                catch (e)
+                {
+                    GALogger.w("validateInitRequestResponse failed - invalid type in 'configurations' field. type=" + typeof initResponse["configurations"] + ", value=" + initResponse["configurations"] + ", " + e);
+                    return null;
+                }
+
                 return validatedDict;
             }
 

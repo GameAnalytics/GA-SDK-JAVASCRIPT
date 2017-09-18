@@ -50,6 +50,8 @@ module gameanalytics
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
+            GameAnalytics.methodMap['addCommandCenterListener'] = GameAnalytics.addCommandCenterListener;
+            GameAnalytics.methodMap['removeCommandCenterListener'] = GameAnalytics.removeCommandCenterListener;
 
             if(typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined')
             {
@@ -510,6 +512,26 @@ module gameanalytics
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
+        public static getCommandCenterValueAsString(key:string, defaultValue:string = null):string
+        {
+            return GAState.getConfigurationStringValue(key, defaultValue);
+        }
+
+        public static isCommandCenterReady():boolean
+        {
+            return GAState.isCommandCenterReady();
+        }
+
+        public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+        {
+            GAState.addCommandCenterListener(listener);
+        }
+
+        public static removeCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+        {
+            GAState.removeCommandCenterListener(listener);
+        }
+
         private static internalInitialize(): void
         {
             GAState.ensurePersistedStates();
@@ -604,6 +626,9 @@ module gameanalytics
 
             // set offset in state (memory) from current config (config could be from cache etc.)
             GAState.instance.clientServerTimeOffset = GAState.instance.sdkConfig["time_offset"] ? GAState.instance.sdkConfig["time_offset"] as number : 0;
+
+            // populate configurations
+            GAState.populateConfigurations(GAState.instance.sdkConfig);
 
             // if SDK is disabled in config
             if(!GAState.isEnabled())

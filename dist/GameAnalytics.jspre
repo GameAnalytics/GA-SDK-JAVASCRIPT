@@ -826,6 +826,14 @@ var gameanalytics;
                     GALogger.w("validateInitRequestResponse failed - invalid type in 'server_ts' field. type=" + typeof initResponse["server_ts"] + ", value=" + initResponse["server_ts"] + ", " + e);
                     return null;
                 }
+                try {
+                    var configurations = initResponse["configurations"];
+                    validatedDict["configurations"] = configurations;
+                }
+                catch (e) {
+                    GALogger.w("validateInitRequestResponse failed - invalid type in 'configurations' field. type=" + typeof initResponse["configurations"] + ", value=" + initResponse["configurations"] + ", " + e);
+                    return null;
+                }
                 return validatedDict;
             };
             GAValidator.validateBuild = function (build) {
@@ -1586,6 +1594,8 @@ var gameanalytics;
                 this.availableCustomDimensions03 = [];
                 this.availableResourceCurrencies = [];
                 this.availableResourceItemTypes = [];
+                this.configurations = {};
+                this.commandCenterListeners = [];
                 this.sdkConfigDefault = {};
                 this.sdkConfig = {};
                 this.progressionTries = {};
@@ -1865,6 +1875,7 @@ var gameanalytics;
             };
             GAState.getInitAnnotations = function () {
                 var initAnnotations = {};
+                initAnnotations["user_id"] = GAState.getIdentifier();
                 initAnnotations["sdk_version"] = GADevice.getRelevantSdkVersion();
                 initAnnotations["os_version"] = GADevice.osVersion;
                 initAnnotations["platform"] = GADevice.buildPlatform;
@@ -2023,6 +2034,54 @@ var gameanalytics;
                     GAState.setCustomDimension03("");
                 }
             };
+            GAState.getConfigurationStringValue = function (key, defaultValue) {
+                if (GAState.instance.configurations[key]) {
+                    return GAState.instance.configurations[key].toString();
+                }
+                else {
+                    return defaultValue;
+                }
+            };
+            GAState.isCommandCenterReady = function () {
+                return GAState.instance.commandCenterIsReady;
+            };
+            GAState.addCommandCenterListener = function (listener) {
+                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                if (GAState.instance.commandCenterListeners.indexOf(listener) < 0) {
+                    GAState.instance.commandCenterListeners.push(listener);
+                }
+            };
+            GAState.removeCommandCenterListener = function (listener) {
+                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                if (index > -1) {
+                    GAState.instance.commandCenterListeners.splice(index, 1);
+                }
+            };
+            GAState.populateConfigurations = function (sdkConfig) {
+                var configurations = sdkConfig["configurations"];
+                if (configurations) {
+                    for (var i = 0; i < configurations.length; ++i) {
+                        var configuration = configurations[i];
+                        if (configuration) {
+                            var key = configuration["key"];
+                            var value = configuration["value"];
+                            var start_ts = configuration["start"] ? configuration["start"] : Number.MIN_VALUE;
+                            var end_ts = configuration["end"] ? configuration["end"] : Number.MAX_VALUE;
+                            var client_ts_adjusted = GAState.getClientTsAdjusted();
+                            if (key && value && client_ts_adjusted > start_ts && client_ts_adjusted < end_ts) {
+                                GAState.instance.configurations[key] = value;
+                            }
+                        }
+                    }
+                }
+                GAState.instance.commandCenterIsReady = true;
+                var listeners = GAState.instance.commandCenterListeners;
+                for (var i = 0; i < listeners.length; ++i) {
+                    if (listeners[i]) {
+                        listeners[i].onCommandCenterUpdated();
+                    }
+                }
+            };
             return GAState;
         }());
         GAState.CategorySdkError = "sdk_error";
@@ -2114,6 +2173,8 @@ var gameanalytics;
             GAHTTPApi.prototype.requestInit = function (callback) {
                 var gameKey = GAState.getGameKey();
                 var url = this.baseUrl + "/" + gameKey + "/" + this.initializeUrlPath;
+                url = "https://rubick.gameanalytics.com/v2/command_center?game_key=" + gameKey + "&interval_seconds=1000000";
+                url = "http://www.mocky.io/v2/59bf67081100005100fa0142";
                 var initAnnotations = GAState.getInitAnnotations();
                 var JSONstring = JSON.stringify(initAnnotations);
                 if (!JSONstring) {
@@ -2202,7 +2263,7 @@ var gameanalytics;
                     }
                 };
                 request.open("POST", url, true);
-                request.setRequestHeader("Content-Type", "text/plain");
+                request.setRequestHeader("Content-Type", "application/json");
                 request.setRequestHeader("Authorization", authorization);
                 if (gzip) {
                     throw new Error("gzip not supported");
@@ -2420,6 +2481,7 @@ var gameanalytics;
                 if (sendValue) {
                     eventData["value"] = value;
                 }
+                GAEvents.addDimensionsToEvent(eventData);
                 GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
                 GALogger.i("Add DESIGN event: {eventId:" + eventId + ", value:" + value + "}");
                 GAEvents.addEventToStore(eventData);
@@ -2434,6 +2496,7 @@ var gameanalytics;
                 eventData["category"] = GAEvents.CategoryError;
                 eventData["severity"] = severityString;
                 eventData["message"] = message;
+                GAEvents.addDimensionsToEvent(eventData);
                 GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
                 GALogger.i("Add ERROR event: {severity:" + severityString + ", message:" + message + "}");
                 GAEvents.addEventToStore(eventData);
@@ -2886,6 +2949,8 @@ var gameanalytics;
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
+            GameAnalytics.methodMap['addCommandCenterListener'] = GameAnalytics.addCommandCenterListener;
+            GameAnalytics.methodMap['removeCommandCenterListener'] = GameAnalytics.removeCommandCenterListener;
             if (typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined') {
                 var q = window['GameAnalytics']['q'];
                 for (var i in q) {
@@ -3239,6 +3304,19 @@ var gameanalytics;
             };
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         };
+        GameAnalytics.getCommandCenterValueAsString = function (key, defaultValue) {
+            if (defaultValue === void 0) { defaultValue = null; }
+            return GAState.getConfigurationStringValue(key, defaultValue);
+        };
+        GameAnalytics.isCommandCenterReady = function () {
+            return GAState.isCommandCenterReady();
+        };
+        GameAnalytics.addCommandCenterListener = function (listener) {
+            GAState.addCommandCenterListener(listener);
+        };
+        GameAnalytics.removeCommandCenterListener = function (listener) {
+            GAState.removeCommandCenterListener(listener);
+        };
         GameAnalytics.internalInitialize = function () {
             GAState.ensurePersistedStates();
             GAStore.setItem(GAState.DefaultUserIdKey, GAState.getDefaultId());
@@ -3296,6 +3374,7 @@ var gameanalytics;
                 GAState.instance.initAuthorized = true;
             }
             GAState.instance.clientServerTimeOffset = GAState.instance.sdkConfig["time_offset"] ? GAState.instance.sdkConfig["time_offset"] : 0;
+            GAState.populateConfigurations(GAState.instance.sdkConfig);
             if (!GAState.isEnabled()) {
                 GALogger.w("Could not start session: SDK is disabled.");
                 GAThreading.stopEventQueue();

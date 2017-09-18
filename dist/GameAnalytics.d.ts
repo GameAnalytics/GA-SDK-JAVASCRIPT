@@ -302,6 +302,9 @@ declare module gameanalytics {
             sdkConfigCached: {
                 [key: string]: any;
             };
+            private configurations;
+            private commandCenterIsReady;
+            private commandCenterListeners;
             initAuthorized: boolean;
             clientServerTimeOffset: number;
             private defaultUserId;
@@ -359,6 +362,17 @@ declare module gameanalytics {
                 [id: string]: any;
             };
             static validateAndFixCurrentDimensions(): void;
+            static getConfigurationStringValue(key: string, defaultValue: string): string;
+            static isCommandCenterReady(): boolean;
+            static addCommandCenterListener(listener: {
+                onCommandCenterUpdated: () => void;
+            }): void;
+            static removeCommandCenterListener(listener: {
+                onCommandCenterUpdated: () => void;
+            }): void;
+            static populateConfigurations(sdkConfig: {
+                [key: string]: any;
+            }): void;
         }
     }
 }
@@ -523,6 +537,14 @@ declare module gameanalytics {
         static endSession(): void;
         static onStop(): void;
         static onResume(): void;
+        static getCommandCenterValueAsString(key: string, defaultValue?: string): string;
+        static isCommandCenterReady(): boolean;
+        static addCommandCenterListener(listener: {
+            onCommandCenterUpdated: () => void;
+        }): void;
+        static removeCommandCenterListener(listener: {
+            onCommandCenterUpdated: () => void;
+        }): void;
         private static internalInitialize();
         private static newSession();
         private static startNewSessionCallback(initResponse, initResponseDict);

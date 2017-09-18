@@ -215,6 +215,9 @@ module gameanalytics
             private gender:string;
             private birthYear:number;
             public sdkConfigCached:{[key:string]: any};
+            private configurations:{[key:string]: any} = {};
+            private commandCenterIsReady:boolean;
+            private commandCenterListeners:Array<{ onCommandCenterUpdated:() => void }> = [];
             public initAuthorized:boolean;
             public clientServerTimeOffset:number;
 
@@ -517,6 +520,8 @@ module gameanalytics
             {
                 var initAnnotations:{[key:string]: any} = {};
 
+                initAnnotations["user_id"] = GAState.getIdentifier();
+
                 // SDK version
                 initAnnotations["sdk_version"] = GADevice.getRelevantSdkVersion();
                 // Operation system version
@@ -775,6 +780,81 @@ module gameanalytics
                 {
                     GALogger.d("Invalid dimension03 found in variable. Setting to nil. Invalid dimension: " + GAState.getCurrentCustomDimension03());
                     GAState.setCustomDimension03("");
+                }
+            }
+
+            public static getConfigurationStringValue(key:string, defaultValue:string):string
+            {
+                if(GAState.instance.configurations[key])
+                {
+                    return GAState.instance.configurations[key].toString();
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            }
+
+            public static isCommandCenterReady():boolean
+            {
+                return GAState.instance.commandCenterIsReady;
+            }
+
+            public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            {
+                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                if(GAState.instance.commandCenterListeners.indexOf(listener) < 0)
+                {
+                    GAState.instance.commandCenterListeners.push(listener);
+                }
+            }
+
+            public static removeCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            {
+                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                if(index > -1)
+                {
+                    GAState.instance.commandCenterListeners.splice(index, 1);
+                }
+            }
+
+            public static populateConfigurations(sdkConfig:{[key:string]: any}):void
+            {
+                var configurations:any[] = sdkConfig["configurations"];
+
+                if(configurations)
+                {
+                    for(let i = 0; i < configurations.length; ++i)
+                    {
+                        var configuration:{[key:string]: any} = configurations[i];
+
+                        if(configuration)
+                        {
+                            var key:string = configuration["key"];
+                            var value:any = configuration["value"];
+                            var start_ts:number = configuration["start"] ? configuration["start"] : Number.MIN_VALUE;
+                            var end_ts:number = configuration["end"] ? configuration["end"] : Number.MAX_VALUE;
+
+                            var client_ts_adjusted:number = GAState.getClientTsAdjusted();
+
+                            if(key && value && client_ts_adjusted > start_ts && client_ts_adjusted < end_ts)
+                            {
+                                GAState.instance.configurations[key] = value;
+                                GALogger.d("configuration added: " + configuration.toString());
+                            }
+                        }
+                    }
+                }
+                GAState.instance.commandCenterIsReady = true;
+
+                var listeners:Array<{ onCommandCenterUpdated:() => void }> = GAState.instance.commandCenterListeners;
+
+                for(let i = 0; i < listeners.length; ++i)
+                {
+                    if(listeners[i])
+                    {
+                        listeners[i].onCommandCenterUpdated();
+                    }
                 }
             }
         }
