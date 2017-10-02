@@ -532,6 +532,11 @@ module gameanalytics
             GAState.removeCommandCenterListener(listener);
         }
 
+        public static getConfigurationsContentAsString():string
+        {
+            return GAState.getConfigurationsContentAsString();
+        }
+
         private static internalInitialize(): void
         {
             GAState.ensurePersistedStates();
@@ -625,10 +630,10 @@ module gameanalytics
             }
 
             // set offset in state (memory) from current config (config could be from cache etc.)
-            GAState.instance.clientServerTimeOffset = GAState.instance.sdkConfig["time_offset"] ? GAState.instance.sdkConfig["time_offset"] as number : 0;
+            GAState.instance.clientServerTimeOffset = GAState.getSdkConfig()["time_offset"] ? GAState.getSdkConfig()["time_offset"] as number : 0;
 
             // populate configurations
-            GAState.populateConfigurations(GAState.instance.sdkConfig);
+            GAState.populateConfigurations(GAState.getSdkConfig());
 
             // if SDK is disabled in config
             if(!GAState.isEnabled())

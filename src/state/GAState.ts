@@ -235,7 +235,7 @@ module gameanalytics
             public sdkConfigDefault:{[key:string]: string} = {};
 
             public sdkConfig:{[key:string]: any} = {};
-            private static getSdkConfig(): {[key:string]: any}
+            public static getSdkConfig(): {[key:string]: any}
             {
                 {
                     var first;
@@ -818,10 +818,15 @@ module gameanalytics
                 }
             }
 
+            public static getConfigurationsContentAsString():string
+            {
+                return JSON.stringify(GAState.instance.configurations);
+            }
+
             public static populateConfigurations(sdkConfig:{[key:string]: any}):void
             {
                 var configurations:any[] = sdkConfig["configurations"];
-
+                
                 if(configurations)
                 {
                     for(let i = 0; i < configurations.length; ++i)
@@ -840,7 +845,7 @@ module gameanalytics
                             if(key && value && client_ts_adjusted > start_ts && client_ts_adjusted < end_ts)
                             {
                                 GAState.instance.configurations[key] = value;
-                                GALogger.d("configuration added: " + configuration.toString());
+                                GALogger.d("configuration added: " + JSON.stringify(configuration));
                             }
                         }
                     }

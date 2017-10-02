@@ -2058,6 +2058,9 @@ var gameanalytics;
                     GAState.instance.commandCenterListeners.splice(index, 1);
                 }
             };
+            GAState.getConfigurationsContentAsString = function () {
+                return JSON.stringify(GAState.instance.configurations);
+            };
             GAState.populateConfigurations = function (sdkConfig) {
                 var configurations = sdkConfig["configurations"];
                 if (configurations) {
@@ -3317,6 +3320,9 @@ var gameanalytics;
         GameAnalytics.removeCommandCenterListener = function (listener) {
             GAState.removeCommandCenterListener(listener);
         };
+        GameAnalytics.getConfigurationsContentAsString = function () {
+            return GAState.getConfigurationsContentAsString();
+        };
         GameAnalytics.internalInitialize = function () {
             GAState.ensurePersistedStates();
             GAStore.setItem(GAState.DefaultUserIdKey, GAState.getDefaultId());
@@ -3373,8 +3379,8 @@ var gameanalytics;
                 }
                 GAState.instance.initAuthorized = true;
             }
-            GAState.instance.clientServerTimeOffset = GAState.instance.sdkConfig["time_offset"] ? GAState.instance.sdkConfig["time_offset"] : 0;
-            GAState.populateConfigurations(GAState.instance.sdkConfig);
+            GAState.instance.clientServerTimeOffset = GAState.getSdkConfig()["time_offset"] ? GAState.getSdkConfig()["time_offset"] : 0;
+            GAState.populateConfigurations(GAState.getSdkConfig());
             if (!GAState.isEnabled()) {
                 GALogger.w("Could not start session: SDK is disabled.");
                 GAThreading.stopEventQueue();

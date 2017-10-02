@@ -316,7 +316,9 @@ declare module gameanalytics {
             sdkConfig: {
                 [key: string]: any;
             };
-            private static getSdkConfig();
+            static getSdkConfig(): {
+                [key: string]: any;
+            };
             private progressionTries;
             static readonly DefaultUserIdKey: string;
             static readonly SessionNumKey: string;
@@ -370,6 +372,7 @@ declare module gameanalytics {
             static removeCommandCenterListener(listener: {
                 onCommandCenterUpdated: () => void;
             }): void;
+            static getConfigurationsContentAsString(): string;
             static populateConfigurations(sdkConfig: {
                 [key: string]: any;
             }): void;
@@ -545,6 +548,7 @@ declare module gameanalytics {
         static removeCommandCenterListener(listener: {
             onCommandCenterUpdated: () => void;
         }): void;
+        static getConfigurationsContentAsString(): string;
         private static internalInitialize();
         private static newSession();
         private static startNewSessionCallback(initResponse, initResponseDict);
