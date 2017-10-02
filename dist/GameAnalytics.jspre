@@ -2174,7 +2174,6 @@ var gameanalytics;
                 var gameKey = GAState.getGameKey();
                 var url = this.baseUrl + "/" + gameKey + "/" + this.initializeUrlPath;
                 url = "https://rubick.gameanalytics.com/v2/command_center?game_key=" + gameKey + "&interval_seconds=1000000";
-                url = "http://www.mocky.io/v2/59bf67081100005100fa0142";
                 var initAnnotations = GAState.getInitAnnotations();
                 var JSONstring = JSON.stringify(initAnnotations);
                 if (!JSONstring) {
@@ -2263,7 +2262,7 @@ var gameanalytics;
                     }
                 };
                 request.open("POST", url, true);
-                request.setRequestHeader("Content-Type", "application/json");
+                request.setRequestHeader("Content-Type", "text/plain");
                 request.setRequestHeader("Authorization", authorization);
                 if (gzip) {
                     throw new Error("gzip not supported");
