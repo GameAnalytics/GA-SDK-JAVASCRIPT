@@ -15,6 +15,9 @@ Changelog
 **2.1.1**
 * fixed null error on property 'running'
 
+**2.1.1**
+* fixed null error on property 'running'
+
 **2.1.0**
 * fixed sending events request when no events to send
 * added possiblity to change event process interval
