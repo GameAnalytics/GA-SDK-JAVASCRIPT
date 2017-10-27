@@ -624,7 +624,12 @@ module gameanalytics
             GAEvents.addSessionStartEvent();
 
             var timedBlock:TimedBlock = GAThreading.getTimedBlockById(GameAnalytics.initTimedBlockId);
-            timedBlock.running = false;
+
+            if(timedBlock != null)
+            {
+                timedBlock.running = false;
+            }
+
             GameAnalytics.initTimedBlockId = -1;
         }
 
