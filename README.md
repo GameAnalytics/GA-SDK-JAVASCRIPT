@@ -12,6 +12,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**2.1.1**
+* fixed null error on property 'running'
+
 **2.1.0**
 * fixed sending events request when no events to send
 * added possiblity to change event process interval

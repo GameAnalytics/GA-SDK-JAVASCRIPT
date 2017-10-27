@@ -1,7 +1,7 @@
 {
     "name": "gameanalytics",
     "author": "GameAnalytics",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "Official JavaScript SDK for GameAnalytics. GameAnalytics is a free analytics platform that helps game developers understand their players' behaviour by delivering relevant insights.",
     "keywords": [
         "GameAnalytics",
