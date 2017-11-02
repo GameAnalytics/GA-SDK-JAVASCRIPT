@@ -115,7 +115,7 @@ module gameanalytics
             {
                 var ua:string = navigator.userAgent;
                 var tem:RegExpMatchArray;
-                var M:RegExpMatchArray = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+                var M:RegExpMatchArray = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident|fbav(?=\/))\/?\s*(\d+)/i) || [];
 
                 if(/trident/i.test(M[1]))
                 {
@@ -129,6 +129,16 @@ module gameanalytics
                     if(tem!= null)
                     {
                         return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC').toLowerCase();
+                    }
+                }
+
+                if(M[1].toLowerCase() === 'fbav')
+                {
+                    M[1] = "facebook";
+
+                    if(M[2])
+                    {
+                        return "facebook " + M[2];
                     }
                 }
 
