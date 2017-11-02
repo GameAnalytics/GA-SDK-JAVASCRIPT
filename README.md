@@ -12,6 +12,9 @@ Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**2.1.2**
+* fixed browser version fetch to support facebook
+
 **2.1.1**
 * fixed null error on property 'running'
 
