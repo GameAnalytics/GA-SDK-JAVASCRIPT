@@ -1072,7 +1072,7 @@ var gameanalytics;
             GADevice.getBrowserVersionString = function () {
                 var ua = navigator.userAgent;
                 var tem;
-                var M = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+                var M = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident|fbav(?=\/))\/?\s*(\d+)/i) || [];
                 if (/trident/i.test(M[1])) {
                     tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
                     return 'IE ' + (tem[1] || '');
@@ -1081,6 +1081,12 @@ var gameanalytics;
                     tem = ua.match(/\b(OPR|Edge|UBrowser)\/(\d+)/);
                     if (tem != null) {
                         return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC').toLowerCase();
+                    }
+                }
+                if (M[1].toLowerCase() === 'fbav') {
+                    M[1] = "facebook";
+                    if (M[2]) {
+                        return "facebook " + M[2];
                     }
                 }
                 var MString = M[2] ? [M[1], M[2]] : [navigator.appName, navigator.appVersion, '-?'];
@@ -1137,7 +1143,7 @@ var gameanalytics;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 2.1.0";
+        GADevice.sdkWrapperVersion = "javascript 2.1.2";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
@@ -3393,7 +3399,9 @@ var gameanalytics;
             GAState.instance.sessionStart = GAState.getClientTsAdjusted();
             GAEvents.addSessionStartEvent();
             var timedBlock = GAThreading.getTimedBlockById(GameAnalytics.initTimedBlockId);
-            timedBlock.running = false;
+            if (timedBlock != null) {
+                timedBlock.running = false;
+            }
             GameAnalytics.initTimedBlockId = -1;
         };
         GameAnalytics.resumeSessionAndStartQueue = function () {
