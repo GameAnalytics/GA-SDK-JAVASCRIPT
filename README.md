@@ -7,7 +7,7 @@ GA-SDK-JAVASCRIPT
 
 Official repository for GameAnalytics JavaScript SDK. Written in Typescript.
 
-Documentation is found [here](https://github.com/GameAnalytics/GA-SDK-JAVASCRIPT/wiki).
+Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk).
 
 Changelog
 ---------
