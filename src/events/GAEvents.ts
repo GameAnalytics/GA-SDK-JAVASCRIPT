@@ -322,6 +322,7 @@ module gameanalytics
                     if(!events || events.length == 0)
                     {
                         GALogger.i("Event queue: No events to send");
+                        GAEvents.updateSessionStore();
                         return;
                     }
 
@@ -436,8 +437,6 @@ module gameanalytics
                         GAStore.delete(EGAStore.Events, requestIdWhereArgs);
                     }
                 }
-
-                GAEvents.updateSessionStore();
             }
 
             private static cleanupEvents(): void
