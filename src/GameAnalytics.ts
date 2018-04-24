@@ -709,6 +709,15 @@ module gameanalytics
                 }
                 return false;
             }
+            // Is session started
+            if (needsInitialized && !GAState.sessionIsStarted())
+            {
+                if (warn)
+                {
+                    GALogger.w(message + "Session has not started yet");
+                }
+                return false;
+            }
             return true;
         }
     }
