@@ -12,6 +12,10 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**2.1.3**
+* fixed not allowing to add events when session is not started
+* fixed session length bug
+
 **2.1.2**
 * fixed browser version fetch to support facebook
 
