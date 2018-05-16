@@ -253,6 +253,9 @@ module gameanalytics
                     eventData["value"] = value;
                 }
 
+                // Add custom dimensions
+                GAEvents.addDimensionsToEvent(eventData);
+
                 // Log
                 GALogger.i("Add DESIGN event: {eventId:" + eventId + ", value:" + value + "}");
 
@@ -279,6 +282,9 @@ module gameanalytics
                 eventData["severity"] = severityString;
                 eventData["message"] = message;
 
+                // Add custom dimensions
+                GAEvents.addDimensionsToEvent(eventData);
+
                 // Log
                 GALogger.i("Add ERROR event: {severity:" + severityString + ", message:" + message + "}");
 
@@ -288,7 +294,6 @@ module gameanalytics
 
             public static processEvents(category:string, performCleanUp:boolean): void
             {
-                // throw new Error("processEvents not implemented");
                 try
                 {
                     var requestIdentifier:string = GAUtilities.createGuid();
