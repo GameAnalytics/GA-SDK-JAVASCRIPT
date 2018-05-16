@@ -1136,7 +1136,7 @@ var gameanalytics;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 2.1.3";
+        GADevice.sdkWrapperVersion = "javascript 2.1.4";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
@@ -2377,6 +2377,7 @@ var gameanalytics;
                 if (sendValue) {
                     eventData["value"] = value;
                 }
+                GAEvents.addDimensionsToEvent(eventData);
                 GALogger.i("Add DESIGN event: {eventId:" + eventId + ", value:" + value + "}");
                 GAEvents.addEventToStore(eventData);
             };
@@ -2390,6 +2391,7 @@ var gameanalytics;
                 eventData["category"] = GAEvents.CategoryError;
                 eventData["severity"] = severityString;
                 eventData["message"] = message;
+                GAEvents.addDimensionsToEvent(eventData);
                 GALogger.i("Add ERROR event: {severity:" + severityString + ", message:" + message + "}");
                 GAEvents.addEventToStore(eventData);
             };
