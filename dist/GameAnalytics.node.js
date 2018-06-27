@@ -1066,6 +1066,11 @@ var gameanalytics;
                 var ua = navigator.userAgent;
                 var tem;
                 var M = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident|fbav(?=\/))\/?\s*(\d+)/i) || [];
+                if (M.length == 0) {
+                    if (GADevice.buildPlatform === "ios") {
+                        return "webkit_" + GADevice.osVersion;
+                    }
+                }
                 if (/trident/i.test(M[1])) {
                     tem = /\brv[ :]+(\d+)/g.exec(ua) || [];
                     return 'IE ' + (tem[1] || '');
@@ -1076,7 +1081,7 @@ var gameanalytics;
                         return tem.slice(1).join(' ').replace('OPR', 'Opera').replace('UBrowser', 'UC').toLowerCase();
                     }
                 }
-                if (M[1].toLowerCase() === 'fbav') {
+                if (M[1] && M[1].toLowerCase() === 'fbav') {
                     M[1] = "facebook";
                     if (M[2]) {
                         return "facebook " + M[2];
@@ -1136,13 +1141,12 @@ var gameanalytics;
             };
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 2.1.4";
+        GADevice.sdkWrapperVersion = "javascript 2.1.5";
         GADevice.osVersionPair = GADevice.matchItem([
             navigator.platform,
             navigator.userAgent,
             navigator.appVersion,
-            navigator.vendor,
-            window.opera
+            navigator.vendor
         ].join(' '), [
             new NameValueVersion("windows_phone", "Windows Phone", "OS"),
             new NameValueVersion("windows", "Win", "NT"),
