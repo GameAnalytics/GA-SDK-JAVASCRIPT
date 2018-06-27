@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**2.1.5**
+* fix to getbrowserversion for webviews on ios
+
 **2.1.4**
 * added custom dimensions to design and error events
 
