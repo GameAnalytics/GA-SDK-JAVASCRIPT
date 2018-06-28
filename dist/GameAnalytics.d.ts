@@ -511,21 +511,11 @@ declare module gameanalytics {
         static configureGameEngineVersion(gameEngineVersion?: string): void;
         static configureUserId(uId?: string): void;
         static initialize(gameKey?: string, gameSecret?: string): void;
-        static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string, fields?: {
-            [id: string]: any;
-        }): void;
-        static addResourceEvent(flowType?: EGAResourceFlowType, currency?: string, amount?: number, itemType?: string, itemId?: string, fields?: {
-            [id: string]: any;
-        }): void;
-        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: any, fields?: {
-            [id: string]: any;
-        }): void;
-        static addDesignEvent(eventId: string, value?: any, fields?: {
-            [id: string]: any;
-        }): void;
-        static addErrorEvent(severity?: EGAErrorSeverity, message?: string, fields?: {
-            [id: string]: any;
-        }): void;
+        static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string): void;
+        static addResourceEvent(flowType?: EGAResourceFlowType, currency?: string, amount?: number, itemType?: string, itemId?: string): void;
+        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: any): void;
+        static addDesignEvent(eventId: string, value?: any): void;
+        static addErrorEvent(severity?: EGAErrorSeverity, message?: string): void;
         static setEnabledInfoLog(flag?: boolean): void;
         static setEnabledVerboseLog(flag?: boolean): void;
         static setEnabledManualSessionHandling(flag?: boolean): void;

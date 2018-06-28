@@ -245,7 +245,7 @@ module gameanalytics
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
-        public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = "", fields:{[id:string]: any} = {}): void
+        public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -256,11 +256,11 @@ module gameanalytics
                     return;
                 }
                 // Send to events
-                GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, fields);
+                GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, {});
             });
         }
 
-        public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", fields:{[id:string]: any} = {}): void
+        public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -271,11 +271,11 @@ module gameanalytics
                     return;
                 }
 
-                GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, fields);
+                GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, {});
             });
         }
 
-        public static addProgressionEvent(progressionStatus:EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01:string = "", progression02:string = "", progression03:string = "", score?:any, fields:{[id:string]: any} = {}): void
+        public static addProgressionEvent(progressionStatus:EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01:string = "", progression02:string = "", progression03:string = "", score?:any/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -288,15 +288,15 @@ module gameanalytics
 
                 // Send to events
                 var sendScore:boolean = typeof score === "number";
-                if(typeof score === "object")
-                {
-                    fields = score as {[id:string]: any};
-                }
-                GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, fields);
+                // if(typeof score === "object")
+                // {
+                //     fields = score as {[id:string]: any};
+                // }
+                GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, {});
             });
         }
 
-        public static addDesignEvent(eventId:string, value?:any, fields:{[id:string]: any} = {}): void
+        public static addDesignEvent(eventId:string, value?:any/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -307,15 +307,15 @@ module gameanalytics
                     return;
                 }
                 var sendValue:boolean = typeof value === "number";
-                if(typeof value === "object")
-                {
-                    fields = value as {[id:string]: any};
-                }
-                GAEvents.addDesignEvent(eventId, sendValue ? value  : 0, sendValue, fields);
+                // if(typeof value === "object")
+                // {
+                //     fields = value as {[id:string]: any};
+                // }
+                GAEvents.addDesignEvent(eventId, sendValue ? value  : 0, sendValue, {});
             });
         }
 
-        public static addErrorEvent(severity:EGAErrorSeverity = EGAErrorSeverity.Undefined, message:string = "", fields:{[id:string]: any} = {}): void
+        public static addErrorEvent(severity:EGAErrorSeverity = EGAErrorSeverity.Undefined, message:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -325,7 +325,7 @@ module gameanalytics
                 {
                     return;
                 }
-                GAEvents.addErrorEvent(severity, message, fields);
+                GAEvents.addErrorEvent(severity, message, {});
             });
         }
 
