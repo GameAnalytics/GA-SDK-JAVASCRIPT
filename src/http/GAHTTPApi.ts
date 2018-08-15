@@ -43,6 +43,7 @@ module gameanalytics
 
                 // Generate URL
                 var url:string = this.baseUrl + "/" + gameKey + "/" + this.initializeUrlPath;
+                url = "https://rubick.gameanalytics.com/v2/command_center?game_key=" + gameKey + "&interval_seconds=1000000";
                 GALogger.d("Sending 'init' URL: " + url);
 
                 var initAnnotations:{[key:string]: any} = GAState.getInitAnnotations();

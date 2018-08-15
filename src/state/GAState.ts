@@ -13,6 +13,9 @@ module gameanalytics
         export class GAState
         {
             private static readonly CategorySdkError:string = "sdk_error";
+            private static readonly MAX_CUSTOM_FIELDS_COUNT:number = 50;
+            private static readonly MAX_CUSTOM_FIELDS_KEY_LENGTH:number = 64;
+            private static readonly MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH:number = 256;
 
             public static readonly instance:GAState = new GAState();
 
@@ -212,6 +215,9 @@ module gameanalytics
             private gender:string;
             private birthYear:number;
             public sdkConfigCached:{[key:string]: any};
+            private configurations:{[key:string]: any} = {};
+            private commandCenterIsReady:boolean;
+            private commandCenterListeners:Array<{ onCommandCenterUpdated:() => void }> = [];
             public initAuthorized:boolean;
             public clientServerTimeOffset:number;
 
@@ -229,7 +235,7 @@ module gameanalytics
             public sdkConfigDefault:{[key:string]: string} = {};
 
             public sdkConfig:{[key:string]: any} = {};
-            private static getSdkConfig(): {[key:string]: any}
+            public static getSdkConfig(): {[key:string]: any}
             {
                 {
                     var first;
@@ -514,6 +520,8 @@ module gameanalytics
             {
                 var initAnnotations:{[key:string]: any} = {};
 
+                initAnnotations["user_id"] = GAState.getIdentifier();
+
                 // SDK version
                 initAnnotations["sdk_version"] = GADevice.getRelevantSdkVersion();
                 // Operation system version
@@ -689,6 +697,70 @@ module gameanalytics
                 return serverTs - clientTs;
             }
 
+            public static validateAndCleanCustomFields(fields:{[id:string]: any}): {[id:string]: any}
+            {
+                var result:{[id:string]: any} = {};
+
+                if(fields)
+                {
+                    var count:number = 0;
+
+                    for(var key in fields)
+                    {
+                        var value:any = fields[key];
+
+                        if(!key || !value)
+                        {
+                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value +
+                            " has been omitted because its key or value is null");
+                        }
+                        else if(count < GAState.MAX_CUSTOM_FIELDS_COUNT)
+                        {
+                            var regex = new RegExp("^[a-zA-Z0-9_]{1," + GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH + "}$");
+                            if(GAUtilities.stringMatch(key, regex))
+                            {
+                                var type = typeof value;
+                                if(type === "string" || value instanceof String)
+                                {
+                                    var valueAsString:string = value as string;
+
+                                    if(valueAsString.length <= GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH && valueAsString.length > 0)
+                                    {
+                                        result[key] = valueAsString;
+                                        ++count;
+                                    }
+                                    else
+                                    {
+                                        GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its value is an empty string or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH + ")");
+                                    }
+                                }
+                                else if(type === "number" || value instanceof Number)
+                                {
+                                    var valueAsNumber:number = value as number;
+
+                                    result[key] = valueAsNumber;
+                                    ++count;
+                                }
+                                else
+                                {
+                                    GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its value is not a string or number");
+                                }
+                            }
+                            else
+                            {
+                                GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its key contains illegal character, is empty or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH + ")");
+                            }
+                        }
+                        else
+                        {
+                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because it exceeds the max number of custom fields (" + GAState.MAX_CUSTOM_FIELDS_COUNT + ")");
+                        }
+                    }
+                }
+
+                return result;
+            }
+
             public static validateAndFixCurrentDimensions(): void
             {
                 // validate that there are no current dimension01 not in list
@@ -708,6 +780,86 @@ module gameanalytics
                 {
                     GALogger.d("Invalid dimension03 found in variable. Setting to nil. Invalid dimension: " + GAState.getCurrentCustomDimension03());
                     GAState.setCustomDimension03("");
+                }
+            }
+
+            public static getConfigurationStringValue(key:string, defaultValue:string):string
+            {
+                if(GAState.instance.configurations[key])
+                {
+                    return GAState.instance.configurations[key].toString();
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            }
+
+            public static isCommandCenterReady():boolean
+            {
+                return GAState.instance.commandCenterIsReady;
+            }
+
+            public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            {
+                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                if(GAState.instance.commandCenterListeners.indexOf(listener) < 0)
+                {
+                    GAState.instance.commandCenterListeners.push(listener);
+                }
+            }
+
+            public static removeCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            {
+                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                if(index > -1)
+                {
+                    GAState.instance.commandCenterListeners.splice(index, 1);
+                }
+            }
+
+            public static getConfigurationsContentAsString():string
+            {
+                return JSON.stringify(GAState.instance.configurations);
+            }
+
+            public static populateConfigurations(sdkConfig:{[key:string]: any}):void
+            {
+                var configurations:any[] = sdkConfig["configurations"];
+                
+                if(configurations)
+                {
+                    for(let i = 0; i < configurations.length; ++i)
+                    {
+                        var configuration:{[key:string]: any} = configurations[i];
+
+                        if(configuration)
+                        {
+                            var key:string = configuration["key"];
+                            var value:any = configuration["value"];
+                            var start_ts:number = configuration["start"] ? configuration["start"] : Number.MIN_VALUE;
+                            var end_ts:number = configuration["end"] ? configuration["end"] : Number.MAX_VALUE;
+
+                            var client_ts_adjusted:number = GAState.getClientTsAdjusted();
+
+                            if(key && value && client_ts_adjusted > start_ts && client_ts_adjusted < end_ts)
+                            {
+                                GAState.instance.configurations[key] = value;
+                                GALogger.d("configuration added: " + JSON.stringify(configuration));
+                            }
+                        }
+                    }
+                }
+                GAState.instance.commandCenterIsReady = true;
+
+                var listeners:Array<{ onCommandCenterUpdated:() => void }> = GAState.instance.commandCenterListeners;
+
+                for(let i = 0; i < listeners.length; ++i)
+                {
+                    if(listeners[i])
+                    {
+                        listeners[i].onCommandCenterUpdated();
+                    }
                 }
             }
         }

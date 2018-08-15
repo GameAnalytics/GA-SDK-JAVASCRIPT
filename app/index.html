@@ -22,15 +22,24 @@
         <!-- End GameAnalytics -->
     </head>
     <body>
-        <script type="text/javascript" src='../dist/GameAnalytics.js'></script>
+        <script type="text/javascript" src='../dist/GameAnalytics.debug.js'></script>
         <script type="text/javascript">
+            var listener = {
+                onCommandCenterUpdated: function() {
+                    console.log("onCommandCenterUpdated called");
+                }
+            };
             GameAnalytics("setEnabledInfoLog", true);
             GameAnalytics("setEnabledVerboseLog", true);
+            GameAnalytics("addCommandCenterListener", listener);
+            //GameAnalytics("removeCommandCenterListener", listener);
             GameAnalytics("configureAvailableCustomDimensions01", ["ninja", "samurai"]);
             GameAnalytics("setFacebookId", "my_facebook");
             GameAnalytics("setGender", 2);
             GameAnalytics("setEventProcessInterval", 15);
-            GameAnalytics("initialize", "GAME_KEY", "SECRET_KEY");
+            GameAnalytics("initialize", "c6cfc80ff69d1e7316bf1e0c8194eda6", "e0ae4809f70e2fa96916c7060f417ae53895f18d");
+            var fields = {"hello": "world"};
+            GameAnalytics("addDesignEvent", "test", fields);
         </script>
     </body>
 </html>

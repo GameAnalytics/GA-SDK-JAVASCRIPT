@@ -246,6 +246,9 @@ declare module gameanalytics {
     module state {
         class GAState {
             private static readonly CategorySdkError;
+            private static readonly MAX_CUSTOM_FIELDS_COUNT;
+            private static readonly MAX_CUSTOM_FIELDS_KEY_LENGTH;
+            private static readonly MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH;
             static readonly instance: GAState;
             private constructor();
             private userId;
@@ -299,6 +302,9 @@ declare module gameanalytics {
             sdkConfigCached: {
                 [key: string]: any;
             };
+            private configurations;
+            private commandCenterIsReady;
+            private commandCenterListeners;
             initAuthorized: boolean;
             clientServerTimeOffset: number;
             private defaultUserId;
@@ -310,7 +316,9 @@ declare module gameanalytics {
             sdkConfig: {
                 [key: string]: any;
             };
-            private static getSdkConfig();
+            static getSdkConfig(): {
+                [key: string]: any;
+            };
             private progressionTries;
             static readonly DefaultUserIdKey: string;
             static readonly SessionNumKey: string;
@@ -350,7 +358,24 @@ declare module gameanalytics {
             private static cacheIdentifier();
             static ensurePersistedStates(): void;
             static calculateServerTimeOffset(serverTs: number): number;
+            static validateAndCleanCustomFields(fields: {
+                [id: string]: any;
+            }): {
+                [id: string]: any;
+            };
             static validateAndFixCurrentDimensions(): void;
+            static getConfigurationStringValue(key: string, defaultValue: string): string;
+            static isCommandCenterReady(): boolean;
+            static addCommandCenterListener(listener: {
+                onCommandCenterUpdated: () => void;
+            }): void;
+            static removeCommandCenterListener(listener: {
+                onCommandCenterUpdated: () => void;
+            }): void;
+            static getConfigurationsContentAsString(): string;
+            static populateConfigurations(sdkConfig: {
+                [key: string]: any;
+            }): void;
         }
     }
 }
@@ -409,11 +434,21 @@ declare module gameanalytics {
             private constructor();
             static addSessionStartEvent(): void;
             static addSessionEndEvent(): void;
-            static addBusinessEvent(currency: string, amount: number, itemType: string, itemId: string, cartType?: string): void;
-            static addResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string): void;
-            static addProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string, score: number, sendScore: boolean): void;
-            static addDesignEvent(eventId: string, value: number, sendValue: boolean): void;
-            static addErrorEvent(severity: EGAErrorSeverity, message: string): void;
+            static addBusinessEvent(currency: string, amount: number, itemType: string, itemId: string, cartType: string, fields: {
+                [id: string]: any;
+            }): void;
+            static addResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string, fields: {
+                [id: string]: any;
+            }): void;
+            static addProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string, score: number, sendScore: boolean, fields: {
+                [id: string]: any;
+            }): void;
+            static addDesignEvent(eventId: string, value: number, sendValue: boolean, fields: {
+                [id: string]: any;
+            }): void;
+            static addErrorEvent(severity: EGAErrorSeverity, message: string, fields: {
+                [id: string]: any;
+            }): void;
             static processEvents(category: string, performCleanUp: boolean): void;
             private static processEventsCallback(responseEnum, dataDict, requestId, eventCount);
             private static cleanupEvents();
@@ -421,6 +456,7 @@ declare module gameanalytics {
             private static addEventToStore(eventData);
             private static updateSessionStore();
             private static addDimensionsToEvent(eventData);
+            private static addFieldsToEvent(eventData, fields);
             private static resourceFlowTypeToString(value);
             private static progressionStatusToString(value);
             private static errorSeverityToString(value);
@@ -477,8 +513,8 @@ declare module gameanalytics {
         static initialize(gameKey?: string, gameSecret?: string): void;
         static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string): void;
         static addResourceEvent(flowType?: EGAResourceFlowType, currency?: string, amount?: number, itemType?: string, itemId?: string): void;
-        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: number): void;
-        static addDesignEvent(eventId: string, value?: number): void;
+        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: any): void;
+        static addDesignEvent(eventId: string, value?: any): void;
         static addErrorEvent(severity?: EGAErrorSeverity, message?: string): void;
         static setEnabledInfoLog(flag?: boolean): void;
         static setEnabledVerboseLog(flag?: boolean): void;
@@ -494,6 +530,15 @@ declare module gameanalytics {
         static endSession(): void;
         static onStop(): void;
         static onResume(): void;
+        static getCommandCenterValueAsString(key: string, defaultValue?: string): string;
+        static isCommandCenterReady(): boolean;
+        static addCommandCenterListener(listener: {
+            onCommandCenterUpdated: () => void;
+        }): void;
+        static removeCommandCenterListener(listener: {
+            onCommandCenterUpdated: () => void;
+        }): void;
+        static getConfigurationsContentAsString(): string;
         private static internalInitialize();
         private static newSession();
         private static startNewSessionCallback(initResponse, initResponseDict);

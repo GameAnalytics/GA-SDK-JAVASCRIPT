@@ -50,6 +50,8 @@ module gameanalytics
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
+            GameAnalytics.methodMap['addCommandCenterListener'] = GameAnalytics.addCommandCenterListener;
+            GameAnalytics.methodMap['removeCommandCenterListener'] = GameAnalytics.removeCommandCenterListener;
 
             if(typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined')
             {
@@ -243,7 +245,7 @@ module gameanalytics
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
-        public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = ""): void
+        public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -254,11 +256,11 @@ module gameanalytics
                     return;
                 }
                 // Send to events
-                GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType);
+                GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, {});
             });
         }
 
-        public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = ""): void
+        public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -269,11 +271,11 @@ module gameanalytics
                     return;
                 }
 
-                GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId);
+                GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, {});
             });
         }
 
-        public static addProgressionEvent(progressionStatus:EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01:string = "", progression02:string = "", progression03:string = "", score?:number): void
+        public static addProgressionEvent(progressionStatus:EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01:string = "", progression02:string = "", progression03:string = "", score?:any/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -285,12 +287,16 @@ module gameanalytics
                 }
 
                 // Send to events
-                var sendScore:boolean = typeof score != "undefined";
-                GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore);
+                var sendScore:boolean = typeof score === "number";
+                // if(typeof score === "object")
+                // {
+                //     fields = score as {[id:string]: any};
+                // }
+                GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, {});
             });
         }
 
-        public static addDesignEvent(eventId:string, value?:number): void
+        public static addDesignEvent(eventId:string, value?:any/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -300,12 +306,16 @@ module gameanalytics
                 {
                     return;
                 }
-                var sendValue:boolean = typeof value != "undefined";
-                GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue);
+                var sendValue:boolean = typeof value === "number";
+                // if(typeof value === "object")
+                // {
+                //     fields = value as {[id:string]: any};
+                // }
+                GAEvents.addDesignEvent(eventId, sendValue ? value  : 0, sendValue, {});
             });
         }
 
-        public static addErrorEvent(severity:EGAErrorSeverity = EGAErrorSeverity.Undefined, message:string = ""): void
+        public static addErrorEvent(severity:EGAErrorSeverity = EGAErrorSeverity.Undefined, message:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
@@ -315,7 +325,7 @@ module gameanalytics
                 {
                     return;
                 }
-                GAEvents.addErrorEvent(severity, message);
+                GAEvents.addErrorEvent(severity, message, {});
             });
         }
 
@@ -502,6 +512,31 @@ module gameanalytics
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
+        public static getCommandCenterValueAsString(key:string, defaultValue:string = null):string
+        {
+            return GAState.getConfigurationStringValue(key, defaultValue);
+        }
+
+        public static isCommandCenterReady():boolean
+        {
+            return GAState.isCommandCenterReady();
+        }
+
+        public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+        {
+            GAState.addCommandCenterListener(listener);
+        }
+
+        public static removeCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+        {
+            GAState.removeCommandCenterListener(listener);
+        }
+
+        public static getConfigurationsContentAsString():string
+        {
+            return GAState.getConfigurationsContentAsString();
+        }
+
         private static internalInitialize(): void
         {
             GAState.ensurePersistedStates();
@@ -595,7 +630,10 @@ module gameanalytics
             }
 
             // set offset in state (memory) from current config (config could be from cache etc.)
-            GAState.instance.clientServerTimeOffset = GAState.instance.sdkConfig["time_offset"] ? GAState.instance.sdkConfig["time_offset"] as number : 0;
+            GAState.instance.clientServerTimeOffset = GAState.getSdkConfig()["time_offset"] ? GAState.getSdkConfig()["time_offset"] as number : 0;
+
+            // populate configurations
+            GAState.populateConfigurations(GAState.getSdkConfig());
 
             // if SDK is disabled in config
             if(!GAState.isEnabled())
