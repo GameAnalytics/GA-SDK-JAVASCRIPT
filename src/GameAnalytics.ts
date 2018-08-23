@@ -52,6 +52,9 @@ module gameanalytics
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
             GameAnalytics.methodMap['addCommandCenterListener'] = GameAnalytics.addCommandCenterListener;
             GameAnalytics.methodMap['removeCommandCenterListener'] = GameAnalytics.removeCommandCenterListener;
+            GameAnalytics.methodMap['getCommandCenterValueAsString'] = GameAnalytics.getCommandCenterValueAsString;
+            GameAnalytics.methodMap['isCommandCenterReady'] = GameAnalytics.isCommandCenterReady;
+            GameAnalytics.methodMap['getConfigurationsContentAsString'] = GameAnalytics.getConfigurationsContentAsString;
 
             if(typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined')
             {

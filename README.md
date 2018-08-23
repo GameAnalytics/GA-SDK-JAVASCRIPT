@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**3.0.1**
+* added missing function mappings
+
 **3.0.0**
 * added command center functionality
 
