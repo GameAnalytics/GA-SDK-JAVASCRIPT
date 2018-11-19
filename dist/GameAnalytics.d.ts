@@ -5,28 +5,28 @@ declare module gameanalytics {
         Info = 2,
         Warning = 3,
         Error = 4,
-        Critical = 5,
+        Critical = 5
     }
     enum EGAGender {
         Undefined = 0,
         Male = 1,
-        Female = 2,
+        Female = 2
     }
     enum EGAProgressionStatus {
         Undefined = 0,
         Start = 1,
         Complete = 2,
-        Fail = 3,
+        Fail = 3
     }
     enum EGAResourceFlowType {
         Undefined = 0,
         Source = 1,
-        Sink = 2,
+        Sink = 2
     }
     module http {
         enum EGASdkErrorType {
             Undefined = 0,
-            Rejected = 1,
+            Rejected = 1
         }
         enum EGAHTTPApiResponse {
             NoResponse = 0,
@@ -38,7 +38,7 @@ declare module gameanalytics {
             BadRequest = 6,
             Unauthorized = 7,
             UnknownResponseCode = 8,
-            Ok = 9,
+            Ok = 9
         }
     }
 }
@@ -62,7 +62,7 @@ declare module gameanalytics {
             static e(format: string): void;
             static ii(format: string): void;
             static d(format: string): void;
-            private sendNotificationMessage(message, type);
+            private sendNotificationMessage;
         }
     }
 }
@@ -78,7 +78,7 @@ declare module gameanalytics {
             static decode64(input: string): string;
             static timeIntervalSince1970(): number;
             static createGuid(): string;
-            private static s4();
+            private static s4;
         }
     }
 }
@@ -154,12 +154,12 @@ declare module gameanalytics {
             static getRelevantSdkVersion(): string;
             static getConnectionType(): string;
             static updateConnectionType(): void;
-            private static getOSVersionString();
-            private static runtimePlatformToString();
-            private static getBrowserVersionString();
-            private static getDeviceModel();
-            private static getDeviceManufacturer();
-            private static matchItem(agent, data);
+            private static getOSVersionString;
+            private static runtimePlatformToString;
+            private static getBrowserVersionString;
+            private static getDeviceModel;
+            private static getDeviceManufacturer;
+            private static matchItem;
         }
     }
 }
@@ -190,11 +190,11 @@ declare module gameanalytics {
             private comparer;
             constructor(priorityComparer: IComparer<number>);
             enqueue(priority: number, item: TItem): void;
-            private addQueueOfPriority(priority);
+            private addQueueOfPriority;
             peek(): TItem;
             hasItems(): boolean;
             dequeue(): TItem;
-            private dequeueFromHighPriorityQueue();
+            private dequeueFromHighPriorityQueue;
         }
     }
 }
@@ -203,12 +203,12 @@ declare module gameanalytics {
         enum EGAStoreArgsOperator {
             Equal = 0,
             LessOrEqual = 1,
-            NotEqual = 2,
+            NotEqual = 2
         }
         enum EGAStore {
             Events = 0,
             Sessions = 1,
-            Progression = 2,
+            Progression = 2
         }
         class GAStore {
             private static readonly instance;
@@ -238,7 +238,7 @@ declare module gameanalytics {
             static load(): void;
             static setItem(key: string, value: string): void;
             static getItem(key: string): string;
-            private static getStore(store);
+            private static getStore;
         }
     }
 }
@@ -308,7 +308,7 @@ declare module gameanalytics {
             initAuthorized: boolean;
             clientServerTimeOffset: number;
             private defaultUserId;
-            private setDefaultId(value);
+            private setDefaultId;
             static getDefaultId(): string;
             sdkConfigDefault: {
                 [key: string]: string;
@@ -355,7 +355,7 @@ declare module gameanalytics {
             };
             static getClientTsAdjusted(): number;
             static sessionIsStarted(): boolean;
-            private static cacheIdentifier();
+            private static cacheIdentifier;
             static ensurePersistedStates(): void;
             static calculateServerTimeOffset(serverTs: number): number;
             static validateAndCleanCustomFields(fields: {
@@ -410,12 +410,12 @@ declare module gameanalytics {
                 [key: string]: any;
             }, requestId: string, eventCount: number) => void): void;
             sendSdkErrorEvent(type: EGASdkErrorType): void;
-            private static sendEventInArrayRequestCallback(request, url, callback, extra?);
-            private static sendRequest(url, payloadData, extraArgs, gzip, callback, callback2);
-            private static initRequestCallback(request, url, callback, extra?);
-            private createPayloadData(payload, gzip);
-            private processRequestResponse(responseCode, responseMessage, body, requestId);
-            private static sdkErrorTypeToString(value);
+            private static sendEventInArrayRequestCallback;
+            private static sendRequest;
+            private static initRequestCallback;
+            private createPayloadData;
+            private processRequestResponse;
+            private static sdkErrorTypeToString;
         }
     }
 }
@@ -450,16 +450,16 @@ declare module gameanalytics {
                 [id: string]: any;
             }): void;
             static processEvents(category: string, performCleanUp: boolean): void;
-            private static processEventsCallback(responseEnum, dataDict, requestId, eventCount);
-            private static cleanupEvents();
-            private static fixMissingSessionEndEvents();
-            private static addEventToStore(eventData);
-            private static updateSessionStore();
-            private static addDimensionsToEvent(eventData);
-            private static addFieldsToEvent(eventData, fields);
-            private static resourceFlowTypeToString(value);
-            private static progressionStatusToString(value);
-            private static errorSeverityToString(value);
+            private static processEventsCallback;
+            private static cleanupEvents;
+            private static fixMissingSessionEndEvents;
+            private static addEventToStore;
+            private static updateSessionStore;
+            private static addDimensionsToEvent;
+            private static addFieldsToEvent;
+            private static resourceFlowTypeToString;
+            private static progressionStatusToString;
+            private static errorSeverityToString;
         }
     }
 }
@@ -485,11 +485,11 @@ declare module gameanalytics {
             static stopEventQueue(): void;
             static ignoreTimer(blockIdentifier: number): void;
             static setEventProcessInterval(interval: number): void;
-            private addTimedBlock(timedBlock);
-            private static run();
-            private static startThread();
-            private static getNextBlock();
-            private static processEventQueue();
+            private addTimedBlock;
+            private static run;
+            private static startThread;
+            private static getNextBlock;
+            private static processEventQueue;
         }
     }
 }
@@ -539,11 +539,11 @@ declare module gameanalytics {
             onCommandCenterUpdated: () => void;
         }): void;
         static getConfigurationsContentAsString(): string;
-        private static internalInitialize();
-        private static newSession();
-        private static startNewSessionCallback(initResponse, initResponseDict);
-        private static resumeSessionAndStartQueue();
-        private static isSdkReady(needsInitialized, warn?, message?);
+        private static internalInitialize;
+        private static newSession;
+        private static startNewSessionCallback;
+        private static resumeSessionAndStartQueue;
+        private static isSdkReady;
     }
 }
 declare var GameAnalytics: typeof gameanalytics.GameAnalytics.gaCommand;

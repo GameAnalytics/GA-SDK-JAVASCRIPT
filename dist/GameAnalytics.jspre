@@ -465,10 +465,10 @@ var gameanalytics;
                         break;
                 }
             };
+            GALogger.instance = new GALogger();
+            GALogger.Tag = "GameAnalytics";
             return GALogger;
         }());
-        GALogger.instance = new GALogger();
-        GALogger.Tag = "GameAnalytics";
         logging.GALogger = GALogger;
     })(logging = gameanalytics.logging || (gameanalytics.logging = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -581,9 +581,9 @@ var gameanalytics;
             GAUtilities.s4 = function () {
                 return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
             };
+            GAUtilities.keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
             return GAUtilities;
         }());
-        GAUtilities.keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
         utilities.GAUtilities = GAUtilities;
     })(utilities = gameanalytics.utilities || (gameanalytics.utilities = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -1146,32 +1146,32 @@ var gameanalytics;
                 }
                 return result;
             };
+            GADevice.sdkWrapperVersion = "javascript 3.0.2";
+            GADevice.osVersionPair = GADevice.matchItem([
+                navigator.platform,
+                navigator.userAgent,
+                navigator.appVersion,
+                navigator.vendor
+            ].join(' '), [
+                new NameValueVersion("windows_phone", "Windows Phone", "OS"),
+                new NameValueVersion("windows", "Win", "NT"),
+                new NameValueVersion("ios", "iPhone", "OS"),
+                new NameValueVersion("ios", "iPad", "OS"),
+                new NameValueVersion("ios", "iPod", "OS"),
+                new NameValueVersion("android", "Android", "Android"),
+                new NameValueVersion("blackBerry", "BlackBerry", "/"),
+                new NameValueVersion("mac_osx", "Mac", "OS X"),
+                new NameValueVersion("tizen", "Tizen", "Tizen"),
+                new NameValueVersion("linux", "Linux", "rv")
+            ]);
+            GADevice.buildPlatform = GADevice.runtimePlatformToString();
+            GADevice.deviceModel = GADevice.getDeviceModel();
+            GADevice.deviceManufacturer = GADevice.getDeviceManufacturer();
+            GADevice.osVersion = GADevice.getOSVersionString();
+            GADevice.browserVersion = GADevice.getBrowserVersionString();
+            GADevice.maxSafeInteger = Math.pow(2, 53) - 1;
             return GADevice;
         }());
-        GADevice.sdkWrapperVersion = "javascript 3.0.1";
-        GADevice.osVersionPair = GADevice.matchItem([
-            navigator.platform,
-            navigator.userAgent,
-            navigator.appVersion,
-            navigator.vendor
-        ].join(' '), [
-            new NameValueVersion("windows_phone", "Windows Phone", "OS"),
-            new NameValueVersion("windows", "Win", "NT"),
-            new NameValueVersion("ios", "iPhone", "OS"),
-            new NameValueVersion("ios", "iPad", "OS"),
-            new NameValueVersion("ios", "iPod", "OS"),
-            new NameValueVersion("android", "Android", "Android"),
-            new NameValueVersion("blackBerry", "BlackBerry", "/"),
-            new NameValueVersion("mac_osx", "Mac", "OS X"),
-            new NameValueVersion("tizen", "Tizen", "Tizen"),
-            new NameValueVersion("linux", "Linux", "rv")
-        ]);
-        GADevice.buildPlatform = GADevice.runtimePlatformToString();
-        GADevice.deviceModel = GADevice.getDeviceModel();
-        GADevice.deviceManufacturer = GADevice.getDeviceManufacturer();
-        GADevice.osVersion = GADevice.getOSVersionString();
-        GADevice.browserVersion = GADevice.getBrowserVersionString();
-        GADevice.maxSafeInteger = Math.pow(2, 53) - 1;
         device.GADevice = GADevice;
     })(device = gameanalytics.device || (gameanalytics.device = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -1187,9 +1187,9 @@ var gameanalytics;
                 this.running = false;
                 this.id = ++TimedBlock.idCounter;
             }
+            TimedBlock.idCounter = 0;
             return TimedBlock;
         }());
-        TimedBlock.idCounter = 0;
         threading.TimedBlock = TimedBlock;
     })(threading = gameanalytics.threading || (gameanalytics.threading = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -1574,15 +1574,15 @@ var gameanalytics;
                         }
                 }
             };
+            GAStore.instance = new GAStore();
+            GAStore.MaxNumberOfEntries = 2000;
+            GAStore.KeyPrefix = "GA::";
+            GAStore.EventsStoreKey = "ga_event";
+            GAStore.SessionsStoreKey = "ga_session";
+            GAStore.ProgressionStoreKey = "ga_progression";
+            GAStore.ItemsStoreKey = "ga_items";
             return GAStore;
         }());
-        GAStore.instance = new GAStore();
-        GAStore.MaxNumberOfEntries = 2000;
-        GAStore.KeyPrefix = "GA::";
-        GAStore.EventsStoreKey = "ga_event";
-        GAStore.SessionsStoreKey = "ga_session";
-        GAStore.ProgressionStoreKey = "ga_progression";
-        GAStore.ItemsStoreKey = "ga_items";
         store_1.GAStore = GAStore;
     })(store = gameanalytics.store || (gameanalytics.store = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -2095,23 +2095,23 @@ var gameanalytics;
                     }
                 }
             };
+            GAState.CategorySdkError = "sdk_error";
+            GAState.MAX_CUSTOM_FIELDS_COUNT = 50;
+            GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH = 64;
+            GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH = 256;
+            GAState.instance = new GAState();
+            GAState.DefaultUserIdKey = "default_user_id";
+            GAState.SessionNumKey = "session_num";
+            GAState.TransactionNumKey = "transaction_num";
+            GAState.FacebookIdKey = "facebook_id";
+            GAState.GenderKey = "gender";
+            GAState.BirthYearKey = "birth_year";
+            GAState.Dimension01Key = "dimension01";
+            GAState.Dimension02Key = "dimension02";
+            GAState.Dimension03Key = "dimension03";
+            GAState.SdkConfigCachedKey = "sdk_config_cached";
             return GAState;
         }());
-        GAState.CategorySdkError = "sdk_error";
-        GAState.MAX_CUSTOM_FIELDS_COUNT = 50;
-        GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH = 64;
-        GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH = 256;
-        GAState.instance = new GAState();
-        GAState.DefaultUserIdKey = "default_user_id";
-        GAState.SessionNumKey = "session_num";
-        GAState.TransactionNumKey = "transaction_num";
-        GAState.FacebookIdKey = "facebook_id";
-        GAState.GenderKey = "gender";
-        GAState.BirthYearKey = "birth_year";
-        GAState.Dimension01Key = "dimension01";
-        GAState.Dimension02Key = "dimension02";
-        GAState.Dimension03Key = "dimension03";
-        GAState.SdkConfigCachedKey = "sdk_config_cached";
         state.GAState = GAState;
     })(state = gameanalytics.state || (gameanalytics.state = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -2157,10 +2157,10 @@ var gameanalytics;
                     console.error(e);
                 }
             };
+            SdkErrorTask.MaxCount = 10;
+            SdkErrorTask.countMap = {};
             return SdkErrorTask;
         }());
-        SdkErrorTask.MaxCount = 10;
-        SdkErrorTask.countMap = {};
         tasks.SdkErrorTask = SdkErrorTask;
     })(tasks = gameanalytics.tasks || (gameanalytics.tasks = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -2298,23 +2298,23 @@ var gameanalytics;
                 var requestJsonDict = body ? JSON.parse(body) : {};
                 var requestResponseEnum = GAHTTPApi.instance.processRequestResponse(responseCode, request.statusText, body, "Init");
                 if (requestResponseEnum != http.EGAHTTPApiResponse.Ok && requestResponseEnum != http.EGAHTTPApiResponse.BadRequest) {
-                    callback(requestResponseEnum, null);
+                    callback(requestResponseEnum, null, "", 0);
                     return;
                 }
                 if (requestJsonDict == null) {
-                    callback(http.EGAHTTPApiResponse.JsonDecodeFailed, null);
+                    callback(http.EGAHTTPApiResponse.JsonDecodeFailed, null, "", 0);
                     return;
                 }
                 if (requestResponseEnum === http.EGAHTTPApiResponse.BadRequest) {
-                    callback(requestResponseEnum, null);
+                    callback(requestResponseEnum, null, "", 0);
                     return;
                 }
                 var validatedInitValues = GAValidator.validateAndCleanInitRequestResponse(requestJsonDict);
                 if (!validatedInitValues) {
-                    callback(http.EGAHTTPApiResponse.BadResponse, null);
+                    callback(http.EGAHTTPApiResponse.BadResponse, null, "", 0);
                     return;
                 }
-                callback(http.EGAHTTPApiResponse.Ok, validatedInitValues);
+                callback(http.EGAHTTPApiResponse.Ok, validatedInitValues, "", 0);
             };
             GAHTTPApi.prototype.createPayloadData = function (payload, gzip) {
                 var payloadData;
@@ -2356,9 +2356,9 @@ var gameanalytics;
                         }
                 }
             };
+            GAHTTPApi.instance = new GAHTTPApi();
             return GAHTTPApi;
         }());
-        GAHTTPApi.instance = new GAHTTPApi();
         http.GAHTTPApi = GAHTTPApi;
     })(http = gameanalytics.http || (gameanalytics.http = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -2750,17 +2750,17 @@ var gameanalytics;
                     return "";
                 }
             };
+            GAEvents.instance = new GAEvents();
+            GAEvents.CategorySessionStart = "user";
+            GAEvents.CategorySessionEnd = "session_end";
+            GAEvents.CategoryDesign = "design";
+            GAEvents.CategoryBusiness = "business";
+            GAEvents.CategoryProgression = "progression";
+            GAEvents.CategoryResource = "resource";
+            GAEvents.CategoryError = "error";
+            GAEvents.MaxEventCount = 500;
             return GAEvents;
         }());
-        GAEvents.instance = new GAEvents();
-        GAEvents.CategorySessionStart = "user";
-        GAEvents.CategorySessionEnd = "session_end";
-        GAEvents.CategoryDesign = "design";
-        GAEvents.CategoryBusiness = "business";
-        GAEvents.CategoryProgression = "progression";
-        GAEvents.CategoryResource = "resource";
-        GAEvents.CategoryError = "error";
-        GAEvents.MaxEventCount = 500;
         events_1.GAEvents = GAEvents;
     })(events = gameanalytics.events || (gameanalytics.events = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -2906,11 +2906,11 @@ var gameanalytics;
                     GAThreading.instance.isRunning = false;
                 }
             };
+            GAThreading.instance = new GAThreading();
+            GAThreading.ThreadWaitTimeInMs = 1000;
+            GAThreading.ProcessEventsIntervalInSeconds = 8.0;
             return GAThreading;
         }());
-        GAThreading.instance = new GAThreading();
-        GAThreading.ThreadWaitTimeInMs = 1000;
-        GAThreading.ProcessEventsIntervalInSeconds = 8.0;
         threading.GAThreading = GAThreading;
     })(threading = gameanalytics.threading || (gameanalytics.threading = {}));
 })(gameanalytics || (gameanalytics = {}));
@@ -3269,7 +3269,7 @@ var gameanalytics;
             });
         };
         GameAnalytics.startSession = function () {
-            if (GAState.getUseManualSessionHandling()) {
+            {
                 if (!GAState.isInitialized()) {
                     return;
                 }
@@ -3286,7 +3286,7 @@ var gameanalytics;
             }
         };
         GameAnalytics.endSession = function () {
-            if (GAState.getUseManualSessionHandling()) {
+            {
                 GameAnalytics.onStop();
             }
         };
@@ -3435,10 +3435,10 @@ var gameanalytics;
             }
             return true;
         };
+        GameAnalytics.initTimedBlockId = -1;
+        GameAnalytics.methodMap = {};
         return GameAnalytics;
     }());
-    GameAnalytics.initTimedBlockId = -1;
-    GameAnalytics.methodMap = {};
     gameanalytics.GameAnalytics = GameAnalytics;
 })(gameanalytics || (gameanalytics = {}));
 gameanalytics.GameAnalytics.init();

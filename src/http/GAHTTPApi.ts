@@ -5,9 +5,7 @@ module gameanalytics
         import GAState = gameanalytics.state.GAState;
         import GALogger = gameanalytics.logging.GALogger;
         import GAUtilities = gameanalytics.utilities.GAUtilities;
-        import GAStore = gameanalytics.store.GAStore;
         import GAValidator = gameanalytics.validators.GAValidator;
-        import EGAStoreArgsOperator = gameanalytics.store.EGAStoreArgsOperator;
         import SdkErrorTask = gameanalytics.tasks.SdkErrorTask;
 
         export class GAHTTPApi
@@ -218,7 +216,7 @@ module gameanalytics
                 }
             }
 
-            private static initRequestCallback(request:XMLHttpRequest, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}) => void, extra:Array<string> = null): void
+            private static initRequestCallback(request:XMLHttpRequest, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string> = null): void
             {
                 var authorization:string = extra[0];
                 var JSONstring:string = extra[1];
@@ -238,14 +236,14 @@ module gameanalytics
                 if(requestResponseEnum != EGAHTTPApiResponse.Ok && requestResponseEnum != EGAHTTPApiResponse.BadRequest)
                 {
                     GALogger.d("Failed Init Call. URL: " + url + ", Authorization: " + authorization + ", JSONString: " + JSONstring);
-                    callback(requestResponseEnum, null);
+                    callback(requestResponseEnum, null, "", 0);
                     return;
                 }
 
                 if(requestJsonDict == null)
                 {
                     GALogger.d("Failed Init Call. Json decoding failed");
-                    callback(EGAHTTPApiResponse.JsonDecodeFailed, null);
+                    callback(EGAHTTPApiResponse.JsonDecodeFailed, null, "", 0);
                     return;
                 }
 
@@ -254,7 +252,7 @@ module gameanalytics
                 {
                     GALogger.d("Failed Init Call. Bad request. Response: " + JSON.stringify(requestJsonDict));
                     // return bad request result
-                    callback(requestResponseEnum, null);
+                    callback(requestResponseEnum, null, "", 0);
                     return;
                 }
 
@@ -263,12 +261,12 @@ module gameanalytics
 
                 if(!validatedInitValues)
                 {
-                    callback(EGAHTTPApiResponse.BadResponse, null);
+                    callback(EGAHTTPApiResponse.BadResponse, null, "", 0);
                     return;
                 }
 
                 // all ok
-                callback(EGAHTTPApiResponse.Ok, validatedInitValues);
+                callback(EGAHTTPApiResponse.Ok, validatedInitValues, "", 0);
             }
 
             private createPayloadData(payload:string, gzip:boolean): string
