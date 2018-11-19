@@ -456,7 +456,7 @@ module gameanalytics
 
         public static startSession(): void
         {
-            if(GAState.getUseManualSessionHandling())
+            //if(GAState.getUseManualSessionHandling())
             {
                 if(!GAState.isInitialized())
                 {
@@ -482,7 +482,7 @@ module gameanalytics
 
         public static endSession(): void
         {
-            if(GAState.getUseManualSessionHandling())
+            //if(GAState.getUseManualSessionHandling())
             {
                 GameAnalytics.onStop();
             }
