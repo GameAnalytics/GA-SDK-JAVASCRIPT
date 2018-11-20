@@ -89,10 +89,10 @@ describe("Validator", function () {
             expect(GAValidator.validateBusinessEvent("USD", 99, null, "itemType", "itemId")).toEqual(true);
             expect(GAValidator.validateBusinessEvent("USD", 99, undefined, "itemType", "itemId")).toEqual(true);
             expect(GAValidator.validateBusinessEvent("USD", 0, "cartType", "itemType", "itemId")).toEqual(true);
-            expect(GAValidator.validateBusinessEvent("USD", -99, "cartType", "itemType", "itemId")).toEqual(true);
         });
 
         it("should be invalid business event", function() {
+            expect(GAValidator.validateBusinessEvent("USD", -99, "cartType", "itemType", "itemId")).toEqual(false);
             expect(GAValidator.validateBusinessEvent("USD", 99, "", "", "itemId")).toEqual(false);
             expect(GAValidator.validateBusinessEvent("USD", 99, "", null, "itemId")).toEqual(false);
             expect(GAValidator.validateBusinessEvent("USD", 99, "", undefined, "itemId")).toEqual(false);

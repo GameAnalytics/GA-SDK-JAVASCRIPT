@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**3.0.3**
+* fixed business event validation
+
 **3.0.2**
 * removed manual session handling check for startsession and endsession
 
