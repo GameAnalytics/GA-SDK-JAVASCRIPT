@@ -32,6 +32,11 @@ module gameanalytics
 
             public static addSessionStartEvent(): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 // Event specific data
                 var eventDict:{[key:string]: any} = {};
                 eventDict["category"] = GAEvents.CategorySessionStart;
@@ -55,6 +60,11 @@ module gameanalytics
 
             public static addSessionEndEvent(): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 var session_start_ts:number = GAState.getSessionStart();
                 var client_ts_adjusted:number = GAState.getClientTsAdjusted();
                 var sessionLength:number = client_ts_adjusted - session_start_ts;
@@ -87,6 +97,11 @@ module gameanalytics
 
             public static addBusinessEvent(currency:string, amount:number, itemType:string, itemId:string, cartType:string = null, fields:{[id:string]: any}): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 // Validate event params
                 if (!GAValidator.validateBusinessEvent(currency, amount, cartType, itemType, itemId))
                 {
@@ -128,6 +143,11 @@ module gameanalytics
 
             public static addResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string, fields:{[id:string]: any}): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 // Validate event params
                 if (!GAValidator.validateResourceEvent(flowType, currency, amount, itemType, itemId, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()))
                 {
@@ -164,6 +184,11 @@ module gameanalytics
 
             public static addProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string, score:number, sendScore:boolean, fields:{[id:string]: any}): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 var progressionStatusString:string = GAEvents.progressionStatusToString(progressionStatus);
 
                 // Validate event params
@@ -240,6 +265,11 @@ module gameanalytics
 
             public static addDesignEvent(eventId:string, value:number, sendValue:boolean, fields:{[id:string]: any}): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 // Validate
                 if (!GAValidator.validateDesignEvent(eventId, value))
                 {
@@ -273,6 +303,11 @@ module gameanalytics
 
             public static addErrorEvent(severity:EGAErrorSeverity, message:string, fields:{[id:string]: any}): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 var severityString:string = GAEvents.errorSeverityToString(severity);
 
                 // Validate
@@ -304,6 +339,11 @@ module gameanalytics
 
             public static processEvents(category:string, performCleanUp:boolean): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 // throw new Error("processEvents not implemented");
                 try
                 {
@@ -462,6 +502,11 @@ module gameanalytics
 
             private static fixMissingSessionEndEvents(): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
                 // Get all sessions that are not current
                 var args:Array<[string, EGAStoreArgsOperator, string]> = [];
                 args.push(["session_id", EGAStoreArgsOperator.NotEqual, GAState.getSessionId()]);
@@ -497,6 +542,11 @@ module gameanalytics
 
             private static addEventToStore(eventData:{[key:string]: any}): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+                
                 // Check if we are initialized
                 if (!GAState.isInitialized())
                 {

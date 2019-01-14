@@ -374,6 +374,23 @@ module gameanalytics
             });
         }
 
+        public static setEnabledEventSubmission(flag:boolean = false): void
+        {
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                if (flag)
+                {
+                    GAState.setEnabledEventSubmission(flag);
+                    GALogger.i("Event submission enabled");
+                }
+                else
+                {
+                    GALogger.i("Event submission disabled");
+                    GAState.setEnabledEventSubmission(flag);
+                }
+            });
+        }
+
         public static setCustomDimension01(dimension:string = ""): void
         {
             GAThreading.performTaskOnGAThread(() =>

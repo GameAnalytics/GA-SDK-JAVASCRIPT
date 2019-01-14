@@ -1151,7 +1151,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 3.0.3";
+            GADevice.sdkWrapperVersion = "javascript 3.1.0";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -1614,6 +1614,7 @@ var gameanalytics;
                 this.sdkConfigDefault = {};
                 this.sdkConfig = {};
                 this.progressionTries = {};
+                this._isEventSubmissionEnabled = true;
             }
             GAState.setUserId = function (userId) {
                 GAState.instance.userId = userId;
@@ -1717,6 +1718,9 @@ var gameanalytics;
             };
             GAState.getUseManualSessionHandling = function () {
                 return GAState.instance.useManualSessionHandling;
+            };
+            GAState.isEventSubmissionEnabled = function () {
+                return GAState.instance._isEventSubmissionEnabled;
             };
             GAState.prototype.setDefaultId = function (value) {
                 this.defaultUserId = !value ? "" : value;
@@ -1835,6 +1839,9 @@ var gameanalytics;
             GAState.setManualSessionHandling = function (flag) {
                 GAState.instance.useManualSessionHandling = flag;
                 GALogger.i("Use manual session handling: " + flag);
+            };
+            GAState.setEnabledEventSubmission = function (flag) {
+                GAState.instance._isEventSubmissionEnabled = flag;
             };
             GAState.getEventAnnotations = function () {
                 var annotations = {};
@@ -2061,7 +2068,6 @@ var gameanalytics;
                 return GAState.instance.commandCenterIsReady;
             };
             GAState.addCommandCenterListener = function (listener) {
-                var index = GAState.instance.commandCenterListeners.indexOf(listener);
                 if (GAState.instance.commandCenterListeners.indexOf(listener) < 0) {
                     GAState.instance.commandCenterListeners.push(listener);
                 }
@@ -2222,6 +2228,9 @@ var gameanalytics;
                 GAHTTPApi.sendRequest(url, payloadData, extraArgs, this.useGzip, GAHTTPApi.sendEventInArrayRequestCallback, callback);
             };
             GAHTTPApi.prototype.sendSdkErrorEvent = function (type) {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 var gameKey = GAState.getGameKey();
                 var secretKey = GAState.getGameSecret();
                 if (!GAValidator.validateSdkErrorEvent(gameKey, secretKey, type)) {
@@ -2385,6 +2394,9 @@ var gameanalytics;
             function GAEvents() {
             }
             GAEvents.addSessionStartEvent = function () {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 var eventDict = {};
                 eventDict["category"] = GAEvents.CategorySessionStart;
                 GAState.incrementSessionNum();
@@ -2395,6 +2407,9 @@ var gameanalytics;
                 GAEvents.processEvents(GAEvents.CategorySessionStart, false);
             };
             GAEvents.addSessionEndEvent = function () {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 var session_start_ts = GAState.getSessionStart();
                 var client_ts_adjusted = GAState.getClientTsAdjusted();
                 var sessionLength = client_ts_adjusted - session_start_ts;
@@ -2412,6 +2427,9 @@ var gameanalytics;
             };
             GAEvents.addBusinessEvent = function (currency, amount, itemType, itemId, cartType, fields) {
                 if (cartType === void 0) { cartType = null; }
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 if (!GAValidator.validateBusinessEvent(currency, amount, cartType, itemType, itemId)) {
                     GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
                     return;
@@ -2433,6 +2451,9 @@ var gameanalytics;
                 GAEvents.addEventToStore(eventDict);
             };
             GAEvents.addResourceEvent = function (flowType, currency, amount, itemType, itemId, fields) {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 if (!GAValidator.validateResourceEvent(flowType, currency, amount, itemType, itemId, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())) {
                     GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
                     return;
@@ -2451,6 +2472,9 @@ var gameanalytics;
                 GAEvents.addEventToStore(eventDict);
             };
             GAEvents.addProgressionEvent = function (progressionStatus, progression01, progression02, progression03, score, sendScore, fields) {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 var progressionStatusString = GAEvents.progressionStatusToString(progressionStatus);
                 if (!GAValidator.validateProgressionEvent(progressionStatus, progression01, progression02, progression03)) {
                     GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
@@ -2488,6 +2512,9 @@ var gameanalytics;
                 GAEvents.addEventToStore(eventDict);
             };
             GAEvents.addDesignEvent = function (eventId, value, sendValue, fields) {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 if (!GAValidator.validateDesignEvent(eventId, value)) {
                     GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
                     return;
@@ -2504,6 +2531,9 @@ var gameanalytics;
                 GAEvents.addEventToStore(eventData);
             };
             GAEvents.addErrorEvent = function (severity, message, fields) {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 var severityString = GAEvents.errorSeverityToString(severity);
                 if (!GAValidator.validateErrorEvent(severity, message)) {
                     GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
@@ -2519,6 +2549,9 @@ var gameanalytics;
                 GAEvents.addEventToStore(eventData);
             };
             GAEvents.processEvents = function (category, performCleanUp) {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 try {
                     var requestIdentifier = GAUtilities.createGuid();
                     if (performCleanUp) {
@@ -2615,6 +2648,9 @@ var gameanalytics;
                 GAStore.update(EGAStore.Events, [["status", "new"]]);
             };
             GAEvents.fixMissingSessionEndEvents = function () {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 var args = [];
                 args.push(["session_id", EGAStoreArgsOperator.NotEqual, GAState.getSessionId()]);
                 var sessions = GAStore.select(EGAStore.Sessions, args);
@@ -2634,6 +2670,9 @@ var gameanalytics;
                 }
             };
             GAEvents.addEventToStore = function (eventData) {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
                 if (!GAState.isInitialized()) {
                     GALogger.w("Could not add event: SDK is not initialized");
                     return;
@@ -3212,6 +3251,19 @@ var gameanalytics;
             if (flag === void 0) { flag = false; }
             GAThreading.performTaskOnGAThread(function () {
                 GAState.setManualSessionHandling(flag);
+            });
+        };
+        GameAnalytics.setEnabledEventSubmission = function (flag) {
+            if (flag === void 0) { flag = false; }
+            GAThreading.performTaskOnGAThread(function () {
+                if (flag) {
+                    GAState.setEnabledEventSubmission(flag);
+                    GALogger.i("Event submission enabled");
+                }
+                else {
+                    GALogger.i("Event submission disabled");
+                    GAState.setEnabledEventSubmission(flag);
+                }
             });
         };
         GameAnalytics.setCustomDimension01 = function (dimension) {

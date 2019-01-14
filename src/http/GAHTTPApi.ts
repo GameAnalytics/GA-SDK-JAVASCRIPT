@@ -95,6 +95,11 @@ module gameanalytics
 
             public sendSdkErrorEvent(type:EGASdkErrorType): void
             {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+                
                 var gameKey:string = GAState.getGameKey();
                 var secretKey:string = GAState.getGameSecret();
 

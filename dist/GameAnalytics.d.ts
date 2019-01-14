@@ -296,6 +296,8 @@ declare module gameanalytics {
             static setBuild(value: string): void;
             private useManualSessionHandling;
             static getUseManualSessionHandling(): boolean;
+            private _isEventSubmissionEnabled;
+            static isEventSubmissionEnabled(): boolean;
             private facebookId;
             private gender;
             private birthYear;
@@ -344,6 +346,7 @@ declare module gameanalytics {
             static clearProgressionTries(progression: string): void;
             static setKeys(gameKey: string, gameSecret: string): void;
             static setManualSessionHandling(flag: boolean): void;
+            static setEnabledEventSubmission(flag: boolean): void;
             static getEventAnnotations(): {
                 [key: string]: any;
             };
@@ -519,6 +522,7 @@ declare module gameanalytics {
         static setEnabledInfoLog(flag?: boolean): void;
         static setEnabledVerboseLog(flag?: boolean): void;
         static setEnabledManualSessionHandling(flag?: boolean): void;
+        static setEnabledEventSubmission(flag?: boolean): void;
         static setCustomDimension01(dimension?: string): void;
         static setCustomDimension02(dimension?: string): void;
         static setCustomDimension03(dimension?: string): void;
