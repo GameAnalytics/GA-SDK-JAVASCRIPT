@@ -21,6 +21,7 @@ module gameanalytics
 
             private constructor()
             {
+                this._isEventSubmissionEnabled = true;
             }
 
             private userId:string;
@@ -209,6 +210,12 @@ module gameanalytics
             public static getUseManualSessionHandling(): boolean
             {
                 return GAState.instance.useManualSessionHandling;
+            }
+
+            private _isEventSubmissionEnabled:boolean;
+            public static isEventSubmissionEnabled(): boolean
+            {
+                return GAState.instance._isEventSubmissionEnabled;
             }
 
             private facebookId:string;
@@ -406,6 +413,11 @@ module gameanalytics
             {
                 GAState.instance.useManualSessionHandling = flag;
                 GALogger.i("Use manual session handling: " + flag);
+            }
+
+            public static setEnabledEventSubmission(flag:boolean): void
+            {
+                GAState.instance._isEventSubmissionEnabled = flag;
             }
 
             public static getEventAnnotations(): {[key:string]: any}
@@ -802,7 +814,6 @@ module gameanalytics
 
             public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
             {
-                var index = GAState.instance.commandCenterListeners.indexOf(listener);
                 if(GAState.instance.commandCenterListeners.indexOf(listener) < 0)
                 {
                     GAState.instance.commandCenterListeners.push(listener);
@@ -826,7 +837,7 @@ module gameanalytics
             public static populateConfigurations(sdkConfig:{[key:string]: any}):void
             {
                 var configurations:any[] = sdkConfig["configurations"];
-                
+
                 if(configurations)
                 {
                     for(let i = 0; i < configurations.length; ++i)
