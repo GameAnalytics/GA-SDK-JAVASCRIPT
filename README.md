@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**3.1.1**
+* typescript definition file fixed
+
 **3.1.0**
 * aded enable/disable event submission function
 
