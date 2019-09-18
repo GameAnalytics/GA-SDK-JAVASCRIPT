@@ -227,6 +227,18 @@ module gameanalytics
             private commandCenterListeners:Array<{ onCommandCenterUpdated:() => void }> = [];
             public initAuthorized:boolean;
             public clientServerTimeOffset:number;
+            public configsHash:string;
+
+            private abId:string;
+            public static getABTestingId(): string
+            {
+                return GAState.instance.abId;
+            }
+            private abVariantId:string;
+            public static getABTestingVariantId(): string
+            {
+                return GAState.instance.abVariantId;
+            }
 
             private defaultUserId:string;
             private setDefaultId(value:string): void
@@ -296,13 +308,7 @@ module gameanalytics
 
             public static isEnabled(): boolean
             {
-                var currentSdkConfig:{[key:string]: any} = GAState.getSdkConfig();
-
-                if (currentSdkConfig["enabled"] && currentSdkConfig["enabled"] == "false")
-                {
-                    return false;
-                }
-                else if (!GAState.instance.initAuthorized)
+                if (!GAState.instance.initAuthorized)
                 {
                     return false;
                 }
@@ -542,6 +548,8 @@ module gameanalytics
                 // Platform (operating system)
                 initAnnotations["platform"] = GADevice.buildPlatform;
 
+                initAnnotations["random_salt"] = GAState.getSessionNum();
+
                 return initAnnotations;
             }
 
@@ -686,6 +694,13 @@ module gameanalytics
                     {
                         instance.sdkConfigCached = sdkConfigCached;
                     }
+                }
+
+                {
+                    var currentSdkConfig:{[key:string]: any} = GAState.getSdkConfig();
+                    instance.configsHash = currentSdkConfig["configs_hash"] ? currentSdkConfig["configs_hash"] : "";
+                    instance.abId = currentSdkConfig["ab_id"] ? currentSdkConfig["ab_id"] : "";
+                    instance.abVariantId = currentSdkConfig["ab_variant_id"] ? currentSdkConfig["ab_variant_id"] : "";
                 }
 
                 var results_ga_progression:Array<{[key:string]: any}> = GAStore.select(EGAStore.Progression);
@@ -836,7 +851,7 @@ module gameanalytics
 
             public static populateConfigurations(sdkConfig:{[key:string]: any}):void
             {
-                var configurations:any[] = sdkConfig["configurations"];
+                var configurations:any[] = sdkConfig["configs"];
 
                 if(configurations)
                 {
@@ -848,8 +863,8 @@ module gameanalytics
                         {
                             var key:string = configuration["key"];
                             var value:any = configuration["value"];
-                            var start_ts:number = configuration["start"] ? configuration["start"] : Number.MIN_VALUE;
-                            var end_ts:number = configuration["end"] ? configuration["end"] : Number.MAX_VALUE;
+                            var start_ts:number = configuration["start_ts"] ? configuration["start_ts"] : Number.MIN_VALUE;
+                            var end_ts:number = configuration["end_ts"] ? configuration["end_ts"] : Number.MAX_VALUE;
 
                             var client_ts_adjusted:number = GAState.getClientTsAdjusted();
 

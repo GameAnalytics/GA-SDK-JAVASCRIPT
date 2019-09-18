@@ -558,6 +558,11 @@ module gameanalytics
             return GAState.getConfigurationsContentAsString();
         }
 
+        public static getABTestingId():string
+        {
+            return GAState.getConfigurationsContentAsString();
+        }
+
         private static internalInitialize(): void
         {
             GAState.ensurePersistedStates();
@@ -580,13 +585,13 @@ module gameanalytics
             // make sure the current custom dimensions are valid
             GAState.validateAndFixCurrentDimensions();
 
-            GAHTTPApi.instance.requestInit(GameAnalytics.startNewSessionCallback);
+            GAHTTPApi.instance.requestInit(GAState.instance.configsHash, GameAnalytics.startNewSessionCallback);
         }
 
         private static startNewSessionCallback(initResponse:EGAHTTPApiResponse, initResponseDict:{[key:string]: any}): void
         {
             // init is ok
-            if(initResponse === EGAHTTPApiResponse.Ok && initResponseDict)
+            if((initResponse === EGAHTTPApiResponse.Ok || initResponse === EGAHTTPApiResponse.Created) && initResponseDict)
             {
                 // set the time offset - how many seconds the local time is different from servertime
                 var timeOffsetSeconds:number = 0;
@@ -596,6 +601,24 @@ module gameanalytics
                     timeOffsetSeconds = GAState.calculateServerTimeOffset(serverTs);
                 }
                 initResponseDict["time_offset"] = timeOffsetSeconds;
+
+                if(initResponse != EGAHTTPApiResponse.Created)
+                {
+                    var currentSdkConfig:{[key:string]: any} = GAState.getSdkConfig();
+                    // use cached if not Created
+                    if(currentSdkConfig["configs"])
+                    {
+                        initResponseDict["configs"] = currentSdkConfig["configs"];
+                    }
+                    if(currentSdkConfig["ab_id"])
+                    {
+                        initResponseDict["ab_id"] = currentSdkConfig["ab_id"];
+                    }
+                    if(currentSdkConfig["ab_variant_id"])
+                    {
+                        initResponseDict["ab_variant_id"] = currentSdkConfig["ab_variant_id"];
+                    }
+                }
 
                 // insert new config in sql lite cross session storage
                 GAStore.setItem(GAState.SdkConfigCachedKey, GAUtilities.encode64(JSON.stringify(initResponseDict)));

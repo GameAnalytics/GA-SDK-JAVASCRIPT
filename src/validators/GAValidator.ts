@@ -309,7 +309,7 @@ module gameanalytics
                 return true;
             }
 
-            public static validateAndCleanInitRequestResponse(initResponse:{[key:string]: any}): {[key:string]: any}
+            public static validateAndCleanInitRequestResponse(initResponse:{[key:string]: any}, configsCreated:boolean): {[key:string]: any}
             {
                 // make sure we have a valid dict
                 if (initResponse == null)
@@ -319,17 +319,6 @@ module gameanalytics
                 }
 
                 var validatedDict:{[key:string]: any} = {};
-
-                // validate enabled field
-                try
-                {
-                    validatedDict["enabled"] = initResponse["enabled"];
-                }
-                catch (e)
-                {
-                    GALogger.w("validateInitRequestResponse failed - invalid type in 'enabled' field.");
-                    return null;
-                }
 
                 // validate server_ts
                 try
@@ -351,17 +340,45 @@ module gameanalytics
                     return null;
                 }
 
-                // validate configurations field
-                try
+                if(configsCreated)
                 {
-                    var configurations:any[] = initResponse["configurations"];
-                    validatedDict["configurations"] = configurations;
+                    // validate configs field
+                    try
+                    {
+                        var configurations:any[] = initResponse["configs"];
+                        validatedDict["configs"] = configurations;
+                    }
+                    catch (e)
+                    {
+                        GALogger.w("validateInitRequestResponse failed - invalid type in 'configs' field. type=" + typeof initResponse["configs"] + ", value=" + initResponse["configs"] + ", " + e);
+                        return null;
+                    }
+
+                    // validate ab_id field
+                    try
+                    {
+                        var ab_id:string = initResponse["ab_id"];
+                        validatedDict["ab_id"] = ab_id;
+                    }
+                    catch (e)
+                    {
+                        GALogger.w("validateInitRequestResponse failed - invalid type in 'ab_id' field. type=" + typeof initResponse["ab_id"] + ", value=" + initResponse["ab_id"] + ", " + e);
+                        return null;
+                    }
+
+                    // validate ab_variant_id field
+                    try
+                    {
+                        var ab_variant_id:string = initResponse["ab_variant_id"];
+                        validatedDict["ab_variant_id"] = ab_variant_id;
+                    }
+                    catch (e)
+                    {
+                        GALogger.w("validateInitRequestResponse failed - invalid type in 'ab_variant_id' field. type=" + typeof initResponse["ab_variant_id"] + ", value=" + initResponse["ab_variant_id"] + ", " + e);
+                        return null;
+                    }
                 }
-                catch (e)
-                {
-                    GALogger.w("validateInitRequestResponse failed - invalid type in 'configurations' field. type=" + typeof initResponse["configurations"] + ", value=" + initResponse["configurations"] + ", " + e);
-                    return null;
-                }
+
 
                 return validatedDict;
             }

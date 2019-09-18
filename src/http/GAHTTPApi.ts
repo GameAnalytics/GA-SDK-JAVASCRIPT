@@ -14,7 +14,9 @@ module gameanalytics
             private protocol:string;
             private hostName:string;
             private version:string;
+            private remoteConfigsVersion:string;
             private baseUrl:string;
+            private remoteConfigsBaseUrl:string;
             private initializeUrlPath:string;
             private eventsUrlPath:string;
             private useGzip:boolean;
@@ -23,11 +25,13 @@ module gameanalytics
             {
                 // base url settings
                 this.protocol = "https";
-                this.hostName = "api.gameanalytics.com";
+                this.hostName = "api.integration.gameanalytics.com";
                 this.version = "v2";
+                this.remoteConfigsVersion = "v1";
 
                 // create base url
                 this.baseUrl = this.protocol + "://" + this.hostName + "/" + this.version;
+                this.remoteConfigsBaseUrl = this.protocol + "://" + this.hostName + "/remote_configs/" + this.remoteConfigsVersion;
 
                 this.initializeUrlPath = "init";
                 this.eventsUrlPath = "events";
@@ -35,13 +39,12 @@ module gameanalytics
                 this.useGzip = false;
             }
 
-            public requestInit(callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}) => void): void
+            public requestInit(configsHash:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}) => void): void
             {
                 var gameKey:string = GAState.getGameKey();
 
                 // Generate URL
-                var url:string = this.baseUrl + "/" + gameKey + "/" + this.initializeUrlPath;
-                url = "https://rubick.gameanalytics.com/v2/command_center?game_key=" + gameKey + "&interval_seconds=1000000";
+                var url:string = this.remoteConfigsBaseUrl + "/" + this.initializeUrlPath + "?game_key=" + gameKey + "&interval_seconds=0&configs_hash=" + configsHash;
                 GALogger.d("Sending 'init' URL: " + url);
 
                 var initAnnotations:{[key:string]: any} = GAState.getInitAnnotations();
@@ -99,7 +102,7 @@ module gameanalytics
                 {
                     return;
                 }
-                
+
                 var gameKey:string = GAState.getGameKey();
                 var secretKey:string = GAState.getGameSecret();
 
@@ -151,7 +154,7 @@ module gameanalytics
                 var requestResponseEnum:EGAHTTPApiResponse = GAHTTPApi.instance.processRequestResponse(responseCode, request.statusText, body, "Events");
 
                 // if not 200 result
-                if(requestResponseEnum != EGAHTTPApiResponse.Ok && requestResponseEnum != EGAHTTPApiResponse.BadRequest)
+                if(requestResponseEnum != EGAHTTPApiResponse.Ok && requestResponseEnum != EGAHTTPApiResponse.Created && requestResponseEnum != EGAHTTPApiResponse.BadRequest)
                 {
                     GALogger.d("Failed events Call. URL: " + url + ", Authorization: " + authorization + ", JSONString: " + JSONstring);
                     callback(requestResponseEnum, null, requestId, eventCount);
@@ -238,7 +241,7 @@ module gameanalytics
                 var requestResponseEnum:EGAHTTPApiResponse = GAHTTPApi.instance.processRequestResponse(responseCode, request.statusText, body, "Init");
 
                 // if not 200 result
-                if(requestResponseEnum != EGAHTTPApiResponse.Ok && requestResponseEnum != EGAHTTPApiResponse.BadRequest)
+                if(requestResponseEnum != EGAHTTPApiResponse.Ok && requestResponseEnum != EGAHTTPApiResponse.Created && requestResponseEnum != EGAHTTPApiResponse.BadRequest)
                 {
                     GALogger.d("Failed Init Call. URL: " + url + ", Authorization: " + authorization + ", JSONString: " + JSONstring);
                     callback(requestResponseEnum, null, "", 0);
@@ -262,7 +265,7 @@ module gameanalytics
                 }
 
                 // validate Init call values
-                var validatedInitValues:{[key:string]: any} = GAValidator.validateAndCleanInitRequestResponse(requestJsonDict);
+                var validatedInitValues:{[key:string]: any} = GAValidator.validateAndCleanInitRequestResponse(requestJsonDict, requestResponseEnum === EGAHTTPApiResponse.Created);
 
                 if(!validatedInitValues)
                 {
@@ -271,7 +274,7 @@ module gameanalytics
                 }
 
                 // all ok
-                callback(EGAHTTPApiResponse.Ok, validatedInitValues, "", 0);
+                callback(requestResponseEnum, validatedInitValues, "", 0);
             }
 
             private createPayloadData(payload:string, gzip:boolean): string
