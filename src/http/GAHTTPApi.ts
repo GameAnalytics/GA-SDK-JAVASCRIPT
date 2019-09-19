@@ -309,6 +309,11 @@ module gameanalytics
                 {
                     return EGAHTTPApiResponse.Ok;
                 }
+                // created
+                if (responseCode === 201)
+                {
+                    return EGAHTTPApiResponse.Created;
+                }
 
                 // 401 can return 0 status
                 if (responseCode === 0 || responseCode === 401)
