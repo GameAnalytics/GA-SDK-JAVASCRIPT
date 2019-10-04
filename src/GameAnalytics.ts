@@ -51,11 +51,11 @@ module gameanalytics
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
-            GameAnalytics.methodMap['addCommandCenterListener'] = GameAnalytics.addCommandCenterListener;
-            GameAnalytics.methodMap['removeCommandCenterListener'] = GameAnalytics.removeCommandCenterListener;
-            GameAnalytics.methodMap['getCommandCenterValueAsString'] = GameAnalytics.getCommandCenterValueAsString;
-            GameAnalytics.methodMap['isCommandCenterReady'] = GameAnalytics.isCommandCenterReady;
-            GameAnalytics.methodMap['getConfigurationsContentAsString'] = GameAnalytics.getConfigurationsContentAsString;
+            GameAnalytics.methodMap['addRemoteConfigsListener'] = GameAnalytics.addRemoteConfigsListener;
+            GameAnalytics.methodMap['removeRemoteConfigsListener'] = GameAnalytics.removeRemoteConfigsListener;
+            GameAnalytics.methodMap['getRemoteConfigsValueAsString'] = GameAnalytics.getRemoteConfigsValueAsString;
+            GameAnalytics.methodMap['isRemoteConfigsReady'] = GameAnalytics.isRemoteConfigsReady;
+            GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
 
             if(typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined')
             {
@@ -533,34 +533,39 @@ module gameanalytics
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
-        public static getCommandCenterValueAsString(key:string, defaultValue:string = null):string
+        public static getRemoteConfigsValueAsString(key:string, defaultValue:string = null):string
         {
             return GAState.getConfigurationStringValue(key, defaultValue);
         }
 
-        public static isCommandCenterReady():boolean
+        public static isRemoteConfigsReady():boolean
         {
-            return GAState.isCommandCenterReady();
+            return GAState.isRemoteConfigsReady();
         }
 
-        public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+        public static addRemoteConfigsListener(listener:{ onRemoteConfigsUpdated:() => void }):void
         {
-            GAState.addCommandCenterListener(listener);
+            GAState.addRemoteConfigsListener(listener);
         }
 
-        public static removeCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+        public static removeRemoteConfigsListener(listener:{ onRemoteConfigsUpdated:() => void }):void
         {
-            GAState.removeCommandCenterListener(listener);
+            GAState.removeRemoteConfigsListener(listener);
         }
 
-        public static getConfigurationsContentAsString():string
+        public static getRemoteConfigsContentAsString():string
         {
-            return GAState.getConfigurationsContentAsString();
+            return GAState.getRemoteConfigsContentAsString();
         }
 
         public static getABTestingId():string
         {
-            return GAState.getConfigurationsContentAsString();
+            return GAState.getABTestingId();
+        }
+
+        public static getABTestingVariantId():string
+        {
+            return GAState.getABTestingVariantId();
         }
 
         private static internalInitialize(): void

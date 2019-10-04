@@ -306,8 +306,8 @@ declare module gameanalytics {
                 [key: string]: any;
             };
             private configurations;
-            private commandCenterIsReady;
-            private commandCenterListeners;
+            private remoteConfigsIsReady;
+            private remoteConfigsListeners;
             initAuthorized: boolean;
             clientServerTimeOffset: number;
             configsHash: string;
@@ -374,14 +374,14 @@ declare module gameanalytics {
             };
             static validateAndFixCurrentDimensions(): void;
             static getConfigurationStringValue(key: string, defaultValue: string): string;
-            static isCommandCenterReady(): boolean;
-            static addCommandCenterListener(listener: {
-                onCommandCenterUpdated: () => void;
+            static isRemoteConfigsReady(): boolean;
+            static addRemoteConfigsListener(listener: {
+                onRemoteConfigsUpdated: () => void;
             }): void;
-            static removeCommandCenterListener(listener: {
-                onCommandCenterUpdated: () => void;
+            static removeRemoteConfigsListener(listener: {
+                onRemoteConfigsUpdated: () => void;
             }): void;
-            static getConfigurationsContentAsString(): string;
+            static getRemoteConfigsContentAsString(): string;
             static populateConfigurations(sdkConfig: {
                 [key: string]: any;
             }): void;
@@ -542,16 +542,17 @@ declare module gameanalytics {
         static endSession(): void;
         static onStop(): void;
         static onResume(): void;
-        static getCommandCenterValueAsString(key: string, defaultValue?: string): string;
-        static isCommandCenterReady(): boolean;
-        static addCommandCenterListener(listener: {
-            onCommandCenterUpdated: () => void;
+        static getRemoteConfigsValueAsString(key: string, defaultValue?: string): string;
+        static isRemoteConfigsReady(): boolean;
+        static addRemoteConfigsListener(listener: {
+            onRemoteConfigsUpdated: () => void;
         }): void;
-        static removeCommandCenterListener(listener: {
-            onCommandCenterUpdated: () => void;
+        static removeRemoteConfigsListener(listener: {
+            onRemoteConfigsUpdated: () => void;
         }): void;
-        static getConfigurationsContentAsString(): string;
+        static getRemoteConfigsContentAsString(): string;
         static getABTestingId(): string;
+        static getABTestingVariantId(): string;
         private static internalInitialize;
         private static newSession;
         private static startNewSessionCallback;

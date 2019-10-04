@@ -1622,7 +1622,7 @@ var gameanalytics;
                 this.availableResourceCurrencies = [];
                 this.availableResourceItemTypes = [];
                 this.configurations = {};
-                this.commandCenterListeners = [];
+                this.remoteConfigsListeners = [];
                 this.sdkConfigDefault = {};
                 this.sdkConfig = {};
                 this.progressionTries = {};
@@ -2085,21 +2085,21 @@ var gameanalytics;
                     return defaultValue;
                 }
             };
-            GAState.isCommandCenterReady = function () {
-                return GAState.instance.commandCenterIsReady;
+            GAState.isRemoteConfigsReady = function () {
+                return GAState.instance.remoteConfigsIsReady;
             };
-            GAState.addCommandCenterListener = function (listener) {
-                if (GAState.instance.commandCenterListeners.indexOf(listener) < 0) {
-                    GAState.instance.commandCenterListeners.push(listener);
+            GAState.addRemoteConfigsListener = function (listener) {
+                if (GAState.instance.remoteConfigsListeners.indexOf(listener) < 0) {
+                    GAState.instance.remoteConfigsListeners.push(listener);
                 }
             };
-            GAState.removeCommandCenterListener = function (listener) {
-                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+            GAState.removeRemoteConfigsListener = function (listener) {
+                var index = GAState.instance.remoteConfigsListeners.indexOf(listener);
                 if (index > -1) {
-                    GAState.instance.commandCenterListeners.splice(index, 1);
+                    GAState.instance.remoteConfigsListeners.splice(index, 1);
                 }
             };
-            GAState.getConfigurationsContentAsString = function () {
+            GAState.getRemoteConfigsContentAsString = function () {
                 return JSON.stringify(GAState.instance.configurations);
             };
             GAState.populateConfigurations = function (sdkConfig) {
@@ -2119,11 +2119,11 @@ var gameanalytics;
                         }
                     }
                 }
-                GAState.instance.commandCenterIsReady = true;
-                var listeners = GAState.instance.commandCenterListeners;
+                GAState.instance.remoteConfigsIsReady = true;
+                var listeners = GAState.instance.remoteConfigsListeners;
                 for (var i = 0; i < listeners.length; ++i) {
                     if (listeners[i]) {
-                        listeners[i].onCommandCenterUpdated();
+                        listeners[i].onRemoteConfigsUpdated();
                     }
                 }
             };
@@ -2368,6 +2368,9 @@ var gameanalytics;
                 }
                 if (responseCode === 200) {
                     return http.EGAHTTPApiResponse.Ok;
+                }
+                if (responseCode === 201) {
+                    return http.EGAHTTPApiResponse.Created;
                 }
                 if (responseCode === 0 || responseCode === 401) {
                     return http.EGAHTTPApiResponse.Unauthorized;
@@ -3028,11 +3031,11 @@ var gameanalytics;
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
             GameAnalytics.methodMap['onStop'] = GameAnalytics.onStop;
             GameAnalytics.methodMap['onResume'] = GameAnalytics.onResume;
-            GameAnalytics.methodMap['addCommandCenterListener'] = GameAnalytics.addCommandCenterListener;
-            GameAnalytics.methodMap['removeCommandCenterListener'] = GameAnalytics.removeCommandCenterListener;
-            GameAnalytics.methodMap['getCommandCenterValueAsString'] = GameAnalytics.getCommandCenterValueAsString;
-            GameAnalytics.methodMap['isCommandCenterReady'] = GameAnalytics.isCommandCenterReady;
-            GameAnalytics.methodMap['getConfigurationsContentAsString'] = GameAnalytics.getConfigurationsContentAsString;
+            GameAnalytics.methodMap['addRemoteConfigsListener'] = GameAnalytics.addRemoteConfigsListener;
+            GameAnalytics.methodMap['removeRemoteConfigsListener'] = GameAnalytics.removeRemoteConfigsListener;
+            GameAnalytics.methodMap['getRemoteConfigsValueAsString'] = GameAnalytics.getRemoteConfigsValueAsString;
+            GameAnalytics.methodMap['isRemoteConfigsReady'] = GameAnalytics.isRemoteConfigsReady;
+            GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
             if (typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined') {
                 var q = window['GameAnalytics']['q'];
                 for (var i in q) {
@@ -3388,24 +3391,27 @@ var gameanalytics;
             };
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         };
-        GameAnalytics.getCommandCenterValueAsString = function (key, defaultValue) {
+        GameAnalytics.getRemoteConfigsValueAsString = function (key, defaultValue) {
             if (defaultValue === void 0) { defaultValue = null; }
             return GAState.getConfigurationStringValue(key, defaultValue);
         };
-        GameAnalytics.isCommandCenterReady = function () {
-            return GAState.isCommandCenterReady();
+        GameAnalytics.isRemoteConfigsReady = function () {
+            return GAState.isRemoteConfigsReady();
         };
-        GameAnalytics.addCommandCenterListener = function (listener) {
-            GAState.addCommandCenterListener(listener);
+        GameAnalytics.addRemoteConfigsListener = function (listener) {
+            GAState.addRemoteConfigsListener(listener);
         };
-        GameAnalytics.removeCommandCenterListener = function (listener) {
-            GAState.removeCommandCenterListener(listener);
+        GameAnalytics.removeRemoteConfigsListener = function (listener) {
+            GAState.removeRemoteConfigsListener(listener);
         };
-        GameAnalytics.getConfigurationsContentAsString = function () {
-            return GAState.getConfigurationsContentAsString();
+        GameAnalytics.getRemoteConfigsContentAsString = function () {
+            return GAState.getRemoteConfigsContentAsString();
         };
         GameAnalytics.getABTestingId = function () {
-            return GAState.getConfigurationsContentAsString();
+            return GAState.getABTestingId();
+        };
+        GameAnalytics.getABTestingVariantId = function () {
+            return GAState.getABTestingVariantId();
         };
         GameAnalytics.internalInitialize = function () {
             GAState.ensurePersistedStates();

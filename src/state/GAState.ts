@@ -223,8 +223,8 @@ module gameanalytics
             private birthYear:number;
             public sdkConfigCached:{[key:string]: any};
             private configurations:{[key:string]: any} = {};
-            private commandCenterIsReady:boolean;
-            private commandCenterListeners:Array<{ onCommandCenterUpdated:() => void }> = [];
+            private remoteConfigsIsReady:boolean;
+            private remoteConfigsListeners:Array<{ onRemoteConfigsUpdated:() => void }> = [];
             public initAuthorized:boolean;
             public clientServerTimeOffset:number;
             public configsHash:string;
@@ -822,29 +822,29 @@ module gameanalytics
                 }
             }
 
-            public static isCommandCenterReady():boolean
+            public static isRemoteConfigsReady():boolean
             {
-                return GAState.instance.commandCenterIsReady;
+                return GAState.instance.remoteConfigsIsReady;
             }
 
-            public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            public static addRemoteConfigsListener(listener:{ onRemoteConfigsUpdated:() => void }):void
             {
-                if(GAState.instance.commandCenterListeners.indexOf(listener) < 0)
+                if(GAState.instance.remoteConfigsListeners.indexOf(listener) < 0)
                 {
-                    GAState.instance.commandCenterListeners.push(listener);
+                    GAState.instance.remoteConfigsListeners.push(listener);
                 }
             }
 
-            public static removeCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            public static removeRemoteConfigsListener(listener:{ onRemoteConfigsUpdated:() => void }):void
             {
-                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                var index = GAState.instance.remoteConfigsListeners.indexOf(listener);
                 if(index > -1)
                 {
-                    GAState.instance.commandCenterListeners.splice(index, 1);
+                    GAState.instance.remoteConfigsListeners.splice(index, 1);
                 }
             }
 
-            public static getConfigurationsContentAsString():string
+            public static getRemoteConfigsContentAsString():string
             {
                 return JSON.stringify(GAState.instance.configurations);
             }
@@ -876,15 +876,15 @@ module gameanalytics
                         }
                     }
                 }
-                GAState.instance.commandCenterIsReady = true;
+                GAState.instance.remoteConfigsIsReady = true;
 
-                var listeners:Array<{ onCommandCenterUpdated:() => void }> = GAState.instance.commandCenterListeners;
+                var listeners:Array<{ onRemoteConfigsUpdated:() => void }> = GAState.instance.remoteConfigsListeners;
 
                 for(let i = 0; i < listeners.length; ++i)
                 {
                     if(listeners[i])
                     {
-                        listeners[i].onCommandCenterUpdated();
+                        listeners[i].onRemoteConfigsUpdated();
                     }
                 }
             }
