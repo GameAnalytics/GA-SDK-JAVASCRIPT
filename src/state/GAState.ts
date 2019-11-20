@@ -223,10 +223,22 @@ module gameanalytics
             private birthYear:number;
             public sdkConfigCached:{[key:string]: any};
             private configurations:{[key:string]: any} = {};
-            private commandCenterIsReady:boolean;
-            private commandCenterListeners:Array<{ onCommandCenterUpdated:() => void }> = [];
+            private remoteConfigsIsReady:boolean;
+            private remoteConfigsListeners:Array<{ onRemoteConfigsUpdated:() => void }> = [];
             public initAuthorized:boolean;
             public clientServerTimeOffset:number;
+            public configsHash:string;
+
+            private abId:string;
+            public static getABTestingId(): string
+            {
+                return GAState.instance.abId;
+            }
+            private abVariantId:string;
+            public static getABTestingVariantId(): string
+            {
+                return GAState.instance.abVariantId;
+            }
 
             private defaultUserId:string;
             private setDefaultId(value:string): void
@@ -296,13 +308,7 @@ module gameanalytics
 
             public static isEnabled(): boolean
             {
-                var currentSdkConfig:{[key:string]: any} = GAState.getSdkConfig();
-
-                if (currentSdkConfig["enabled"] && currentSdkConfig["enabled"] == "false")
-                {
-                    return false;
-                }
-                else if (!GAState.instance.initAuthorized)
+                if (!GAState.instance.initAuthorized)
                 {
                     return false;
                 }
@@ -462,6 +468,31 @@ module gameanalytics
                     annotations["engine_version"] = GADevice.gameEngineVersion;
                 }
 
+                // remote configs
+                if(GAState.instance.configurations)
+                {
+                    var count:number = 0;
+                    for(let _ in GAState.instance.configurations)
+                    {
+                        count++;
+                        break;
+                    }
+                    if(count > 0)
+                    {
+                        annotations["configurations"] = GAState.instance.configurations;
+                    }
+                }
+
+                // A/B testing
+                if(GAState.instance.abId)
+                {
+                    annotations["ab_id"] = GAState.instance.abId;
+                }
+                if(GAState.instance.abVariantId)
+                {
+                    annotations["ab_variant_id"] = GAState.instance.abVariantId;
+                }
+
                 // ---- CONDITIONAL ---- //
 
                 // App build version (use if not nil)
@@ -541,6 +572,8 @@ module gameanalytics
 
                 // Platform (operating system)
                 initAnnotations["platform"] = GADevice.buildPlatform;
+
+                initAnnotations["random_salt"] = GAState.getSessionNum();
 
                 return initAnnotations;
             }
@@ -688,6 +721,13 @@ module gameanalytics
                     }
                 }
 
+                {
+                    var currentSdkConfig:{[key:string]: any} = GAState.getSdkConfig();
+                    instance.configsHash = currentSdkConfig["configs_hash"] ? currentSdkConfig["configs_hash"] : "";
+                    instance.abId = currentSdkConfig["ab_id"] ? currentSdkConfig["ab_id"] : "";
+                    instance.abVariantId = currentSdkConfig["ab_variant_id"] ? currentSdkConfig["ab_variant_id"] : "";
+                }
+
                 var results_ga_progression:Array<{[key:string]: any}> = GAStore.select(EGAStore.Progression);
 
                 if (results_ga_progression)
@@ -807,39 +847,40 @@ module gameanalytics
                 }
             }
 
-            public static isCommandCenterReady():boolean
+            public static isRemoteConfigsReady():boolean
             {
-                return GAState.instance.commandCenterIsReady;
+                return GAState.instance.remoteConfigsIsReady;
             }
 
-            public static addCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            public static addRemoteConfigsListener(listener:{ onRemoteConfigsUpdated:() => void }):void
             {
-                if(GAState.instance.commandCenterListeners.indexOf(listener) < 0)
+                if(GAState.instance.remoteConfigsListeners.indexOf(listener) < 0)
                 {
-                    GAState.instance.commandCenterListeners.push(listener);
+                    GAState.instance.remoteConfigsListeners.push(listener);
                 }
             }
 
-            public static removeCommandCenterListener(listener:{ onCommandCenterUpdated:() => void }):void
+            public static removeRemoteConfigsListener(listener:{ onRemoteConfigsUpdated:() => void }):void
             {
-                var index = GAState.instance.commandCenterListeners.indexOf(listener);
+                var index = GAState.instance.remoteConfigsListeners.indexOf(listener);
                 if(index > -1)
                 {
-                    GAState.instance.commandCenterListeners.splice(index, 1);
+                    GAState.instance.remoteConfigsListeners.splice(index, 1);
                 }
             }
 
-            public static getConfigurationsContentAsString():string
+            public static getRemoteConfigsContentAsString():string
             {
                 return JSON.stringify(GAState.instance.configurations);
             }
 
             public static populateConfigurations(sdkConfig:{[key:string]: any}):void
             {
-                var configurations:any[] = sdkConfig["configurations"];
+                var configurations:any[] = sdkConfig["configs"];
 
                 if(configurations)
                 {
+                    GAState.instance.configurations = {};
                     for(let i = 0; i < configurations.length; ++i)
                     {
                         var configuration:{[key:string]: any} = configurations[i];
@@ -848,8 +889,8 @@ module gameanalytics
                         {
                             var key:string = configuration["key"];
                             var value:any = configuration["value"];
-                            var start_ts:number = configuration["start"] ? configuration["start"] : Number.MIN_VALUE;
-                            var end_ts:number = configuration["end"] ? configuration["end"] : Number.MAX_VALUE;
+                            var start_ts:number = configuration["start_ts"] ? configuration["start_ts"] : Number.MIN_VALUE;
+                            var end_ts:number = configuration["end_ts"] ? configuration["end_ts"] : Number.MAX_VALUE;
 
                             var client_ts_adjusted:number = GAState.getClientTsAdjusted();
 
@@ -861,15 +902,15 @@ module gameanalytics
                         }
                     }
                 }
-                GAState.instance.commandCenterIsReady = true;
+                GAState.instance.remoteConfigsIsReady = true;
 
-                var listeners:Array<{ onCommandCenterUpdated:() => void }> = GAState.instance.commandCenterListeners;
+                var listeners:Array<{ onRemoteConfigsUpdated:() => void }> = GAState.instance.remoteConfigsListeners;
 
                 for(let i = 0; i < listeners.length; ++i)
                 {
                     if(listeners[i])
                     {
-                        listeners[i].onCommandCenterUpdated();
+                        listeners[i].onRemoteConfigsUpdated();
                     }
                 }
             }

@@ -53,7 +53,8 @@ module gameanalytics
             BadRequest, // 400
             Unauthorized, // 401
             UnknownResponseCode,
-            Ok
+            Ok,
+            Created
         }
     }
 }

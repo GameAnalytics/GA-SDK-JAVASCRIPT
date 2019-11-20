@@ -12,6 +12,10 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.0.0**
+* command center is now called remote configs
+* A/B testing support added
+
 **3.1.2**
 * declaration file fix
 

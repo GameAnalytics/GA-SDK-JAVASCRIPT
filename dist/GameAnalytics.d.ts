@@ -38,7 +38,8 @@ declare module gameanalytics {
             BadRequest = 6,
             Unauthorized = 7,
             UnknownResponseCode = 8,
-            Ok = 9
+            Ok = 9,
+            Created = 10
         }
     }
 }
@@ -100,7 +101,7 @@ declare module gameanalytics {
             static validateEventIdCharacters(eventId: string): boolean;
             static validateAndCleanInitRequestResponse(initResponse: {
                 [key: string]: any;
-            }): {
+            }, configsCreated: boolean): {
                 [key: string]: any;
             };
             static validateBuild(build: string): boolean;
@@ -305,10 +306,15 @@ declare module gameanalytics {
                 [key: string]: any;
             };
             private configurations;
-            private commandCenterIsReady;
-            private commandCenterListeners;
+            private remoteConfigsIsReady;
+            private remoteConfigsListeners;
             initAuthorized: boolean;
             clientServerTimeOffset: number;
+            configsHash: string;
+            private abId;
+            static getABTestingId(): string;
+            private abVariantId;
+            static getABTestingVariantId(): string;
             private defaultUserId;
             private setDefaultId;
             static getDefaultId(): string;
@@ -368,14 +374,14 @@ declare module gameanalytics {
             };
             static validateAndFixCurrentDimensions(): void;
             static getConfigurationStringValue(key: string, defaultValue: string): string;
-            static isCommandCenterReady(): boolean;
-            static addCommandCenterListener(listener: {
-                onCommandCenterUpdated: () => void;
+            static isRemoteConfigsReady(): boolean;
+            static addRemoteConfigsListener(listener: {
+                onRemoteConfigsUpdated: () => void;
             }): void;
-            static removeCommandCenterListener(listener: {
-                onCommandCenterUpdated: () => void;
+            static removeRemoteConfigsListener(listener: {
+                onRemoteConfigsUpdated: () => void;
             }): void;
-            static getConfigurationsContentAsString(): string;
+            static getRemoteConfigsContentAsString(): string;
             static populateConfigurations(sdkConfig: {
                 [key: string]: any;
             }): void;
@@ -399,12 +405,14 @@ declare module gameanalytics {
             private protocol;
             private hostName;
             private version;
+            private remoteConfigsVersion;
             private baseUrl;
+            private remoteConfigsBaseUrl;
             private initializeUrlPath;
             private eventsUrlPath;
             private useGzip;
             private constructor();
-            requestInit(callback: (response: EGAHTTPApiResponse, json: {
+            requestInit(configsHash: string, callback: (response: EGAHTTPApiResponse, json: {
                 [key: string]: any;
             }) => void): void;
             sendEventsInArray(eventArray: Array<{
@@ -534,15 +542,17 @@ declare module gameanalytics {
         static endSession(): void;
         static onStop(): void;
         static onResume(): void;
-        static getCommandCenterValueAsString(key: string, defaultValue?: string): string;
-        static isCommandCenterReady(): boolean;
-        static addCommandCenterListener(listener: {
-            onCommandCenterUpdated: () => void;
+        static getRemoteConfigsValueAsString(key: string, defaultValue?: string): string;
+        static isRemoteConfigsReady(): boolean;
+        static addRemoteConfigsListener(listener: {
+            onRemoteConfigsUpdated: () => void;
         }): void;
-        static removeCommandCenterListener(listener: {
-            onCommandCenterUpdated: () => void;
+        static removeRemoteConfigsListener(listener: {
+            onRemoteConfigsUpdated: () => void;
         }): void;
-        static getConfigurationsContentAsString(): string;
+        static getRemoteConfigsContentAsString(): string;
+        static getABTestingId(): string;
+        static getABTestingVariantId(): string;
         private static internalInitialize;
         private static newSession;
         private static startNewSessionCallback;
