@@ -1163,7 +1163,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 3.1.2";
+            GADevice.sdkWrapperVersion = "javascript 4.0.0";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -1877,6 +1877,22 @@ var gameanalytics;
                 if (GADevice.gameEngineVersion) {
                     annotations["engine_version"] = GADevice.gameEngineVersion;
                 }
+                if (GAState.instance.configurations) {
+                    var count = 0;
+                    for (var _ in GAState.instance.configurations) {
+                        count++;
+                        break;
+                    }
+                    if (count > 0) {
+                        annotations["configurations"] = GAState.instance.configurations;
+                    }
+                }
+                if (GAState.instance.abId) {
+                    annotations["ab_id"] = GAState.instance.abId;
+                }
+                if (GAState.instance.abVariantId) {
+                    annotations["ab_variant_id"] = GAState.instance.abVariantId;
+                }
                 if (GAState.instance.build) {
                     annotations["build"] = GAState.instance.build;
                 }
@@ -2105,6 +2121,7 @@ var gameanalytics;
             GAState.populateConfigurations = function (sdkConfig) {
                 var configurations = sdkConfig["configs"];
                 if (configurations) {
+                    GAState.instance.configurations = {};
                     for (var i = 0; i < configurations.length; ++i) {
                         var configuration = configurations[i];
                         if (configuration) {
