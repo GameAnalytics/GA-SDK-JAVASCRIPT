@@ -468,6 +468,31 @@ module gameanalytics
                     annotations["engine_version"] = GADevice.gameEngineVersion;
                 }
 
+                // remote configs
+                if(GAState.instance.configurations)
+                {
+                    var count:number = 0;
+                    for(let _ in GAState.instance.configurations)
+                    {
+                        count++;
+                        break;
+                    }
+                    if(count > 0)
+                    {
+                        annotations["configurations"] = GAState.instance.configurations;
+                    }
+                }
+
+                // A/B testing
+                if(GAState.instance.abId)
+                {
+                    annotations["ab_id"] = GAState.instance.abId;
+                }
+                if(GAState.instance.abVariantId)
+                {
+                    annotations["ab_variant_id"] = GAState.instance.abVariantId;
+                }
+
                 // ---- CONDITIONAL ---- //
 
                 // App build version (use if not nil)
@@ -855,6 +880,7 @@ module gameanalytics
 
                 if(configurations)
                 {
+                    GAState.instance.configurations = {};
                     for(let i = 0; i < configurations.length; ++i)
                     {
                         var configuration:{[key:string]: any} = configurations[i];
