@@ -25,7 +25,7 @@ module gameanalytics
             {
                 // base url settings
                 this.protocol = "https";
-                this.hostName = "api.integration.gameanalytics.com";
+                this.hostName = "api.gameanalytics.com";
                 this.version = "v2";
                 this.remoteConfigsVersion = "v1";
 

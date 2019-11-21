@@ -1163,7 +1163,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.0.0";
+            GADevice.sdkWrapperVersion = "javascript 4.0.1";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -2225,7 +2225,7 @@ var gameanalytics;
         var GAHTTPApi = (function () {
             function GAHTTPApi() {
                 this.protocol = "https";
-                this.hostName = "api.integration.gameanalytics.com";
+                this.hostName = "api.gameanalytics.com";
                 this.version = "v2";
                 this.remoteConfigsVersion = "v1";
                 this.baseUrl = this.protocol + "://" + this.hostName + "/" + this.version;
