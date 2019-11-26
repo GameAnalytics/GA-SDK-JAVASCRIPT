@@ -615,6 +615,10 @@ module gameanalytics
                     {
                         initResponseDict["configs"] = currentSdkConfig["configs"];
                     }
+                    if(currentSdkConfig["configs_hash"])
+                    {
+                        initResponseDict["configs_hash"] = currentSdkConfig["configs_hash"];
+                    }
                     if(currentSdkConfig["ab_id"])
                     {
                         initResponseDict["ab_id"] = currentSdkConfig["ab_id"];
@@ -624,6 +628,10 @@ module gameanalytics
                         initResponseDict["ab_variant_id"] = currentSdkConfig["ab_variant_id"];
                     }
                 }
+
+                GAState.instance.configsHash = initResponseDict["configs_hash"] ? initResponseDict["configs_hash"] : "";
+                GAState.instance.abId = initResponseDict["ab_id"] ? initResponseDict["ab_id"] : "";
+                GAState.instance.abVariantId = initResponseDict["ab_variant_id"] ? initResponseDict["ab_variant_id"] : "";
 
                 // insert new config in sql lite cross session storage
                 GAStore.setItem(GAState.SdkConfigCachedKey, GAUtilities.encode64(JSON.stringify(initResponseDict)));

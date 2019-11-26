@@ -311,9 +311,9 @@ declare module gameanalytics {
             initAuthorized: boolean;
             clientServerTimeOffset: number;
             configsHash: string;
-            private abId;
+            abId: string;
             static getABTestingId(): string;
-            private abVariantId;
+            abVariantId: string;
             static getABTestingVariantId(): string;
             private defaultUserId;
             private setDefaultId;

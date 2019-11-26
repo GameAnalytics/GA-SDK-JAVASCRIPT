@@ -354,6 +354,17 @@ module gameanalytics
                         return null;
                     }
 
+                    try
+                    {
+                        var configs_hash:string = initResponse["configs_hash"];
+                        validatedDict["configs_hash"] = configs_hash;
+                    }
+                    catch (e)
+                    {
+                        GALogger.w("validateInitRequestResponse failed - invalid type in 'configs_hash' field. type=" + typeof initResponse["configs_hash"] + ", value=" + initResponse["configs_hash"] + ", " + e);
+                        return null;
+                    }
+
                     // validate ab_id field
                     try
                     {
