@@ -229,12 +229,12 @@ module gameanalytics
             public clientServerTimeOffset:number;
             public configsHash:string;
 
-            private abId:string;
+            public abId:string;
             public static getABTestingId(): string
             {
                 return GAState.instance.abId;
             }
-            private abVariantId:string;
+            public abVariantId:string;
             public static getABTestingVariantId(): string
             {
                 return GAState.instance.abVariantId;
