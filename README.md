@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.0.2**
+* fixed events bug
+
 **4.0.1**
 * small bug fix for http requests
 
