@@ -204,7 +204,7 @@ module gameanalytics
                 };
 
                 request.open("POST", url, true);
-                request.setRequestHeader("Content-Type", "text/plain");
+                request.setRequestHeader("Content-Type", "application/json");
 
                 request.setRequestHeader("Authorization", authorization);
 
