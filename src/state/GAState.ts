@@ -573,6 +573,16 @@ module gameanalytics
                 // Platform (operating system)
                 initAnnotations["platform"] = GADevice.buildPlatform;
 
+                // Build
+                if(GAState.getBuild())
+                {
+                    initAnnotations["build"] = GAState.getBuild();
+                }
+                else
+                {
+                    initAnnotations["build"] = null;
+                }
+
                 initAnnotations["random_salt"] = GAState.getSessionNum();
 
                 return initAnnotations;
