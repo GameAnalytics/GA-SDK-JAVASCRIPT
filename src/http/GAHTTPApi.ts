@@ -235,7 +235,7 @@ module gameanalytics
                 responseCode = request.status;
 
                 // process the response
-                GALogger.d("init request content : " + body);
+                GALogger.d("init request content : " + body + ", JSONstring: " + JSONstring);
 
                 var requestJsonDict:{[key:string]: any} = body ? JSON.parse(body) : {};
                 var requestResponseEnum:EGAHTTPApiResponse = GAHTTPApi.instance.processRequestResponse(responseCode, request.statusText, body, "Init");

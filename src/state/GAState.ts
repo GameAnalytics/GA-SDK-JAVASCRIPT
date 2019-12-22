@@ -563,6 +563,11 @@ module gameanalytics
             {
                 var initAnnotations:{[key:string]: any} = {};
 
+                if(!GAState.getIdentifier())
+                {
+                    GAState.cacheIdentifier();
+                }
+
                 initAnnotations["user_id"] = GAState.getIdentifier();
 
                 // SDK version
