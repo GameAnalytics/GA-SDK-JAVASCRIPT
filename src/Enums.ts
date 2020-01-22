@@ -10,13 +10,6 @@ module gameanalytics
         Critical = 5
     }
 
-    export enum EGAGender
-    {
-        Undefined = 0,
-        Male = 1,
-        Female = 2
-    }
-
     export enum EGAProgressionStatus
     {
         Undefined = 0,
@@ -59,6 +52,5 @@ module gameanalytics
     }
 }
 var EGAErrorSeverity = gameanalytics.EGAErrorSeverity;
-var EGAGender = gameanalytics.EGAGender;
 var EGAProgressionStatus = gameanalytics.EGAProgressionStatus;
 var EGAResourceFlowType = gameanalytics.EGAResourceFlowType;

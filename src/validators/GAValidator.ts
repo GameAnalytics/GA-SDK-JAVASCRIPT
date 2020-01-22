@@ -617,47 +617,6 @@ module gameanalytics
                 return true;
             }
 
-            public static validateFacebookId(facebookId:string): boolean
-            {
-                if (!GAValidator.validateString(facebookId, false))
-                {
-                    GALogger.w("Validation fail - facebook id: id cannot be (null), empty or above 64 characters.");
-                    return false;
-                }
-                return true;
-            }
-
-            public static validateGender(gender:any): boolean
-            {
-                if(isNaN(Number(EGAGender[gender])))
-                {
-                    if (gender == EGAGender.Undefined || !(gender == EGAGender.Male || gender == EGAGender.Female))
-                    {
-                        GALogger.w("Validation fail - gender: Has to be 'male' or 'female'. Was: " + gender);
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (gender == EGAGender[EGAGender.Undefined] || !(gender == EGAGender[EGAGender.Male] || gender == EGAGender[EGAGender.Female]))
-                    {
-                        GALogger.w("Validation fail - gender: Has to be 'male' or 'female'. Was: " + gender);
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            public static validateBirthyear(birthYear:number): boolean
-            {
-                if (birthYear < 0 || birthYear > 9999)
-                {
-                    GALogger.w("Validation fail - birthYear: Cannot be (null) or invalid range.");
-                    return false;
-                }
-                return true;
-            }
-
             public static validateClientTs(clientTs:number): boolean
             {
                 if (clientTs < (-4294967295+1) || clientTs > (4294967295-1))

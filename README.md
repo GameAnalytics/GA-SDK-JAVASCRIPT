@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.0.6**
+* removed gender, facebook and birthyear methods
+
 **4.0.5**
 * A/B testing fixes
 
