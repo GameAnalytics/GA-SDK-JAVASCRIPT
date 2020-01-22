@@ -460,21 +460,6 @@ describe("Validator", function () {
         });
     });
 
-    describe("Birthyear", function () {
-        var GAValidator = gameanalytics.validators.GAValidator;
-
-        it("should be valid birthyear", function() {
-            expect(GAValidator.validateBirthyear(1982)).toEqual(true);
-            expect(GAValidator.validateBirthyear(9999)).toEqual(true);
-            expect(GAValidator.validateBirthyear(0)).toEqual(true);
-        });
-
-        it("should be invalid birthyear", function() {
-            expect(GAValidator.validateBirthyear(10000)).toEqual(false);
-            expect(GAValidator.validateBirthyear(-1)).toEqual(false);
-        });
-    });
-
     describe("ClientTs", function () {
         var GAValidator = gameanalytics.validators.GAValidator;
         var GAUtilities = gameanalytics.utilities.GAUtilities;

@@ -89,7 +89,6 @@ gulp.task('declaration', function() {
 
     return tsResult.dts
         .pipe(replace('declare var EGAErrorSeverity', 'export declare var EGAErrorSeverity'))
-        .pipe(replace('declare var EGAGender', 'export declare var EGAGender'))
         .pipe(replace('declare var EGAProgressionStatus', 'export declare var EGAProgressionStatus'))
         .pipe(replace('declare var EGAResourceFlowType', 'export declare var EGAResourceFlowType'))
         .pipe(replace('declare var GameAnalytics', 'declare var GameAnalyticsCommand'))
