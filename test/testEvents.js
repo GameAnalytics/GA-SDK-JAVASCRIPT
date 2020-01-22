@@ -187,31 +187,4 @@ describe("Events", function () {
             expect(countPatternFoundInBlocks("setCustomDimension03")).toEqual(2);
         });
     });
-
-    describe("setFacebookId", function () {
-        it("should be added to queue", function() {
-            gameanalytics.GameAnalytics.setFacebookId("ninja");
-            expect(countPatternFoundInBlocks("setFacebookId")).toEqual(1);
-            GameAnalytics("setFacebookId", "ninja");
-            expect(countPatternFoundInBlocks("setFacebookId")).toEqual(2);
-        });
-    });
-
-    describe("setGender", function () {
-        it("should be added to queue", function() {
-            gameanalytics.GameAnalytics.setGender(gameanalytics.EGAGender.Male);
-            expect(countPatternFoundInBlocks("setGender")).toEqual(1);
-            GameAnalytics("setGender", "Male");
-            expect(countPatternFoundInBlocks("setGender")).toEqual(2);
-        });
-    });
-
-    describe("setBirthYear", function () {
-        it("should be added to queue", function() {
-            gameanalytics.GameAnalytics.setBirthYear(1982);
-            expect(countPatternFoundInBlocks("setBirthYear")).toEqual(1);
-            GameAnalytics("setBirthYear", 1982);
-            expect(countPatternFoundInBlocks("setBirthYear")).toEqual(2);
-        });
-    });
 });
