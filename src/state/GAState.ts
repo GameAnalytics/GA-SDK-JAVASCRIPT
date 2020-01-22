@@ -218,9 +218,6 @@ module gameanalytics
                 return GAState.instance._isEventSubmissionEnabled;
             }
 
-            private facebookId:string;
-            private gender:string;
-            private birthYear:number;
             public sdkConfigCached:{[key:string]: any};
             private configurations:{[key:string]: any} = {};
             private remoteConfigsIsReady:boolean;
@@ -298,9 +295,6 @@ module gameanalytics
             public static readonly DefaultUserIdKey:string = "default_user_id";
             public static readonly SessionNumKey:string = "session_num";
             public static readonly TransactionNumKey:string = "transaction_num";
-            private static readonly FacebookIdKey:string = "facebook_id";
-            private static readonly GenderKey:string = "gender";
-            private static readonly BirthYearKey:string = "birth_year";
             private static readonly Dimension01Key:string = "dimension01";
             private static readonly Dimension02Key:string = "dimension02";
             private static readonly Dimension03Key:string = "dimension03";
@@ -337,27 +331,6 @@ module gameanalytics
                 GAState.instance.currentCustomDimension03 = dimension;
                 GAStore.setItem(GAState.Dimension03Key, dimension);
                 GALogger.i("Set custom03 dimension value: " + dimension);
-            }
-
-            public static setFacebookId(facebookId:string): void
-            {
-                GAState.instance.facebookId = facebookId;
-                GAStore.setItem(GAState.FacebookIdKey, facebookId);
-                GALogger.i("Set facebook id: " + facebookId);
-            }
-
-            public static setGender(gender:EGAGender): void
-            {
-                GAState.instance.gender = isNaN(Number(EGAGender[gender])) ? EGAGender[gender].toString().toLowerCase() : EGAGender[EGAGender[gender]].toString().toLowerCase();
-                GAStore.setItem(GAState.GenderKey, GAState.instance.gender);
-                GALogger.i("Set gender: " + GAState.instance.gender);
-            }
-
-            public static setBirthYear(birthYear:number): void
-            {
-                GAState.instance.birthYear = birthYear;
-                GAStore.setItem(GAState.BirthYearKey, birthYear.toString());
-                GALogger.i("Set birth year: " + birthYear);
             }
 
             public static incrementSessionNum(): void
@@ -501,24 +474,6 @@ module gameanalytics
                     annotations["build"] = GAState.instance.build;
                 }
 
-                // ---- OPTIONAL cross-session ---- //
-
-                // facebook id (optional)
-                if (GAState.instance.facebookId)
-                {
-                    annotations[GAState.FacebookIdKey] = GAState.instance.facebookId;
-                }
-                // gender (optional)
-                if (GAState.instance.gender)
-                {
-                    annotations[GAState.GenderKey] = GAState.instance.gender;
-                }
-                // birth_year (optional)
-                if (GAState.instance.birthYear != 0)
-                {
-                    annotations[GAState.BirthYearKey] = GAState.instance.birthYear;
-                }
-
                 return annotations;
             }
 
@@ -643,46 +598,6 @@ module gameanalytics
                 instance.sessionNum = GAStore.getItem(GAState.SessionNumKey) != null ? Number(GAStore.getItem(GAState.SessionNumKey)) : 0.0;
 
                 instance.transactionNum = GAStore.getItem(GAState.TransactionNumKey) != null ? Number(GAStore.getItem(GAState.TransactionNumKey)) : 0.0;
-
-                // restore cross session user values
-                if(instance.facebookId)
-                {
-                    GAStore.setItem(GAState.FacebookIdKey, instance.facebookId);
-                }
-                else
-                {
-                    instance.facebookId = GAStore.getItem(GAState.FacebookIdKey) != null ? GAStore.getItem(GAState.FacebookIdKey) : "";
-                    if(instance.facebookId)
-                    {
-                        GALogger.d("facebookid found in DB: " + instance.facebookId);
-                    }
-                }
-
-                if(instance.gender)
-                {
-                    GAStore.setItem(GAState.GenderKey, instance.gender);
-                }
-                else
-                {
-                    instance.gender = GAStore.getItem(GAState.GenderKey) != null ? GAStore.getItem(GAState.GenderKey) : "";
-                    if(instance.gender)
-                    {
-                        GALogger.d("gender found in DB: " + instance.gender);
-                    }
-                }
-
-                if(instance.birthYear && instance.birthYear != 0)
-                {
-                    GAStore.setItem(GAState.BirthYearKey, instance.birthYear.toString());
-                }
-                else
-                {
-                    instance.birthYear = GAStore.getItem(GAState.BirthYearKey) != null ? Number(GAStore.getItem(GAState.BirthYearKey)) : 0;
-                    if(instance.birthYear != 0)
-                    {
-                        GALogger.d("birthYear found in DB: " + instance.birthYear);
-                    }
-                }
 
                 // restore dimension settings
                 if(instance.currentCustomDimension01)

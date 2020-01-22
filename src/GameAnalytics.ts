@@ -43,9 +43,6 @@ module gameanalytics
             GameAnalytics.methodMap['setCustomDimension01'] = GameAnalytics.setCustomDimension01;
             GameAnalytics.methodMap['setCustomDimension02'] = GameAnalytics.setCustomDimension02;
             GameAnalytics.methodMap['setCustomDimension03'] = GameAnalytics.setCustomDimension03;
-            GameAnalytics.methodMap['setFacebookId'] = GameAnalytics.setFacebookId;
-            GameAnalytics.methodMap['setGender'] = GameAnalytics.setGender;
-            GameAnalytics.methodMap['setBirthYear'] = GameAnalytics.setBirthYear;
             GameAnalytics.methodMap['setEventProcessInterval'] = GameAnalytics.setEventProcessInterval;
             GameAnalytics.methodMap['startSession'] = GameAnalytics.startSession;
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
@@ -428,39 +425,6 @@ module gameanalytics
                     return;
                 }
                 GAState.setCustomDimension03(dimension);
-            });
-        }
-
-        public static setFacebookId(facebookId:string = ""): void
-        {
-            GAThreading.performTaskOnGAThread(() =>
-            {
-                if (GAValidator.validateFacebookId(facebookId))
-                {
-                    GAState.setFacebookId(facebookId);
-                }
-            });
-        }
-
-        public static setGender(gender:EGAGender = EGAGender.Undefined): void
-        {
-            GAThreading.performTaskOnGAThread(() =>
-            {
-                if (GAValidator.validateGender(gender))
-                {
-                    GAState.setGender(gender);
-                }
-            });
-        }
-
-        public static setBirthYear(birthYear:number = 0): void
-        {
-            GAThreading.performTaskOnGAThread(() =>
-            {
-                if (GAValidator.validateBirthyear(birthYear))
-                {
-                    GAState.setBirthYear(birthYear);
-                }
             });
         }
 

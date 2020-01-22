@@ -7,11 +7,6 @@ declare module gameanalytics {
         Error = 4,
         Critical = 5
     }
-    enum EGAGender {
-        Undefined = 0,
-        Male = 1,
-        Female = 2
-    }
     enum EGAProgressionStatus {
         Undefined = 0,
         Start = 1,
@@ -44,7 +39,6 @@ declare module gameanalytics {
     }
 }
 export declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
-export declare var EGAGender: typeof gameanalytics.EGAGender;
 export declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
 export declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
 declare module gameanalytics {
@@ -119,9 +113,6 @@ declare module gameanalytics {
             static validateDimension02(dimension02: string, availableDimensions: Array<string>): boolean;
             static validateDimension03(dimension03: string, availableDimensions: Array<string>): boolean;
             static validateArrayOfStrings(maxCount: number, maxStringLength: number, allowNoValues: boolean, logTag: string, arrayOfStrings: Array<string>): boolean;
-            static validateFacebookId(facebookId: string): boolean;
-            static validateGender(gender: any): boolean;
-            static validateBirthyear(birthYear: number): boolean;
             static validateClientTs(clientTs: number): boolean;
         }
     }
@@ -299,9 +290,6 @@ declare module gameanalytics {
             static getUseManualSessionHandling(): boolean;
             private _isEventSubmissionEnabled;
             static isEventSubmissionEnabled(): boolean;
-            private facebookId;
-            private gender;
-            private birthYear;
             sdkConfigCached: {
                 [key: string]: any;
             };
@@ -331,9 +319,6 @@ declare module gameanalytics {
             static readonly DefaultUserIdKey: string;
             static readonly SessionNumKey: string;
             static readonly TransactionNumKey: string;
-            private static readonly FacebookIdKey;
-            private static readonly GenderKey;
-            private static readonly BirthYearKey;
             private static readonly Dimension01Key;
             private static readonly Dimension02Key;
             private static readonly Dimension03Key;
@@ -342,9 +327,6 @@ declare module gameanalytics {
             static setCustomDimension01(dimension: string): void;
             static setCustomDimension02(dimension: string): void;
             static setCustomDimension03(dimension: string): void;
-            static setFacebookId(facebookId: string): void;
-            static setGender(gender: EGAGender): void;
-            static setBirthYear(birthYear: number): void;
             static incrementSessionNum(): void;
             static incrementTransactionNum(): void;
             static incrementProgressionTries(progression: string): void;
@@ -534,9 +516,6 @@ declare module gameanalytics {
         static setCustomDimension01(dimension?: string): void;
         static setCustomDimension02(dimension?: string): void;
         static setCustomDimension03(dimension?: string): void;
-        static setFacebookId(facebookId?: string): void;
-        static setGender(gender?: EGAGender): void;
-        static setBirthYear(birthYear?: number): void;
         static setEventProcessInterval(intervalInSeconds: number): void;
         static startSession(): void;
         static endSession(): void;
