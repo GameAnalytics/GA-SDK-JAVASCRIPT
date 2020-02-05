@@ -41,7 +41,7 @@
         "set-value": "^3.0.1",
         "typescript": "^2.1.4",
         "ws": "^7.2.1",
-        "yargs": "^7.0.2"
+        "yargs": "^15.1.0"
     },
     "scripts": {
         "test": "gulp test"
