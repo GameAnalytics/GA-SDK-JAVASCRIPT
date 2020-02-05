@@ -27,7 +27,7 @@
         "gulp-if": "^3.0.0",
         "gulp-insert": "^0.5.0",
         "gulp-replace": "^0.5.4",
-        "gulp-sourcemaps": "^1.9.1",
+        "gulp-sourcemaps": "^2.6.5",
         "gulp-typescript": "^5.0.1",
         "gulp-uglify": "^3.0.2",
         "jasmine": "^3.5.0",
