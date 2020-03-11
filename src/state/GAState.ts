@@ -543,6 +543,7 @@ module gameanalytics
                     initAnnotations["build"] = null;
                 }
 
+                initAnnotations["session_num"] = GAState.getSessionNum();
                 initAnnotations["random_salt"] = GAState.getSessionNum();
 
                 return initAnnotations;
