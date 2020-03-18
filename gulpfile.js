@@ -80,40 +80,45 @@ gulp.task('build_normal', function() {
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('mini', gulp.series('bundle_min_js', 'build_mini'), function() {
+var mini = function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.min.js'])
         .pipe(concat('GameAnalytics.min.js'))
         .pipe(uglify())
         .pipe(insert.wrap("(function(scope){\n", "\nscope.gameanalytics=gameanalytics;\nscope.GameAnalytics=GameAnalytics;\n})(this);\n"))
         .pipe(gulp.dest('./dist'));
-});
+};
+gulp.task('mini', gulp.series(gulp.parallel('bundle_min_js', 'build_mini'), mini));
 
-gulp.task('normal', gulp.series('bundle_min_js', 'build_normal'), function() {
+var normal = function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.js'))
         .pipe(uglify())
         .pipe(insert.wrap("(function(scope){\n", "\nscope.gameanalytics=gameanalytics;\nscope.GameAnalytics=GameAnalytics;\n})(this);\n"))
         .pipe(gulp.dest('./dist'));
-});
+};
+gulp.task('normal', gulp.series(gulp.parallel('bundle_min_js', 'build_normal'), normal));
 
-gulp.task('unity', gulp.series('bundle_js', 'build_normal'), function() {
+var unity = function() {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.jspre'))
         .pipe(gulp.dest('./dist'));
-});
+};
+gulp.task('unity', gulp.series(gulp.parallel('bundle_js', 'build_normal'), unity));
 
-gulp.task('ga_node', gulp.series('bundle_js', 'build_normal'), function() {
+var ga_node = function() {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
         .pipe(concat('GameAnalytics.node.js'))
         .pipe(insert.wrap("'use strict';\n", "module.exports = gameanalytics;"))
         .pipe(gulp.dest('./dist'));
-});
+};
+gulp.task('ga_node', gulp.series(gulp.parallel('bundle_js', 'build_normal'), ga_node));
 
-gulp.task('debug', gulp.series('bundle_min_js', 'build_debug'), function() {
+var debug = function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.debug.js'])
         .pipe(concat('GameAnalytics.debug.js'))
         .pipe(insert.wrap("(function(scope){\n", "\nscope.gameanalytics=gameanalytics;\nscope.GameAnalytics=GameAnalytics;\n})(this);\n"))
         .pipe(gulp.dest('./dist'));
-});
+};
+gulp.task('debug', gulp.series(gulp.parallel('bundle_min_js', 'build_debug'), debug));
 
 gulp.task('default', gulp.series('debug', 'mini', 'unity', 'ga_node', 'normal', 'declaration'));

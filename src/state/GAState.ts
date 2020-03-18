@@ -694,8 +694,7 @@ module gameanalytics
 
                         if(!key || !value)
                         {
-                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value +
-                            " has been omitted because its key or value is null");
+                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its key or value is null");
                         }
                         else if(count < GAState.MAX_CUSTOM_FIELDS_COUNT)
                         {
