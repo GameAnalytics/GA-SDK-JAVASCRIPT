@@ -1135,7 +1135,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.0.6";
+            GADevice.sdkWrapperVersion = "javascript 4.0.8";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -1888,6 +1888,7 @@ var gameanalytics;
                 else {
                     initAnnotations["build"] = null;
                 }
+                initAnnotations["session_num"] = GAState.getSessionNum();
                 initAnnotations["random_salt"] = GAState.getSessionNum();
                 return initAnnotations;
             };
@@ -1978,8 +1979,7 @@ var gameanalytics;
                     for (var key in fields) {
                         var value = fields[key];
                         if (!key || !value) {
-                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value +
-                                " has been omitted because its key or value is null");
+                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its key or value is null");
                         }
                         else if (count < GAState.MAX_CUSTOM_FIELDS_COUNT) {
                             var regex = new RegExp("^[a-zA-Z0-9_]{1," + GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH + "}$");

@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.0.8**
+* fixed cryptojs bug
+
 **4.0.7**
 * added session_num to init request
 
