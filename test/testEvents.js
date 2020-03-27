@@ -118,9 +118,9 @@ describe("Events", function () {
 
     describe("addDesignEvent", function () {
         it("should be added to queue", function() {
-            gameanalytics.GameAnalytics.addDesignEvent("eventId:string", 100);
+            gameanalytics.GameAnalytics.addDesignEvent("eventId:string");
             expect(countPatternFoundInBlocks("addDesignEvent")).toEqual(1);
-            GameAnalytics("addDesignEvent", "eventId:string", 100);
+            GameAnalytics("addDesignEvent", "eventId:string");
             expect(countPatternFoundInBlocks("addDesignEvent")).toEqual(2);
         });
     });

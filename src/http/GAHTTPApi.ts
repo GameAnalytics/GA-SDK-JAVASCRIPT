@@ -7,6 +7,10 @@ module gameanalytics
         import GAUtilities = gameanalytics.utilities.GAUtilities;
         import GAValidator = gameanalytics.validators.GAValidator;
         import SdkErrorTask = gameanalytics.tasks.SdkErrorTask;
+        import EGASdkErrorCategory = gameanalytics.events.EGASdkErrorCategory;
+        import EGASdkErrorArea = gameanalytics.events.EGASdkErrorArea;
+        import EGASdkErrorAction = gameanalytics.events.EGASdkErrorAction;
+        import EGASdkErrorParameter = gameanalytics.events.EGASdkErrorParameter;
 
         export class GAHTTPApi
         {
@@ -20,6 +24,7 @@ module gameanalytics
             private initializeUrlPath:string;
             private eventsUrlPath:string;
             private useGzip:boolean;
+            private static readonly MAX_ERROR_MESSAGE_LENGTH:number = 256;
 
             private constructor()
             {
@@ -96,7 +101,7 @@ module gameanalytics
                 GAHTTPApi.sendRequest(url, payloadData, extraArgs, this.useGzip, GAHTTPApi.sendEventInArrayRequestCallback, callback);
             }
 
-            public sendSdkErrorEvent(type:EGASdkErrorType): void
+            public sendSdkErrorEvent(category:EGASdkErrorCategory, area:EGASdkErrorArea, action:EGASdkErrorAction, parameter:EGASdkErrorParameter, reason:string, gameKey:string, secretKey:string): void
             {
                 if(!GAState.isEventSubmissionEnabled())
                 {
@@ -107,7 +112,7 @@ module gameanalytics
                 var secretKey:string = GAState.getGameSecret();
 
                 // Validate
-                if (!GAValidator.validateSdkErrorEvent(gameKey, secretKey, type))
+                if (!GAValidator.validateSdkErrorEvent(gameKey, secretKey, category, area, action))
                 {
                     return;
                 }
@@ -117,11 +122,36 @@ module gameanalytics
                 GALogger.d("Sending 'events' URL: " + url);
 
                 var payloadJSONString:string = "";
+                var errorType:string = ""
 
                 var json:{[key:string]: any} = GAState.getSdkErrorEventAnnotations();
 
-                var typeString:string = GAHTTPApi.sdkErrorTypeToString(type);
-                json["type"] = typeString;
+                var categoryString:string = GAHTTPApi.sdkErrorCategoryString(category);
+                json["error_category"] = categoryString;
+                errorType += categoryString;
+
+                var areaString:string = GAHTTPApi.sdkErrorAreaString(area);
+                json["error_area"] = areaString;
+                errorType += ":" + areaString;
+
+                var actionString:string = GAHTTPApi.sdkErrorActionString(action);
+                json["error_action"] = actionString;
+
+                var parameterString:string = GAHTTPApi.sdkErrorParameterString(parameter);
+                if(parameterString.length > 0)
+                {
+                    json["error_parameter"] = parameterString;
+                }
+
+                if(reason.length > 0)
+                {
+                    var reasonTrimmed = reason;
+                    if(reason.length > GAHTTPApi.MAX_ERROR_MESSAGE_LENGTH)
+                    {
+                        var reasonTrimmed = reason.substring(0, GAHTTPApi.MAX_ERROR_MESSAGE_LENGTH);
+                    }
+                    json["reason"] = reasonTrimmed;
+                }
 
                 var eventArray:Array<{[key:string]: any}> = [];
                 eventArray.push(json);
@@ -134,7 +164,7 @@ module gameanalytics
                 }
 
                 GALogger.d("sendSdkErrorEvent json: " + payloadJSONString);
-                SdkErrorTask.execute(url, type, payloadJSONString, secretKey);
+                SdkErrorTask.execute(url, errorType, payloadJSONString, secretKey);
             }
 
             private static sendEventInArrayRequestCallback(request:XMLHttpRequest, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string> = null): void
@@ -167,6 +197,7 @@ module gameanalytics
                 if(requestJsonDict == null)
                 {
                     callback(EGAHTTPApiResponse.JsonDecodeFailed, null, requestId, eventCount);
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorCategory.Http, EGASdkErrorArea.EventsHttp, EGASdkErrorAction.FailHttpJsonDecode, EGASdkErrorParameter.Undefined, body, GAState.getGameKey(), GAState.getGameSecret());
                     return;
                 }
 
@@ -252,6 +283,7 @@ module gameanalytics
                 {
                     GALogger.d("Failed Init Call. Json decoding failed");
                     callback(EGAHTTPApiResponse.JsonDecodeFailed, null, "", 0);
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorCategory.Http, EGASdkErrorArea.InitHttp, EGASdkErrorAction.FailHttpJsonDecode, EGASdkErrorParameter.Undefined, body, GAState.getGameKey(), GAState.getGameSecret());
                     return;
                 }
 
@@ -337,20 +369,142 @@ module gameanalytics
                 return EGAHTTPApiResponse.UnknownResponseCode;
             }
 
-            private static sdkErrorTypeToString(value:EGASdkErrorType): string
+            private static sdkErrorCategoryString(value:EGASdkErrorCategory): string
             {
-                switch(value)
+                switch (value)
                 {
-                    case EGASdkErrorType.Rejected:
-                        {
-                            return "rejected";
-                        }
-
+                    case EGASdkErrorCategory.EventValidation:
+                        return "event_validation";
+                    case EGASdkErrorCategory.Database:
+                        return "db";
+                    case EGASdkErrorCategory.Init:
+                        return "init";
+                    case EGASdkErrorCategory.Http:
+                        return "http";
+                    case EGASdkErrorCategory.Json:
+                        return "json";
                     default:
-                        {
-                            return "";
-                        }
+                        break;
                 }
+                return "";
+            }
+
+            private static sdkErrorAreaString(value:EGASdkErrorArea): string
+            {
+                switch (value)
+                {
+                    case EGASdkErrorArea.BusinessEvent:
+                        return "business";
+                    case EGASdkErrorArea.ResourceEvent:
+                        return "resource";
+                    case EGASdkErrorArea.ProgressionEvent:
+                        return "progression";
+                    case EGASdkErrorArea.DesignEvent:
+                        return "design";
+                    case EGASdkErrorArea.ErrorEvent:
+                        return "error";
+                    case EGASdkErrorArea.InitHttp:
+                        return "init_http";
+                    case EGASdkErrorArea.EventsHttp:
+                        return "events_http";
+                    case EGASdkErrorArea.ProcessEvents:
+                        return "process_events";
+                    case EGASdkErrorArea.AddEventsToStore:
+                        return "add_events_to_store";
+                    default:
+                        break;
+                }
+                return "";
+            }
+
+            private static sdkErrorActionString(value:EGASdkErrorAction): string
+            {
+                switch (value)
+                {
+                    case EGASdkErrorAction.InvalidCurrency:
+                        return "invalid_currency";
+                    case EGASdkErrorAction.InvalidShortString:
+                        return "invalid_short_string";
+                    case EGASdkErrorAction.InvalidEventPartLength:
+                        return "invalid_event_part_length";
+                    case EGASdkErrorAction.InvalidEventPartCharacters:
+                        return "invalid_event_part_characters";
+                    case EGASdkErrorAction.InvalidStore:
+                        return "invalid_store";
+                    case EGASdkErrorAction.InvalidFlowType:
+                        return "invalid_flow_type";
+                    case EGASdkErrorAction.StringEmptyOrNull:
+                        return "string_empty_or_null";
+                    case EGASdkErrorAction.NotFoundInAvailableCurrencies:
+                        return "not_found_in_available_currencies";
+                    case EGASdkErrorAction.InvalidAmount:
+                        return "invalid_amount";
+                    case EGASdkErrorAction.NotFoundInAvailableItemTypes:
+                        return "not_found_in_available_item_types";
+                    case EGASdkErrorAction.WrongProgressionOrder:
+                        return "wrong_progression_order";
+                    case EGASdkErrorAction.InvalidEventIdLength:
+                        return "invalid_event_id_length";
+                    case EGASdkErrorAction.InvalidEventIdCharacters:
+                        return "invalid_event_id_characters";
+                    case EGASdkErrorAction.InvalidProgressionStatus:
+                        return "invalid_progression_status";
+                    case EGASdkErrorAction.InvalidSeverity:
+                        return "invalid_severity";
+                    case EGASdkErrorAction.InvalidLongString:
+                        return "invalid_long_string";
+                    case EGASdkErrorAction.DatabaseTooLarge:
+                        return "db_too_large";
+                    case EGASdkErrorAction.DatabaseOpenOrCreate:
+                        return "db_open_or_create";
+                    case EGASdkErrorAction.JsonError:
+                        return "json_error";
+                    case EGASdkErrorAction.FailHttpJsonDecode:
+                        return "fail_http_json_decode";
+                    case EGASdkErrorAction.FailHttpJsonEncode:
+                        return "fail_http_json_encode";
+                    default:
+                        break;
+                }
+                return "";
+            }
+
+            private static sdkErrorParameterString(value:EGASdkErrorParameter): string
+            {
+                switch (value)
+                {
+                    case EGASdkErrorParameter.Currency:
+                        return "currency";
+                    case EGASdkErrorParameter.CartType:
+                        return "cart_type";
+                    case EGASdkErrorParameter.ItemType:
+                        return "item_type";
+                    case EGASdkErrorParameter.ItemId:
+                        return "item_id";
+                    case EGASdkErrorParameter.Store:
+                        return "store";
+                    case EGASdkErrorParameter.FlowType:
+                        return "flow_type";
+                    case EGASdkErrorParameter.Amount:
+                        return "amount";
+                    case EGASdkErrorParameter.Progression01:
+                        return "progression01";
+                    case EGASdkErrorParameter.Progression02:
+                        return "progression02";
+                    case EGASdkErrorParameter.Progression03:
+                        return "progression03";
+                    case EGASdkErrorParameter.EventId:
+                        return "event_id";
+                    case EGASdkErrorParameter.ProgressionStatus:
+                        return "progression_status";
+                    case EGASdkErrorParameter.Severity:
+                        return "severity";
+                    case EGASdkErrorParameter.Message:
+                        return "message";
+                    default:
+                        break;
+                }
+                return "";
             }
         }
     }

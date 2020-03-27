@@ -27,12 +27,6 @@ module gameanalytics
 
     export module http
     {
-        export enum EGASdkErrorType
-        {
-            Undefined = 0,
-            Rejected = 1
-        }
-
         export enum EGAHTTPApiResponse
         {
             // client
@@ -48,6 +42,78 @@ module gameanalytics
             UnknownResponseCode,
             Ok,
             Created
+        }
+    }
+
+    export module events
+    {
+        export enum EGASdkErrorCategory
+        {
+            Undefined = 0,
+            EventValidation = 1,
+            Database = 2,
+            Init = 3,
+            Http = 4,
+            Json = 5
+        }
+
+        export enum EGASdkErrorArea
+        {
+            Undefined = 0,
+            BusinessEvent = 1,
+            ResourceEvent = 2,
+            ProgressionEvent = 3,
+            DesignEvent = 4,
+            ErrorEvent = 5,
+            InitHttp = 9,
+            EventsHttp = 10,
+            ProcessEvents = 11,
+            AddEventsToStore = 12
+        }
+
+        export enum EGASdkErrorAction
+        {
+            Undefined = 0,
+            InvalidCurrency = 1,
+            InvalidShortString = 2,
+            InvalidEventPartLength = 3,
+            InvalidEventPartCharacters = 4,
+            InvalidStore = 5,
+            InvalidFlowType = 6,
+            StringEmptyOrNull = 7,
+            NotFoundInAvailableCurrencies = 8,
+            InvalidAmount = 9,
+            NotFoundInAvailableItemTypes = 10,
+            WrongProgressionOrder = 11,
+            InvalidEventIdLength = 12,
+            InvalidEventIdCharacters = 13,
+            InvalidProgressionStatus = 15,
+            InvalidSeverity = 16,
+            InvalidLongString = 17,
+            DatabaseTooLarge = 18,
+            DatabaseOpenOrCreate = 19,
+            JsonError = 25,
+            FailHttpJsonDecode = 29,
+            FailHttpJsonEncode = 30
+        }
+
+        export enum EGASdkErrorParameter
+        {
+            Undefined = 0,
+            Currency = 1,
+            CartType = 2,
+            ItemType = 3,
+            ItemId = 4,
+            Store = 5,
+            FlowType = 6,
+            Amount = 7,
+            Progression01 = 8,
+            Progression02 = 9,
+            Progression03 = 10,
+            EventId = 11,
+            ProgressionStatus = 12,
+            Severity = 13,
+            Message = 14
         }
     }
 }

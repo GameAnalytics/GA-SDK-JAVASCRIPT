@@ -2,8 +2,6 @@ module gameanalytics
 {
     export module device
     {
-        import GALogger = gameanalytics.logging.GALogger;
-
         export class NameValueVersion
         {
             public name:string;
@@ -32,7 +30,7 @@ module gameanalytics
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 4.0.8";
+            private static readonly sdkWrapperVersion:string = "javascript 4.0.9";
             private static readonly osVersionPair:NameVersion = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -60,8 +58,6 @@ module gameanalytics
             public static sdkGameEngineVersion:string;
             public static gameEngineVersion:string;
             private static connectionType:string;
-            private static maxSafeInteger:number = Math.pow(2, 53) - 1;
-
             public static touch(): void
             {
             }

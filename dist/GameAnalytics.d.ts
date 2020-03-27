@@ -19,10 +19,6 @@ declare module gameanalytics {
         Sink = 2
     }
     module http {
-        enum EGASdkErrorType {
-            Undefined = 0,
-            Rejected = 1
-        }
         enum EGAHTTPApiResponse {
             NoResponse = 0,
             BadResponse = 1,
@@ -37,10 +33,73 @@ declare module gameanalytics {
             Created = 10
         }
     }
+    module events {
+        enum EGASdkErrorCategory {
+            Undefined = 0,
+            EventValidation = 1,
+            Database = 2,
+            Init = 3,
+            Http = 4,
+            Json = 5
+        }
+        enum EGASdkErrorArea {
+            Undefined = 0,
+            BusinessEvent = 1,
+            ResourceEvent = 2,
+            ProgressionEvent = 3,
+            DesignEvent = 4,
+            ErrorEvent = 5,
+            InitHttp = 9,
+            EventsHttp = 10,
+            ProcessEvents = 11,
+            AddEventsToStore = 12
+        }
+        enum EGASdkErrorAction {
+            Undefined = 0,
+            InvalidCurrency = 1,
+            InvalidShortString = 2,
+            InvalidEventPartLength = 3,
+            InvalidEventPartCharacters = 4,
+            InvalidStore = 5,
+            InvalidFlowType = 6,
+            StringEmptyOrNull = 7,
+            NotFoundInAvailableCurrencies = 8,
+            InvalidAmount = 9,
+            NotFoundInAvailableItemTypes = 10,
+            WrongProgressionOrder = 11,
+            InvalidEventIdLength = 12,
+            InvalidEventIdCharacters = 13,
+            InvalidProgressionStatus = 15,
+            InvalidSeverity = 16,
+            InvalidLongString = 17,
+            DatabaseTooLarge = 18,
+            DatabaseOpenOrCreate = 19,
+            JsonError = 25,
+            FailHttpJsonDecode = 29,
+            FailHttpJsonEncode = 30
+        }
+        enum EGASdkErrorParameter {
+            Undefined = 0,
+            Currency = 1,
+            CartType = 2,
+            ItemType = 3,
+            ItemId = 4,
+            Store = 5,
+            FlowType = 6,
+            Amount = 7,
+            Progression01 = 8,
+            Progression02 = 9,
+            Progression03 = 10,
+            EventId = 11,
+            ProgressionStatus = 12,
+            Severity = 13,
+            Message = 14
+        }
+    }
 }
-export declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
-export declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
-export declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
+declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
+declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
+declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
 declare module gameanalytics {
     module logging {
         class GALogger {
@@ -79,14 +138,25 @@ declare module gameanalytics {
 }
 declare module gameanalytics {
     module validators {
-        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
+        import EGASdkErrorCategory = gameanalytics.events.EGASdkErrorCategory;
+        import EGASdkErrorArea = gameanalytics.events.EGASdkErrorArea;
+        import EGASdkErrorAction = gameanalytics.events.EGASdkErrorAction;
+        import EGASdkErrorParameter = gameanalytics.events.EGASdkErrorParameter;
+        class ValidationResult {
+            category: EGASdkErrorCategory;
+            area: EGASdkErrorArea;
+            action: EGASdkErrorAction;
+            parameter: EGASdkErrorParameter;
+            reason: string;
+            constructor(category: EGASdkErrorCategory, area: EGASdkErrorArea, action: EGASdkErrorAction, parameter: EGASdkErrorParameter, reason: string);
+        }
         class GAValidator {
-            static validateBusinessEvent(currency: string, amount: number, cartType: string, itemType: string, itemId: string): boolean;
-            static validateResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string, availableCurrencies: Array<string>, availableItemTypes: Array<string>): boolean;
-            static validateProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string): boolean;
-            static validateDesignEvent(eventId: string, value: number): boolean;
-            static validateErrorEvent(severity: EGAErrorSeverity, message: string): boolean;
-            static validateSdkErrorEvent(gameKey: string, gameSecret: string, type: EGASdkErrorType): boolean;
+            static validateBusinessEvent(currency: string, amount: number, cartType: string, itemType: string, itemId: string): ValidationResult;
+            static validateResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string, availableCurrencies: Array<string>, availableItemTypes: Array<string>): ValidationResult;
+            static validateProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string): ValidationResult;
+            static validateDesignEvent(eventId: string): ValidationResult;
+            static validateErrorEvent(severity: EGAErrorSeverity, message: string): ValidationResult;
+            static validateSdkErrorEvent(gameKey: string, gameSecret: string, category: EGASdkErrorCategory, area: EGASdkErrorArea, action: EGASdkErrorAction): boolean;
             static validateKeys(gameKey: string, gameSecret: string): boolean;
             static validateCurrency(currency: string): boolean;
             static validateEventPartLength(eventPart: string, allowNull: boolean): boolean;
@@ -141,7 +211,6 @@ declare module gameanalytics {
             static sdkGameEngineVersion: string;
             static gameEngineVersion: string;
             private static connectionType;
-            private static maxSafeInteger;
             static touch(): void;
             static getRelevantSdkVersion(): string;
             static getConnectionType(): string;
@@ -372,16 +441,20 @@ declare module gameanalytics {
 }
 declare module gameanalytics {
     module tasks {
-        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
         class SdkErrorTask {
             private static readonly MaxCount;
             private static readonly countMap;
-            static execute(url: string, type: EGASdkErrorType, payloadData: string, secretKey: string): void;
+            private static readonly timestampMap;
+            static execute(url: string, type: string, payloadData: string, secretKey: string): void;
         }
     }
 }
 declare module gameanalytics {
     module http {
+        import EGASdkErrorCategory = gameanalytics.events.EGASdkErrorCategory;
+        import EGASdkErrorArea = gameanalytics.events.EGASdkErrorArea;
+        import EGASdkErrorAction = gameanalytics.events.EGASdkErrorAction;
+        import EGASdkErrorParameter = gameanalytics.events.EGASdkErrorParameter;
         class GAHTTPApi {
             static readonly instance: GAHTTPApi;
             private protocol;
@@ -393,6 +466,7 @@ declare module gameanalytics {
             private initializeUrlPath;
             private eventsUrlPath;
             private useGzip;
+            private static readonly MAX_ERROR_MESSAGE_LENGTH;
             private constructor();
             requestInit(configsHash: string, callback: (response: EGAHTTPApiResponse, json: {
                 [key: string]: any;
@@ -402,20 +476,22 @@ declare module gameanalytics {
             }>, requestId: string, callback: (response: EGAHTTPApiResponse, json: {
                 [key: string]: any;
             }, requestId: string, eventCount: number) => void): void;
-            sendSdkErrorEvent(type: EGASdkErrorType): void;
+            sendSdkErrorEvent(category: EGASdkErrorCategory, area: EGASdkErrorArea, action: EGASdkErrorAction, parameter: EGASdkErrorParameter, reason: string, gameKey: string, secretKey: string): void;
             private static sendEventInArrayRequestCallback;
             private static sendRequest;
             private static initRequestCallback;
             private createPayloadData;
             private processRequestResponse;
-            private static sdkErrorTypeToString;
+            private static sdkErrorCategoryString;
+            private static sdkErrorAreaString;
+            private static sdkErrorActionString;
+            private static sdkErrorParameterString;
         }
     }
 }
 declare module gameanalytics {
     module events {
         class GAEvents {
-            private static readonly instance;
             private static readonly CategorySessionStart;
             private static readonly CategorySessionEnd;
             private static readonly CategoryDesign;
@@ -539,6 +615,4 @@ declare module gameanalytics {
         private static isSdkReady;
     }
 }
-declare var GameAnalyticsCommand: typeof gameanalytics.GameAnalytics.gaCommand;
-export declare var GameAnalytics: typeof gameanalytics.GameAnalytics;
-export default GameAnalytics;
+declare var GameAnalytics: typeof gameanalytics.GameAnalytics.gaCommand;

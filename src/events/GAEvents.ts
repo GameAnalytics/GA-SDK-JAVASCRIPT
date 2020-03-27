@@ -11,11 +11,10 @@ module gameanalytics
         import EGAHTTPApiResponse = gameanalytics.http.EGAHTTPApiResponse;
         import GAHTTPApi = gameanalytics.http.GAHTTPApi;
         import GAValidator = gameanalytics.validators.GAValidator;
-        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
+        import ValidationResult = gameanalytics.validators.ValidationResult;
 
         export class GAEvents
         {
-            private static readonly instance:GAEvents = new GAEvents();
             private static readonly CategorySessionStart:string = "user";
             private static readonly CategorySessionEnd:string = "session_end";
             private static readonly CategoryDesign:string = "design";
@@ -103,9 +102,10 @@ module gameanalytics
                 }
 
                 // Validate event params
-                if (!GAValidator.validateBusinessEvent(currency, amount, cartType, itemType, itemId))
+                var validationResult:ValidationResult = GAValidator.validateBusinessEvent(currency, amount, cartType, itemType, itemId);
+                if (validationResult != null)
                 {
-                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    GAHTTPApi.instance.sendSdkErrorEvent(validationResult.category, validationResult.area, validationResult.action, validationResult.parameter, validationResult.reason, GAState.getGameKey(), GAState.getGameSecret());
                     return;
                 }
 
@@ -149,9 +149,10 @@ module gameanalytics
                 }
 
                 // Validate event params
-                if (!GAValidator.validateResourceEvent(flowType, currency, amount, itemType, itemId, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()))
+                var validationResult:ValidationResult = GAValidator.validateResourceEvent(flowType, currency, amount, itemType, itemId, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes());
+                if (validationResult != null)
                 {
-                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    GAHTTPApi.instance.sendSdkErrorEvent(validationResult.category, validationResult.area, validationResult.action, validationResult.parameter, validationResult.reason, GAState.getGameKey(), GAState.getGameSecret());
                     return;
                 }
 
@@ -192,9 +193,10 @@ module gameanalytics
                 var progressionStatusString:string = GAEvents.progressionStatusToString(progressionStatus);
 
                 // Validate event params
-                if (!GAValidator.validateProgressionEvent(progressionStatus, progression01, progression02, progression03))
+                var validationResult:ValidationResult = GAValidator.validateProgressionEvent(progressionStatus, progression01, progression02, progression03);
+                if (validationResult != null)
                 {
-                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    GAHTTPApi.instance.sendSdkErrorEvent(validationResult.category, validationResult.area, validationResult.action, validationResult.parameter, validationResult.reason, GAState.getGameKey(), GAState.getGameSecret());
                     return;
                 }
 
@@ -271,9 +273,10 @@ module gameanalytics
                 }
 
                 // Validate
-                if (!GAValidator.validateDesignEvent(eventId, value))
+                var validationResult:ValidationResult = GAValidator.validateDesignEvent(eventId);
+                if (validationResult != null)
                 {
-                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    GAHTTPApi.instance.sendSdkErrorEvent(validationResult.category, validationResult.area, validationResult.action, validationResult.parameter, validationResult.reason, GAState.getGameKey(), GAState.getGameSecret());
                     return;
                 }
 
@@ -311,9 +314,10 @@ module gameanalytics
                 var severityString:string = GAEvents.errorSeverityToString(severity);
 
                 // Validate
-                if (!GAValidator.validateErrorEvent(severity, message))
+                var validationResult:ValidationResult = GAValidator.validateErrorEvent(severity, message);
+                if (validationResult != null)
                 {
-                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorType.Rejected);
+                    GAHTTPApi.instance.sendSdkErrorEvent(validationResult.category, validationResult.area, validationResult.action, validationResult.parameter, validationResult.reason, GAState.getGameKey(), GAState.getGameSecret());
                     return;
                 }
 
@@ -435,6 +439,7 @@ module gameanalytics
                 catch (e)
                 {
                     GALogger.e("Error during ProcessEvents(): " + e.stack);
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorCategory.Json, EGASdkErrorArea.ProcessEvents, EGASdkErrorAction.JsonError, EGASdkErrorParameter.Undefined, e.stack, GAState.getGameKey(), GAState.getGameSecret());
                 }
             }
 
@@ -546,7 +551,7 @@ module gameanalytics
                 {
                     return;
                 }
-                
+
                 // Check if we are initialized
                 if (!GAState.isInitialized())
                 {
@@ -561,6 +566,7 @@ module gameanalytics
                     if (GAStore.isStoreTooLargeForEvents() && !GAUtilities.stringMatch(eventData["category"] as string, /^(user|session_end|business)$/))
                     {
                         GALogger.w("Database too large. Event has been blocked.");
+                        GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorCategory.Database, EGASdkErrorArea.AddEventsToStore, EGASdkErrorAction.DatabaseTooLarge, EGASdkErrorParameter.Undefined, "", GAState.getGameKey(), GAState.getGameSecret());
                         return;
                     }
 
@@ -616,6 +622,7 @@ module gameanalytics
                 {
                     GALogger.e("addEventToStore: error");
                     GALogger.e(e.stack);
+                    GAHTTPApi.instance.sendSdkErrorEvent(EGASdkErrorCategory.Database, EGASdkErrorArea.AddEventsToStore, EGASdkErrorAction.DatabaseTooLarge, EGASdkErrorParameter.Undefined, e.stack, GAState.getGameKey(), GAState.getGameSecret());
                 }
             }
 

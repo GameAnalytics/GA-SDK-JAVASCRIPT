@@ -54,29 +54,29 @@ describe("Validator", function () {
         var EGAProgressionStatus = gameanalytics.EGAProgressionStatus;
 
         it("should be valid progression event", function() {
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "level_001", "phase_001")).toEqual(true);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "level_001", "")).toEqual(true);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "level_001", null)).toEqual(true);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "", "")).toEqual(true);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", undefined, undefined)).toEqual(true);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "level_001", "phase_001") == null).toEqual(true);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "level_001", "") == null).toEqual(true);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "level_001", null) == null).toEqual(true);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "", "") == null).toEqual(true);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", undefined, undefined) == null).toEqual(true);
         });
 
         it("should be invalid progression event", function() {
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "", "")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, null, null)).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, undefined, undefined)).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "", "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", null, "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", undefined, "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "level_001", "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, "level_001", "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, "level_001", "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "level_001", "")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, "level_001", null)).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, "level_001", undefined)).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "", "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, null, "phase_001")).toEqual(false);
-            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, undefined, "phase_001")).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "", "") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, null, null) == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, undefined, undefined) == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", "", "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", null, "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "world_001", undefined, "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "level_001", "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, "level_001", "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, "level_001", "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "level_001", "") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, "level_001", null) == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, "level_001", undefined) == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, "", "", "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, null, null, "phase_001") == null).toEqual(false);
+            expect(GAValidator.validateProgressionEvent(EGAProgressionStatus.Start, undefined, undefined, "phase_001") == null).toEqual(false);
         });
     });
 
@@ -84,21 +84,21 @@ describe("Validator", function () {
         var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid business event", function() {
-            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", "itemId")).toEqual(true);
-            expect(GAValidator.validateBusinessEvent("USD", 99, "", "itemType", "itemId")).toEqual(true);
-            expect(GAValidator.validateBusinessEvent("USD", 99, null, "itemType", "itemId")).toEqual(true);
-            expect(GAValidator.validateBusinessEvent("USD", 99, undefined, "itemType", "itemId")).toEqual(true);
-            expect(GAValidator.validateBusinessEvent("USD", 0, "cartType", "itemType", "itemId")).toEqual(true);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", "itemId") == null).toEqual(true);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "", "itemType", "itemId") == null).toEqual(true);
+            expect(GAValidator.validateBusinessEvent("USD", 99, null, "itemType", "itemId") == null).toEqual(true);
+            expect(GAValidator.validateBusinessEvent("USD", 99, undefined, "itemType", "itemId") == null).toEqual(true);
+            expect(GAValidator.validateBusinessEvent("USD", 0, "cartType", "itemType", "itemId") == null).toEqual(true);
         });
 
         it("should be invalid business event", function() {
-            expect(GAValidator.validateBusinessEvent("USD", -99, "cartType", "itemType", "itemId")).toEqual(false);
-            expect(GAValidator.validateBusinessEvent("USD", 99, "", "", "itemId")).toEqual(false);
-            expect(GAValidator.validateBusinessEvent("USD", 99, "", null, "itemId")).toEqual(false);
-            expect(GAValidator.validateBusinessEvent("USD", 99, "", undefined, "itemId")).toEqual(false);
-            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", "")).toEqual(false);
-            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", null)).toEqual(false);
-            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", undefined)).toEqual(false);
+            expect(GAValidator.validateBusinessEvent("USD", -99, "cartType", "itemType", "itemId") == null).toEqual(false);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "", "", "itemId") == null).toEqual(false);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "", null, "itemId") == null).toEqual(false);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "", undefined, "itemId") == null).toEqual(false);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", "") == null).toEqual(false);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", null) == null).toEqual(false);
+            expect(GAValidator.validateBusinessEvent("USD", 99, "cartType", "itemType", undefined) == null).toEqual(false);
         });
     });
 
@@ -111,21 +111,21 @@ describe("Validator", function () {
         GAState.setAvailableResourceItemTypes(["guns", "powerups"]);
 
         it("should be valid resource event", function() {
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 100, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(true);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gold", 100, "powerups", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(true);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 100, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(true);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gold", 100, "powerups", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(true);
         });
 
         it("should be invalid resource event", function() {
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "iron", 100, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 100, "cows", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 0, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", -10, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "guns", "", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "guns", null, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "guns", undefined, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, null, "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
-            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, undefined, "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes())).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "iron", 100, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 100, "cows", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 0, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", -10, "guns", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "guns", "", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "guns", null, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "guns", undefined, GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, "", "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, null, "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
+            expect(GAValidator.validateResourceEvent(EGAResourceFlowType.Sink, "gems", 10, undefined, "item", GAState.getAvailableResourceCurrencies(), GAState.getAvailableResourceItemTypes()) == null).toEqual(false);
         });
     });
 
@@ -133,18 +133,18 @@ describe("Validator", function () {
         var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid design event", function() {
-            expect(GAValidator.validateDesignEvent("name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name:name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name:name:name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name", 0)).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name") == null).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name:name") == null).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name:name:name") == null).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name:name:name:name") == null).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name") == null).toEqual(true);
         });
 
         it("should be invalid design event", function() {
-            expect(GAValidator.validateDesignEvent("", 100)).toEqual(false);
-            expect(GAValidator.validateDesignEvent(null, 100)).toEqual(false);
-            expect(GAValidator.validateDesignEvent(undefined, 100)).toEqual(false);
-            expect(GAValidator.validateDesignEvent("name:name:name:name:name:name", 100)).toEqual(false);
+            expect(GAValidator.validateDesignEvent("") == null).toEqual(false);
+            expect(GAValidator.validateDesignEvent(null) == null).toEqual(false);
+            expect(GAValidator.validateDesignEvent(undefined) == null).toEqual(false);
+            expect(GAValidator.validateDesignEvent("name:name:name:name:name:name") == null).toEqual(false);
         });
     });
 
@@ -153,26 +153,28 @@ describe("Validator", function () {
         var EGAErrorSeverity = gameanalytics.EGAErrorSeverity;
 
         it("should be valid error event", function() {
-            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, "This is a message")).toEqual(true);
-            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, "")).toEqual(true);
-            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, undefined)).toEqual(true);
+            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, "This is a message") == null).toEqual(true);
+            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, "") == null).toEqual(true);
+            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, undefined) == null).toEqual(true);
         });
 
         it("should be invalid error event", function() {
-            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, getRandomString(8193))).toEqual(false);
+            expect(GAValidator.validateErrorEvent(EGAErrorSeverity.Error, getRandomString(8193)) == null).toEqual(false);
         });
     });
 
     describe("SdkErrorEvent", function () {
         var GAValidator = gameanalytics.validators.GAValidator;
-        var EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
+        var EGASdkErrorCategory = gameanalytics.events.EGASdkErrorCategory;
+        var EGASdkErrorArea = gameanalytics.events.EGASdkErrorArea;
+        var EGASdkErrorAction = gameanalytics.events.EGASdkErrorAction;
 
         it("should be valid sdk error event", function() {
-            expect(GAValidator.validateSdkErrorEvent("c6cfc80ff69d1e7316bf1e0c8194eda6", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorType.Rejected)).toEqual(true);
+            expect(GAValidator.validateSdkErrorEvent("c6cfc80ff69d1e7316bf1e0c8194eda6", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidFlowType)).toEqual(true);
         });
 
         it("should be invalid sdk error event", function() {
-            expect(GAValidator.validateSdkErrorEvent("", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorType.Rejected)).toEqual(false);
+            expect(GAValidator.validateSdkErrorEvent("", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidFlowType)).toEqual(false);
         });
     });
 
