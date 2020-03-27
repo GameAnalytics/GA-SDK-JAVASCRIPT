@@ -3,153 +3,174 @@ module gameanalytics
     export module validators
     {
         import GALogger = gameanalytics.logging.GALogger;
-        import EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
         import GAUtilities = gameanalytics.utilities.GAUtilities;
+        import EGASdkErrorCategory = gameanalytics.events.EGASdkErrorCategory;
+        import EGASdkErrorArea = gameanalytics.events.EGASdkErrorArea;
+        import EGASdkErrorAction = gameanalytics.events.EGASdkErrorAction;
+        import EGASdkErrorParameter = gameanalytics.events.EGASdkErrorParameter;
+
+        export class ValidationResult
+        {
+            public category:EGASdkErrorCategory;
+            public area:EGASdkErrorArea;
+            public action:EGASdkErrorAction;
+            public parameter:EGASdkErrorParameter;
+            public reason:string;
+
+            public constructor(category:EGASdkErrorCategory, area:EGASdkErrorArea, action:EGASdkErrorAction, parameter:EGASdkErrorParameter, reason:string)
+            {
+                this.category = category;
+                this.area = area;
+                this.action = action;
+                this.parameter = parameter;
+                this.reason = reason;
+            }
+        }
 
         export class GAValidator
         {
-            public static validateBusinessEvent(currency:string, amount:number, cartType:string, itemType:string, itemId:string): boolean
+            public static validateBusinessEvent(currency:string, amount:number, cartType:string, itemType:string, itemId:string): ValidationResult
             {
                 // validate currency
                 if (!GAValidator.validateCurrency(currency))
                 {
                     GALogger.w("Validation fail - business event - currency: Cannot be (null) and need to be A-Z, 3 characters and in the standard at openexchangerates.org. Failed currency: " + currency);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidCurrency, EGASdkErrorParameter.Currency, currency);
                 }
 
                 if (amount < 0)
                 {
                     GALogger.w("Validation fail - business event - amount. Cannot be less than 0. Failed amount: " + amount);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidAmount, EGASdkErrorParameter.Amount, amount + "");
                 }
 
                 // validate cartType
                 if (!GAValidator.validateShortString(cartType, true))
                 {
                     GALogger.w("Validation fail - business event - cartType. Cannot be above 32 length. String: " + cartType);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidShortString, EGASdkErrorParameter.CartType, cartType);
                 }
 
                 // validate itemType length
                 if (!GAValidator.validateEventPartLength(itemType, false))
                 {
                     GALogger.w("Validation fail - business event - itemType: Cannot be (null), empty or above 64 characters. String: " + itemType);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidEventPartLength, EGASdkErrorParameter.ItemType, itemType);
                 }
 
                 // validate itemType chars
                 if (!GAValidator.validateEventPartCharacters(itemType))
                 {
                     GALogger.w("Validation fail - business event - itemType: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + itemType);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.ItemType, itemType);
                 }
 
                 // validate itemId
                 if (!GAValidator.validateEventPartLength(itemId, false))
                 {
                     GALogger.w("Validation fail - business event - itemId. Cannot be (null), empty or above 64 characters. String: " + itemId);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidEventPartLength, EGASdkErrorParameter.ItemId, itemId);
                 }
 
                 if (!GAValidator.validateEventPartCharacters(itemId))
                 {
                     GALogger.w("Validation fail - business event - itemId: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + itemId);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.ItemType, itemType);
                 }
 
-                return true;
+                return null;
             }
 
-            public static validateResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string, availableCurrencies:Array<string>, availableItemTypes:Array<string>): boolean
+            public static validateResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string, availableCurrencies:Array<string>, availableItemTypes:Array<string>): ValidationResult
             {
                 if (flowType == EGAResourceFlowType.Undefined)
                 {
                     GALogger.w("Validation fail - resource event - flowType: Invalid flow type.");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidFlowType, EGASdkErrorParameter.FlowType, "");
                 }
                 if (!currency)
                 {
                     GALogger.w("Validation fail - resource event - currency: Cannot be (null)");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.StringEmptyOrNull, EGASdkErrorParameter.Currency, "");
                 }
                 if (!GAUtilities.stringArrayContainsString(availableCurrencies, currency))
                 {
                     GALogger.w("Validation fail - resource event - currency: Not found in list of pre-defined available resource currencies. String: " + currency);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.NotFoundInAvailableCurrencies, EGASdkErrorParameter.Currency, currency);
                 }
                 if (!(amount > 0))
                 {
                     GALogger.w("Validation fail - resource event - amount: Float amount cannot be 0 or negative. Value: " + amount);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidAmount, EGASdkErrorParameter.Amount, amount + "");
                 }
                 if (!itemType)
                 {
                     GALogger.w("Validation fail - resource event - itemType: Cannot be (null)");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.StringEmptyOrNull, EGASdkErrorParameter.ItemType, "");
                 }
                 if (!GAValidator.validateEventPartLength(itemType, false))
                 {
                     GALogger.w("Validation fail - resource event - itemType: Cannot be (null), empty or above 64 characters. String: " + itemType);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidEventPartLength, EGASdkErrorParameter.ItemType, itemType);
                 }
                 if (!GAValidator.validateEventPartCharacters(itemType))
                 {
                     GALogger.w("Validation fail - resource event - itemType: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + itemType);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.ItemType, itemType);
                 }
                 if (!GAUtilities.stringArrayContainsString(availableItemTypes, itemType))
                 {
                     GALogger.w("Validation fail - resource event - itemType: Not found in list of pre-defined available resource itemTypes. String: " + itemType);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.NotFoundInAvailableItemTypes, EGASdkErrorParameter.ItemType, itemType);
                 }
                 if (!GAValidator.validateEventPartLength(itemId, false))
                 {
                     GALogger.w("Validation fail - resource event - itemId: Cannot be (null), empty or above 64 characters. String: " + itemId);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidEventPartLength, EGASdkErrorParameter.ItemId, itemId);
                 }
                 if (!GAValidator.validateEventPartCharacters(itemId))
                 {
                     GALogger.w("Validation fail - resource event - itemId: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + itemId);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.ItemId, itemId);
                 }
-                return true;
+                return null;
             }
 
-            public static validateProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string): boolean
+            public static validateProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string): ValidationResult
             {
                 if (progressionStatus == EGAProgressionStatus.Undefined)
                 {
                     GALogger.w("Validation fail - progression event: Invalid progression status.");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.InvalidProgressionStatus, EGASdkErrorParameter.ProgressionStatus, "");
                 }
 
                 // Make sure progressions are defined as either 01, 01+02 or 01+02+03
                 if (progression03 && !(progression02 || !progression01))
                 {
                     GALogger.w("Validation fail - progression event: 03 found but 01+02 are invalid. Progression must be set as either 01, 01+02 or 01+02+03.");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.WrongProgressionOrder, EGASdkErrorParameter.Undefined, progression01 + ":" + progression02 + ":" + progression03);
                 }
                 else if (progression02 && !progression01)
                 {
                     GALogger.w("Validation fail - progression event: 02 found but not 01. Progression must be set as either 01, 01+02 or 01+02+03");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.WrongProgressionOrder, EGASdkErrorParameter.Undefined, progression01 + ":" + progression02 + ":" + progression03);
                 }
                 else if (!progression01)
                 {
                     GALogger.w("Validation fail - progression event: progression01 not valid. Progressions must be set as either 01, 01+02 or 01+02+03");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.WrongProgressionOrder, EGASdkErrorParameter.Undefined, progression01 + ":" + progression02 + ":" + progression03);
                 }
 
                 // progression01 (required)
                 if (!GAValidator.validateEventPartLength(progression01, false))
                 {
                     GALogger.w("Validation fail - progression event - progression01: Cannot be (null), empty or above 64 characters. String: " + progression01);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.InvalidEventPartLength, EGASdkErrorParameter.Progression01, progression01);
                 }
                 if (!GAValidator.validateEventPartCharacters(progression01))
                 {
                     GALogger.w("Validation fail - progression event - progression01: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + progression01);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.Progression01, progression01);
                 }
                 // progression02
                 if (progression02)
@@ -157,12 +178,12 @@ module gameanalytics
                     if (!GAValidator.validateEventPartLength(progression02, true))
                     {
                         GALogger.w("Validation fail - progression event - progression02: Cannot be empty or above 64 characters. String: " + progression02);
-                        return false;
+                        return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.InvalidEventPartLength, EGASdkErrorParameter.Progression02, progression02);
                     }
                     if (!GAValidator.validateEventPartCharacters(progression02))
                     {
                         GALogger.w("Validation fail - progression event - progression02: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + progression02);
-                        return false;
+                        return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.Progression02, progression02);
                     }
                 }
                 // progression03
@@ -171,58 +192,68 @@ module gameanalytics
                     if (!GAValidator.validateEventPartLength(progression03, true))
                     {
                         GALogger.w("Validation fail - progression event - progression03: Cannot be empty or above 64 characters. String: " + progression03);
-                        return false;
+                        return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.InvalidEventPartLength, EGASdkErrorParameter.Progression03, progression03);
                     }
                     if (!GAValidator.validateEventPartCharacters(progression03))
                     {
                         GALogger.w("Validation fail - progression event - progression03: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + progression03);
-                        return false;
+                        return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.Progression03, progression03);
                     }
                 }
-                return true;
+                return null;
             }
 
-            public static validateDesignEvent(eventId:string, value:number): boolean
+            public static validateDesignEvent(eventId:string): ValidationResult
             {
                 if (!GAValidator.validateEventIdLength(eventId))
                 {
                     GALogger.w("Validation fail - design event - eventId: Cannot be (null) or empty. Only 5 event parts allowed seperated by :. Each part need to be 32 characters or less. String: " + eventId);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.DesignEvent, EGASdkErrorAction.InvalidEventIdLength, EGASdkErrorParameter.EventId, eventId);
                 }
                 if (!GAValidator.validateEventIdCharacters(eventId))
                 {
                     GALogger.w("Validation fail - design event - eventId: Non valid characters. Only allowed A-z, 0-9, -_., ()!?. String: " + eventId);
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.DesignEvent, EGASdkErrorAction.InvalidEventIdCharacters, EGASdkErrorParameter.EventId, eventId);
                 }
                 // value: allow 0, negative and nil (not required)
-                return true;
+                return null;
             }
 
-            public static validateErrorEvent(severity:EGAErrorSeverity, message:string): boolean
+            public static validateErrorEvent(severity:EGAErrorSeverity, message:string): ValidationResult
             {
                 if (severity == EGAErrorSeverity.Undefined)
                 {
                     GALogger.w("Validation fail - error event - severity: Severity was unsupported value.");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ErrorEvent, EGASdkErrorAction.InvalidSeverity, EGASdkErrorParameter.Severity, "");
                 }
                 if (!GAValidator.validateLongString(message, true))
                 {
                     GALogger.w("Validation fail - error event - message: Message cannot be above 8192 characters.");
-                    return false;
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ErrorEvent, EGASdkErrorAction.InvalidLongString, EGASdkErrorParameter.Message, message);
                 }
-                return true;
+                return null;
             }
 
-            public static validateSdkErrorEvent(gameKey:string, gameSecret:string, type:EGASdkErrorType): boolean
+            public static validateSdkErrorEvent(gameKey:string, gameSecret:string, category:EGASdkErrorCategory, area:EGASdkErrorArea, action:EGASdkErrorAction): boolean
             {
                 if(!GAValidator.validateKeys(gameKey, gameSecret))
                 {
                     return false;
                 }
 
-                if (type === EGASdkErrorType.Undefined)
+                if (category === EGASdkErrorCategory.Undefined)
                 {
-                    GALogger.w("Validation fail - sdk error event - type: Type was unsupported value.");
+                    GALogger.w("Validation fail - sdk error event - type: Category was unsupported value.");
+                    return false;
+                }
+                if (area === EGASdkErrorArea.Undefined)
+                {
+                    GALogger.w("Validation fail - sdk error event - type: Area was unsupported value.");
+                    return false;
+                }
+                if (action === EGASdkErrorAction.Undefined)
+                {
+                    GALogger.w("Validation fail - sdk error event - type: Action was unsupported value.");
                     return false;
                 }
                 return true;
