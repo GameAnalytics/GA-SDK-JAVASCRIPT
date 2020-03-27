@@ -133,18 +133,18 @@ describe("Validator", function () {
         var GAValidator = gameanalytics.validators.GAValidator;
 
         it("should be valid design event", function() {
-            expect(GAValidator.validateDesignEvent("name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name:name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name:name:name:name", 100)).toEqual(true);
-            expect(GAValidator.validateDesignEvent("name:name", 0)).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name")).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name:name")).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name:name:name")).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name:name:name:name")).toEqual(true);
+            expect(GAValidator.validateDesignEvent("name:name")).toEqual(true);
         });
 
         it("should be invalid design event", function() {
-            expect(GAValidator.validateDesignEvent("", 100)).toEqual(false);
-            expect(GAValidator.validateDesignEvent(null, 100)).toEqual(false);
-            expect(GAValidator.validateDesignEvent(undefined, 100)).toEqual(false);
-            expect(GAValidator.validateDesignEvent("name:name:name:name:name:name", 100)).toEqual(false);
+            expect(GAValidator.validateDesignEvent("")).toEqual(false);
+            expect(GAValidator.validateDesignEvent(null)).toEqual(false);
+            expect(GAValidator.validateDesignEvent(undefined)).toEqual(false);
+            expect(GAValidator.validateDesignEvent("name:name:name:name:name:name")).toEqual(false);
         });
     });
 
@@ -165,14 +165,16 @@ describe("Validator", function () {
 
     describe("SdkErrorEvent", function () {
         var GAValidator = gameanalytics.validators.GAValidator;
-        var EGASdkErrorType = gameanalytics.http.EGASdkErrorType;
+        var EGASdkErrorCategory = gameanalytics.http.EGASdkErrorCategory;
+        var EGASdkErrorArea = gameanalytics.http.EGASdkErrorArea;
+        var EGASdkErrorAction = gameanalytics.http.EGASdkErrorAction;
 
         it("should be valid sdk error event", function() {
-            expect(GAValidator.validateSdkErrorEvent("c6cfc80ff69d1e7316bf1e0c8194eda6", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorType.Rejected)).toEqual(true);
+            expect(GAValidator.validateSdkErrorEvent("c6cfc80ff69d1e7316bf1e0c8194eda6", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidFlowType)).toEqual(true);
         });
 
         it("should be invalid sdk error event", function() {
-            expect(GAValidator.validateSdkErrorEvent("", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorType.Rejected)).toEqual(false);
+            expect(GAValidator.validateSdkErrorEvent("", "e0ae4809f70e2fa96916c7060f417ae53895f18d", EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ResourceEvent, EGASdkErrorAction.InvalidFlowType)).toEqual(false);
         });
     });
 
