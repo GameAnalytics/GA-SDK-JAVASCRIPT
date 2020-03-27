@@ -37,6 +37,7 @@
         "lodash": "^4.17.13",
         "lodash.template": "^4.5.0",
         "minimatch": "^3.0.4",
+        "minimist": "^1.2.2",
         "mixin-deep": "^2.0.1",
         "set-value": "^3.0.1",
         "typescript": "^3.7.5",
