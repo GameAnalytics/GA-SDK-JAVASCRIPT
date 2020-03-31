@@ -1980,8 +1980,6 @@ var gameanalytics;
                 if (!GAState.isEventSubmissionEnabled()) {
                     return;
                 }
-                var gameKey = GAState.getGameKey();
-                var secretKey = GAState.getGameSecret();
                 if (!GAValidator.validateSdkErrorEvent(gameKey, secretKey, category, area, action)) {
                     return;
                 }
