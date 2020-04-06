@@ -254,7 +254,7 @@ module gameanalytics
             public static getSdkConfig(): {[key:string]: any}
             {
                 {
-                    var first;
+                    var first:string;
                     var count:number = 0;
                     for(let json in GAState.instance.sdkConfig)
                     {
@@ -271,7 +271,7 @@ module gameanalytics
                     }
                 }
                 {
-                    var first;
+                    var first:string;
                     var count:number = 0;
                     for(let json in GAState.instance.sdkConfigCached)
                     {
@@ -315,21 +315,21 @@ module gameanalytics
             public static setCustomDimension01(dimension:string): void
             {
                 GAState.instance.currentCustomDimension01 = dimension;
-                GAStore.setItem(GAState.Dimension01Key, dimension);
+                GAStore.setItem(GAState.getGameKey(), GAState.Dimension01Key, dimension);
                 GALogger.i("Set custom01 dimension value: " + dimension);
             }
 
             public static setCustomDimension02(dimension:string): void
             {
                 GAState.instance.currentCustomDimension02 = dimension;
-                GAStore.setItem(GAState.Dimension02Key, dimension);
+                GAStore.setItem(GAState.getGameKey(), GAState.Dimension02Key, dimension);
                 GALogger.i("Set custom02 dimension value: " + dimension);
             }
 
             public static setCustomDimension03(dimension:string): void
             {
                 GAState.instance.currentCustomDimension03 = dimension;
-                GAStore.setItem(GAState.Dimension03Key, dimension);
+                GAStore.setItem(GAState.getGameKey(), GAState.Dimension03Key, dimension);
                 GALogger.i("Set custom03 dimension value: " + dimension);
             }
 
@@ -588,26 +588,26 @@ module gameanalytics
                 // get and extract stored states
                 if(GAStore.isStorageAvailable())
                 {
-                    GAStore.load();
+                    GAStore.load(GAState.getGameKey());
                 }
 
                 // insert into GAState instance
                 var instance:GAState = GAState.instance;
 
-                instance.setDefaultId(GAStore.getItem(GAState.DefaultUserIdKey) != null ? GAStore.getItem(GAState.DefaultUserIdKey) : GAUtilities.createGuid());
+                instance.setDefaultId(GAStore.getItem(GAState.getGameKey(), GAState.DefaultUserIdKey) != null ? GAStore.getItem(GAState.getGameKey(), GAState.DefaultUserIdKey) : GAUtilities.createGuid());
 
-                instance.sessionNum = GAStore.getItem(GAState.SessionNumKey) != null ? Number(GAStore.getItem(GAState.SessionNumKey)) : 0.0;
+                instance.sessionNum = GAStore.getItem(GAState.getGameKey(), GAState.SessionNumKey) != null ? Number(GAStore.getItem(GAState.getGameKey(), GAState.SessionNumKey)) : 0.0;
 
-                instance.transactionNum = GAStore.getItem(GAState.TransactionNumKey) != null ? Number(GAStore.getItem(GAState.TransactionNumKey)) : 0.0;
+                instance.transactionNum = GAStore.getItem(GAState.getGameKey(), GAState.TransactionNumKey) != null ? Number(GAStore.getItem(GAState.getGameKey(), GAState.TransactionNumKey)) : 0.0;
 
                 // restore dimension settings
                 if(instance.currentCustomDimension01)
                 {
-                    GAStore.setItem(GAState.Dimension01Key, instance.currentCustomDimension01);
+                    GAStore.setItem(GAState.getGameKey(), GAState.Dimension01Key, instance.currentCustomDimension01);
                 }
                 else
                 {
-                    instance.currentCustomDimension01 = GAStore.getItem(GAState.Dimension01Key) != null ? GAStore.getItem(GAState.Dimension01Key) : "";
+                    instance.currentCustomDimension01 = GAStore.getItem(GAState.getGameKey(), GAState.Dimension01Key) != null ? GAStore.getItem(GAState.getGameKey(), GAState.Dimension01Key) : "";
                     if(instance.currentCustomDimension01)
                     {
                         GALogger.d("Dimension01 found in cache: " + instance.currentCustomDimension01);
@@ -616,11 +616,11 @@ module gameanalytics
 
                 if(instance.currentCustomDimension02)
                 {
-                    GAStore.setItem(GAState.Dimension02Key, instance.currentCustomDimension02);
+                    GAStore.setItem(GAState.getGameKey(), GAState.Dimension02Key, instance.currentCustomDimension02);
                 }
                 else
                 {
-                    instance.currentCustomDimension02 = GAStore.getItem(GAState.Dimension02Key) != null ? GAStore.getItem(GAState.Dimension02Key) : "";
+                    instance.currentCustomDimension02 = GAStore.getItem(GAState.getGameKey(), GAState.Dimension02Key) != null ? GAStore.getItem(GAState.getGameKey(), GAState.Dimension02Key) : "";
                     if(instance.currentCustomDimension02)
                     {
                         GALogger.d("Dimension02 found in cache: " + instance.currentCustomDimension02);
@@ -629,11 +629,11 @@ module gameanalytics
 
                 if(instance.currentCustomDimension03)
                 {
-                    GAStore.setItem(GAState.Dimension03Key, instance.currentCustomDimension03);
+                    GAStore.setItem(GAState.getGameKey(), GAState.Dimension03Key, instance.currentCustomDimension03);
                 }
                 else
                 {
-                    instance.currentCustomDimension03 = GAStore.getItem(GAState.Dimension03Key) != null ? GAStore.getItem(GAState.Dimension03Key) : "";
+                    instance.currentCustomDimension03 = GAStore.getItem(GAState.getGameKey(), GAState.Dimension03Key) != null ? GAStore.getItem(GAState.getGameKey(), GAState.Dimension03Key) : "";
                     if(instance.currentCustomDimension03)
                     {
                         GALogger.d("Dimension03 found in cache: " + instance.currentCustomDimension03);
@@ -641,7 +641,7 @@ module gameanalytics
                 }
 
                 // get cached init call values
-                var sdkConfigCachedString:string = GAStore.getItem(GAState.SdkConfigCachedKey) != null ? GAStore.getItem(GAState.SdkConfigCachedKey) : "";
+                var sdkConfigCachedString:string = GAStore.getItem(GAState.getGameKey(), GAState.SdkConfigCachedKey) != null ? GAStore.getItem(GAState.getGameKey(), GAState.SdkConfigCachedKey) : "";
                 if (sdkConfigCachedString)
                 {
                     // decode JSON

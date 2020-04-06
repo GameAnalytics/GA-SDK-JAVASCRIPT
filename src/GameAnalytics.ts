@@ -535,7 +535,7 @@ module gameanalytics
         private static internalInitialize(): void
         {
             GAState.ensurePersistedStates();
-            GAStore.setItem(GAState.DefaultUserIdKey, GAState.getDefaultId());
+            GAStore.setItem(GAState.getGameKey(), GAState.DefaultUserIdKey, GAState.getDefaultId());
 
             GAState.setInitialized(true);
 
@@ -598,7 +598,7 @@ module gameanalytics
                 GAState.instance.abVariantId = initResponseDict["ab_variant_id"] ? initResponseDict["ab_variant_id"] : "";
 
                 // insert new config in sql lite cross session storage
-                GAStore.setItem(GAState.SdkConfigCachedKey, GAUtilities.encode64(JSON.stringify(initResponseDict)));
+                GAStore.setItem(GAState.getGameKey(), GAState.SdkConfigCachedKey, GAUtilities.encode64(JSON.stringify(initResponseDict)));
 
                 // set new config and cache in memory
                 GAState.instance.sdkConfigCached = initResponseDict;

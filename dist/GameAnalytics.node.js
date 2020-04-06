@@ -696,7 +696,7 @@ var gameanalytics;
                 }
                 if (!GAValidator.validateEventPartCharacters(itemId)) {
                     GALogger.w("Validation fail - business event - itemId: Cannot contain other characters than A-z, 0-9, -_., ()!?. String: " + itemId);
-                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.ItemType, itemType);
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.BusinessEvent, EGASdkErrorAction.InvalidEventPartCharacters, EGASdkErrorParameter.ItemId, itemId);
                 }
                 return null;
             };
@@ -758,7 +758,7 @@ var gameanalytics;
                 }
                 else if (!progression01) {
                     GALogger.w("Validation fail - progression event: progression01 not valid. Progressions must be set as either 01, 01+02 or 01+02+03");
-                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.WrongProgressionOrder, EGASdkErrorParameter.Undefined, progression01 + ":" + progression02 + ":" + progression03);
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.ProgressionEvent, EGASdkErrorAction.WrongProgressionOrder, EGASdkErrorParameter.Undefined, (progression01 ? progression01 : "") + ":" + (progression02 ? progression02 : "") + ":" + (progression03 ? progression03 : ""));
                 }
                 if (!GAValidator.validateEventPartLength(progression01, false)) {
                     GALogger.w("Validation fail - progression event - progression01: Cannot be (null), empty or above 64 characters. String: " + progression01);
@@ -1220,7 +1220,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.0.9";
+            GADevice.sdkWrapperVersion = "javascript 4.0.10";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -1550,23 +1550,23 @@ var gameanalytics;
                     currentStore.push(newEntry);
                 }
             };
-            GAStore.save = function () {
+            GAStore.save = function (gameKey) {
                 if (!GAStore.isStorageAvailable()) {
                     GALogger.w("Storage is not available, cannot save.");
                     return;
                 }
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.EventsStoreKey, JSON.stringify(GAStore.instance.eventsStore));
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.SessionsStoreKey, JSON.stringify(GAStore.instance.sessionsStore));
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.ProgressionStoreKey, JSON.stringify(GAStore.instance.progressionStore));
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.ItemsStoreKey, JSON.stringify(GAStore.instance.storeItems));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey), JSON.stringify(GAStore.instance.eventsStore));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey), JSON.stringify(GAStore.instance.sessionsStore));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey), JSON.stringify(GAStore.instance.progressionStore));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey), JSON.stringify(GAStore.instance.storeItems));
             };
-            GAStore.load = function () {
+            GAStore.load = function (gameKey) {
                 if (!GAStore.isStorageAvailable()) {
                     GALogger.w("Storage is not available, cannot load.");
                     return;
                 }
                 try {
-                    GAStore.instance.eventsStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.EventsStoreKey));
+                    GAStore.instance.eventsStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey)));
                     if (!GAStore.instance.eventsStore) {
                         GAStore.instance.eventsStore = [];
                     }
@@ -1576,7 +1576,7 @@ var gameanalytics;
                     GAStore.instance.eventsStore = [];
                 }
                 try {
-                    GAStore.instance.sessionsStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.SessionsStoreKey));
+                    GAStore.instance.sessionsStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey)));
                     if (!GAStore.instance.sessionsStore) {
                         GAStore.instance.sessionsStore = [];
                     }
@@ -1586,7 +1586,7 @@ var gameanalytics;
                     GAStore.instance.sessionsStore = [];
                 }
                 try {
-                    GAStore.instance.progressionStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.ProgressionStoreKey));
+                    GAStore.instance.progressionStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey)));
                     if (!GAStore.instance.progressionStore) {
                         GAStore.instance.progressionStore = [];
                     }
@@ -1596,7 +1596,7 @@ var gameanalytics;
                     GAStore.instance.progressionStore = [];
                 }
                 try {
-                    GAStore.instance.storeItems = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.ItemsStoreKey));
+                    GAStore.instance.storeItems = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey)));
                     if (!GAStore.instance.storeItems) {
                         GAStore.instance.storeItems = {};
                     }
@@ -1606,8 +1606,8 @@ var gameanalytics;
                     GAStore.instance.progressionStore = [];
                 }
             };
-            GAStore.setItem = function (key, value) {
-                var keyWithPrefix = GAStore.KeyPrefix + key;
+            GAStore.setItem = function (gameKey, key, value) {
+                var keyWithPrefix = GAStore.StringFormat(GAStore.KeyFormat, gameKey, key);
                 if (!value) {
                     if (keyWithPrefix in GAStore.instance.storeItems) {
                         delete GAStore.instance.storeItems[keyWithPrefix];
@@ -1617,8 +1617,8 @@ var gameanalytics;
                     GAStore.instance.storeItems[keyWithPrefix] = value;
                 }
             };
-            GAStore.getItem = function (key) {
-                var keyWithPrefix = GAStore.KeyPrefix + key;
+            GAStore.getItem = function (gameKey, key) {
+                var keyWithPrefix = GAStore.StringFormat(GAStore.KeyFormat, gameKey, key);
                 if (keyWithPrefix in GAStore.instance.storeItems) {
                     return GAStore.instance.storeItems[keyWithPrefix];
                 }
@@ -1649,7 +1649,14 @@ var gameanalytics;
             };
             GAStore.instance = new GAStore();
             GAStore.MaxNumberOfEntries = 2000;
-            GAStore.KeyPrefix = "GA::";
+            GAStore.StringFormat = function (str) {
+                var args = [];
+                for (var _i = 1; _i < arguments.length; _i++) {
+                    args[_i - 1] = arguments[_i];
+                }
+                return str.replace(/{(\d+)}/g, function (_, index) { return args[index] || ''; });
+            };
+            GAStore.KeyFormat = "GA::{0}::{1}";
             GAStore.EventsStoreKey = "ga_event";
             GAStore.SessionsStoreKey = "ga_session";
             GAStore.ProgressionStoreKey = "ga_progression";
@@ -1842,17 +1849,17 @@ var gameanalytics;
             };
             GAState.setCustomDimension01 = function (dimension) {
                 GAState.instance.currentCustomDimension01 = dimension;
-                GAStore.setItem(GAState.Dimension01Key, dimension);
+                GAStore.setItem(GAState.getGameKey(), GAState.Dimension01Key, dimension);
                 GALogger.i("Set custom01 dimension value: " + dimension);
             };
             GAState.setCustomDimension02 = function (dimension) {
                 GAState.instance.currentCustomDimension02 = dimension;
-                GAStore.setItem(GAState.Dimension02Key, dimension);
+                GAStore.setItem(GAState.getGameKey(), GAState.Dimension02Key, dimension);
                 GALogger.i("Set custom02 dimension value: " + dimension);
             };
             GAState.setCustomDimension03 = function (dimension) {
                 GAState.instance.currentCustomDimension03 = dimension;
-                GAStore.setItem(GAState.Dimension03Key, dimension);
+                GAStore.setItem(GAState.getGameKey(), GAState.Dimension03Key, dimension);
                 GALogger.i("Set custom03 dimension value: " + dimension);
             };
             GAState.incrementSessionNum = function () {
@@ -1999,37 +2006,37 @@ var gameanalytics;
             };
             GAState.ensurePersistedStates = function () {
                 if (GAStore.isStorageAvailable()) {
-                    GAStore.load();
+                    GAStore.load(GAState.getGameKey());
                 }
                 var instance = GAState.instance;
-                instance.setDefaultId(GAStore.getItem(GAState.DefaultUserIdKey) != null ? GAStore.getItem(GAState.DefaultUserIdKey) : GAUtilities.createGuid());
-                instance.sessionNum = GAStore.getItem(GAState.SessionNumKey) != null ? Number(GAStore.getItem(GAState.SessionNumKey)) : 0.0;
-                instance.transactionNum = GAStore.getItem(GAState.TransactionNumKey) != null ? Number(GAStore.getItem(GAState.TransactionNumKey)) : 0.0;
+                instance.setDefaultId(GAStore.getItem(GAState.getGameKey(), GAState.DefaultUserIdKey) != null ? GAStore.getItem(GAState.getGameKey(), GAState.DefaultUserIdKey) : GAUtilities.createGuid());
+                instance.sessionNum = GAStore.getItem(GAState.getGameKey(), GAState.SessionNumKey) != null ? Number(GAStore.getItem(GAState.getGameKey(), GAState.SessionNumKey)) : 0.0;
+                instance.transactionNum = GAStore.getItem(GAState.getGameKey(), GAState.TransactionNumKey) != null ? Number(GAStore.getItem(GAState.getGameKey(), GAState.TransactionNumKey)) : 0.0;
                 if (instance.currentCustomDimension01) {
-                    GAStore.setItem(GAState.Dimension01Key, instance.currentCustomDimension01);
+                    GAStore.setItem(GAState.getGameKey(), GAState.Dimension01Key, instance.currentCustomDimension01);
                 }
                 else {
-                    instance.currentCustomDimension01 = GAStore.getItem(GAState.Dimension01Key) != null ? GAStore.getItem(GAState.Dimension01Key) : "";
+                    instance.currentCustomDimension01 = GAStore.getItem(GAState.getGameKey(), GAState.Dimension01Key) != null ? GAStore.getItem(GAState.getGameKey(), GAState.Dimension01Key) : "";
                     if (instance.currentCustomDimension01) {
                     }
                 }
                 if (instance.currentCustomDimension02) {
-                    GAStore.setItem(GAState.Dimension02Key, instance.currentCustomDimension02);
+                    GAStore.setItem(GAState.getGameKey(), GAState.Dimension02Key, instance.currentCustomDimension02);
                 }
                 else {
-                    instance.currentCustomDimension02 = GAStore.getItem(GAState.Dimension02Key) != null ? GAStore.getItem(GAState.Dimension02Key) : "";
+                    instance.currentCustomDimension02 = GAStore.getItem(GAState.getGameKey(), GAState.Dimension02Key) != null ? GAStore.getItem(GAState.getGameKey(), GAState.Dimension02Key) : "";
                     if (instance.currentCustomDimension02) {
                     }
                 }
                 if (instance.currentCustomDimension03) {
-                    GAStore.setItem(GAState.Dimension03Key, instance.currentCustomDimension03);
+                    GAStore.setItem(GAState.getGameKey(), GAState.Dimension03Key, instance.currentCustomDimension03);
                 }
                 else {
-                    instance.currentCustomDimension03 = GAStore.getItem(GAState.Dimension03Key) != null ? GAStore.getItem(GAState.Dimension03Key) : "";
+                    instance.currentCustomDimension03 = GAStore.getItem(GAState.getGameKey(), GAState.Dimension03Key) != null ? GAStore.getItem(GAState.getGameKey(), GAState.Dimension03Key) : "";
                     if (instance.currentCustomDimension03) {
                     }
                 }
-                var sdkConfigCachedString = GAStore.getItem(GAState.SdkConfigCachedKey) != null ? GAStore.getItem(GAState.SdkConfigCachedKey) : "";
+                var sdkConfigCachedString = GAStore.getItem(GAState.getGameKey(), GAState.SdkConfigCachedKey) != null ? GAStore.getItem(GAState.getGameKey(), GAState.SdkConfigCachedKey) : "";
                 if (sdkConfigCachedString) {
                     var sdkConfigCached = JSON.parse(GAUtilities.decode64(sdkConfigCachedString));
                     if (sdkConfigCached) {
@@ -2299,8 +2306,6 @@ var gameanalytics;
                 if (!GAState.isEventSubmissionEnabled()) {
                     return;
                 }
-                var gameKey = GAState.getGameKey();
-                var secretKey = GAState.getGameSecret();
                 if (!GAValidator.validateSdkErrorEvent(gameKey, secretKey, category, area, action)) {
                     return;
                 }
@@ -2605,7 +2610,7 @@ var gameanalytics;
                 var eventDict = {};
                 eventDict["category"] = GAEvents.CategorySessionStart;
                 GAState.incrementSessionNum();
-                GAStore.setItem(GAState.SessionNumKey, GAState.getSessionNum().toString());
+                GAStore.setItem(GAState.getGameKey(), GAState.SessionNumKey, GAState.getSessionNum().toString());
                 GAEvents.addDimensionsToEvent(eventDict);
                 GAEvents.addEventToStore(eventDict);
                 GALogger.i("Add SESSION START event");
@@ -2642,7 +2647,7 @@ var gameanalytics;
                 }
                 var eventDict = {};
                 GAState.incrementTransactionNum();
-                GAStore.setItem(GAState.TransactionNumKey, GAState.getTransactionNum().toString());
+                GAStore.setItem(GAState.getGameKey(), GAState.TransactionNumKey, GAState.getTransactionNum().toString());
                 eventDict["event_id"] = itemType + ":" + itemId;
                 eventDict["category"] = GAEvents.CategoryBusiness;
                 eventDict["currency"] = currency;
@@ -2919,7 +2924,7 @@ var gameanalytics;
                         GAStore.insert(EGAStore.Sessions, values, true, "session_id");
                     }
                     if (GAStore.isStorageAvailable()) {
-                        GAStore.save();
+                        GAStore.save(GAState.getGameKey());
                     }
                 }
                 catch (e) {
@@ -2936,7 +2941,7 @@ var gameanalytics;
                     values["event"] = GAUtilities.encode64(JSON.stringify(GAState.getEventAnnotations()));
                     GAStore.insert(EGAStore.Sessions, values, true, "session_id");
                     if (GAStore.isStorageAvailable()) {
-                        GAStore.save();
+                        GAStore.save(GAState.getGameKey());
                     }
                 }
             };
@@ -3575,7 +3580,7 @@ var gameanalytics;
         };
         GameAnalytics.internalInitialize = function () {
             GAState.ensurePersistedStates();
-            GAStore.setItem(GAState.DefaultUserIdKey, GAState.getDefaultId());
+            GAStore.setItem(GAState.getGameKey(), GAState.DefaultUserIdKey, GAState.getDefaultId());
             GAState.setInitialized(true);
             GameAnalytics.newSession();
             if (GAState.isEnabled()) {
@@ -3613,7 +3618,7 @@ var gameanalytics;
                 GAState.instance.configsHash = initResponseDict["configs_hash"] ? initResponseDict["configs_hash"] : "";
                 GAState.instance.abId = initResponseDict["ab_id"] ? initResponseDict["ab_id"] : "";
                 GAState.instance.abVariantId = initResponseDict["ab_variant_id"] ? initResponseDict["ab_variant_id"] : "";
-                GAStore.setItem(GAState.SdkConfigCachedKey, GAUtilities.encode64(JSON.stringify(initResponseDict)));
+                GAStore.setItem(GAState.getGameKey(), GAState.SdkConfigCachedKey, GAUtilities.encode64(JSON.stringify(initResponseDict)));
                 GAState.instance.sdkConfigCached = initResponseDict;
                 GAState.instance.sdkConfig = initResponseDict;
                 GAState.instance.initAuthorized = true;

@@ -97,9 +97,9 @@ declare module gameanalytics {
         }
     }
 }
-declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
-declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
-declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
+export declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
+export declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
+export declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
 declare module gameanalytics {
     module logging {
         class GALogger {
@@ -279,7 +279,8 @@ declare module gameanalytics {
             private sessionsStore;
             private progressionStore;
             private storeItems;
-            private static readonly KeyPrefix;
+            private static readonly StringFormat;
+            private static readonly KeyFormat;
             private static readonly EventsStoreKey;
             private static readonly SessionsStoreKey;
             private static readonly ProgressionStoreKey;
@@ -295,10 +296,10 @@ declare module gameanalytics {
             static insert(store: EGAStore, newEntry: {
                 [key: string]: any;
             }, replace?: boolean, replaceKey?: string): void;
-            static save(): void;
-            static load(): void;
-            static setItem(key: string, value: string): void;
-            static getItem(key: string): string;
+            static save(gameKey: string): void;
+            static load(gameKey: string): void;
+            static setItem(gameKey: string, key: string, value: string): void;
+            static getItem(gameKey: string, key: string): string;
             private static getStore;
         }
     }
@@ -615,4 +616,6 @@ declare module gameanalytics {
         private static isSdkReady;
     }
 }
-declare var GameAnalytics: typeof gameanalytics.GameAnalytics.gaCommand;
+declare var GameAnalyticsCommand: typeof gameanalytics.GameAnalytics.gaCommand;
+export declare var GameAnalytics: typeof gameanalytics.GameAnalytics;
+export default GameAnalytics;
