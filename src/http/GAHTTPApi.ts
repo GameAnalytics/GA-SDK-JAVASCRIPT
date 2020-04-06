@@ -108,9 +108,6 @@ module gameanalytics
                     return;
                 }
 
-                var gameKey:string = GAState.getGameKey();
-                var secretKey:string = GAState.getGameSecret();
-
                 // Validate
                 if (!GAValidator.validateSdkErrorEvent(gameKey, secretKey, category, area, action))
                 {

@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.0.10**
+* fixed bug to not send events from games on the same domain
+
 **4.0.9**
 * added better internal error reporting
 

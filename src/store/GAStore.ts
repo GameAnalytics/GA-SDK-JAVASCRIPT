@@ -27,7 +27,8 @@ module gameanalytics
             private sessionsStore:Array<{[key:string]: any}> = [];
             private progressionStore:Array<{[key:string]: any}> = [];
             private storeItems:{[key:string]: any} = {};
-            private static readonly KeyPrefix:string = "GA::";
+            private static readonly StringFormat = (str:string, ...args:string[]) => str.replace(/{(\d+)}/g, (_, index:number) => args[index] || '');
+            private static readonly KeyFormat:string = "GA::{0}::{1}";
             private static readonly EventsStoreKey:string = "ga_event";
             private static readonly SessionsStoreKey:string = "ga_session";
             private static readonly ProgressionStoreKey:string = "ga_progression";
@@ -327,7 +328,7 @@ module gameanalytics
                 }
             }
 
-            public static save(): void
+            public static save(gameKey:string): void
             {
                 if(!GAStore.isStorageAvailable())
                 {
@@ -335,13 +336,13 @@ module gameanalytics
                     return;
                 }
 
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.EventsStoreKey, JSON.stringify(GAStore.instance.eventsStore));
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.SessionsStoreKey, JSON.stringify(GAStore.instance.sessionsStore));
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.ProgressionStoreKey, JSON.stringify(GAStore.instance.progressionStore));
-                localStorage.setItem(GAStore.KeyPrefix + GAStore.ItemsStoreKey, JSON.stringify(GAStore.instance.storeItems));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey), JSON.stringify(GAStore.instance.eventsStore));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey), JSON.stringify(GAStore.instance.sessionsStore));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey), JSON.stringify(GAStore.instance.progressionStore));
+                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey), JSON.stringify(GAStore.instance.storeItems));
             }
 
-            public static load(): void
+            public static load(gameKey:string): void
             {
                 if(!GAStore.isStorageAvailable())
                 {
@@ -351,7 +352,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.eventsStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.EventsStoreKey));
+                    GAStore.instance.eventsStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey)));
 
                     if(!GAStore.instance.eventsStore)
                     {
@@ -366,7 +367,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.sessionsStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.SessionsStoreKey));
+                    GAStore.instance.sessionsStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey)));
 
                     if(!GAStore.instance.sessionsStore)
                     {
@@ -381,7 +382,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.progressionStore = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.ProgressionStoreKey));
+                    GAStore.instance.progressionStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey)));
 
                     if(!GAStore.instance.progressionStore)
                     {
@@ -396,7 +397,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.storeItems = JSON.parse(localStorage.getItem(GAStore.KeyPrefix + GAStore.ItemsStoreKey));
+                    GAStore.instance.storeItems = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey)));
 
                     if(!GAStore.instance.storeItems)
                     {
@@ -410,9 +411,9 @@ module gameanalytics
                 }
             }
 
-            public static setItem(key:string, value:string): void
+            public static setItem(gameKey:string, key:string, value:string): void
             {
-                var keyWithPrefix:string = GAStore.KeyPrefix + key;
+                var keyWithPrefix:string = GAStore.StringFormat(GAStore.KeyFormat, gameKey, key);
 
                 if(!value)
                 {
@@ -427,9 +428,9 @@ module gameanalytics
                 }
             }
 
-            public static getItem(key:string): string
+            public static getItem(gameKey:string, key:string): string
             {
-                var keyWithPrefix:string = GAStore.KeyPrefix + key;
+                var keyWithPrefix:string = GAStore.StringFormat(GAStore.KeyFormat, gameKey, key);
                 if(keyWithPrefix in GAStore.instance.storeItems)
                 {
                     return GAStore.instance.storeItems[keyWithPrefix] as string;

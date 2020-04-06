@@ -42,7 +42,7 @@ module gameanalytics
 
                 // Increment session number  and persist
                 GAState.incrementSessionNum();
-                GAStore.setItem(GAState.SessionNumKey, GAState.getSessionNum().toString());
+                GAStore.setItem(GAState.getGameKey(), GAState.SessionNumKey, GAState.getSessionNum().toString());
 
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
@@ -114,7 +114,7 @@ module gameanalytics
 
                 // Increment transaction number and persist
                 GAState.incrementTransactionNum();
-                GAStore.setItem(GAState.TransactionNumKey, GAState.getTransactionNum().toString());
+                GAStore.setItem(GAState.getGameKey(), GAState.TransactionNumKey, GAState.getTransactionNum().toString());
 
                 // Required
                 eventDict["event_id"] = itemType + ":" + itemId;
@@ -615,7 +615,7 @@ module gameanalytics
 
                     if(GAStore.isStorageAvailable())
                     {
-                        GAStore.save();
+                        GAStore.save(GAState.getGameKey());
                     }
                 }
                 catch (e)
@@ -638,7 +638,7 @@ module gameanalytics
 
                     if(GAStore.isStorageAvailable())
                     {
-                        GAStore.save();
+                        GAStore.save(GAState.getGameKey());
                     }
                 }
             }

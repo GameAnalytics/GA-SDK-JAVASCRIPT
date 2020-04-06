@@ -1,7 +1,7 @@
 {
     "name": "gameanalytics",
     "author": "GameAnalytics",
-    "version": "4.0.9",
+    "version": "4.0.10",
     "description": "Official JavaScript SDK for GameAnalytics. GameAnalytics is a free analytics platform that helps game developers understand their players' behaviour by delivering relevant insights.",
     "keywords": [
         "GameAnalytics",
@@ -34,6 +34,7 @@
         "karma": "^4.4.1",
         "karma-jasmine": "^2.5.2 || 1.x",
         "karma-phantomjs-launcher": "^1.0.2",
+        "kind-of": "^6.0.3",
         "lodash": "^4.17.13",
         "lodash.template": "^4.5.0",
         "minimatch": "^3.0.4",
