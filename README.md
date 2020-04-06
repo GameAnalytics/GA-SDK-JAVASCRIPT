@@ -14,6 +14,7 @@ Changelog
 <!--(CHANGELOG_TOP)-->
 **4.0.10**
 * fixed bug to not send stored events from previous sessions (offline events or session end events not sent yet) by games on the same domain
+* this bug fix can potentially affect metrics slightly so be aware of this as old stored events in games will not be sent with this new fix because internal keys for storing events in localstorage have changed now
 
 **4.0.9**
 * added better internal error reporting
