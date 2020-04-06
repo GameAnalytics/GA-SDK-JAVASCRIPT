@@ -13,7 +13,7 @@ Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
 **4.0.10**
-* fixed bug to not send events from games on the same domain
+* fixed bug to not send stored events from previous sessions (offline events or session end events not sent yet) by games on the same domain
 
 **4.0.9**
 * added better internal error reporting
