@@ -32,7 +32,7 @@
         "gulp-uglify": "^3.0.2",
         "jasmine": "^3.5.0",
         "karma": "^4.4.1",
-        "karma-jasmine": "^2.5.2 || 1.x",
+        "karma-jasmine": "^3.1.1",
         "karma-phantomjs-launcher": "^1.0.2",
         "kind-of": "^6.0.3",
         "lodash": "^4.17.13",
