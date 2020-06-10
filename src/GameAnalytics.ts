@@ -62,6 +62,11 @@ module gameanalytics
                     GameAnalytics.gaCommand.apply(null, q[i]);
                 }
             }
+
+            window.addEventListener("beforeunload", () => {
+                console.log('addEventListener unload');
+                GAThreading.endSessionAndStopQueue();
+            });
         }
 
         public static gaCommand(...args: any[]): void

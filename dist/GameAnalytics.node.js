@@ -3231,6 +3231,10 @@ var gameanalytics;
                     GameAnalytics.gaCommand.apply(null, q[i]);
                 }
             }
+            window.addEventListener("beforeunload", function () {
+                console.log('addEventListener unload');
+                GAThreading.endSessionAndStopQueue();
+            });
         };
         GameAnalytics.gaCommand = function () {
             var args = [];
