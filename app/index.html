@@ -25,13 +25,13 @@
         <script type="text/javascript" src='../dist/GameAnalytics.debug.js'></script>
         <script type="text/javascript">
             var listener = {
-                onCommandCenterUpdated: function() {
-                    console.log("onCommandCenterUpdated called");
+                onRemoteConfigsUpdated: function() {
+                    console.log("onRemoteConfigsUpdated called");
                 }
             };
             GameAnalytics("setEnabledInfoLog", true);
             GameAnalytics("setEnabledVerboseLog", true);
-            GameAnalytics("addCommandCenterListener", listener);
+            GameAnalytics("addRemoteConfigsListener", listener);
             //GameAnalytics("removeCommandCenterListener", listener);
             GameAnalytics("configureAvailableCustomDimensions01", ["ninja", "samurai"]);
             GameAnalytics("setEventProcessInterval", 15);
@@ -39,5 +39,6 @@
             //GameAnalytics("initialize", "5c6bcb5402204249437fb5a7a80a4959", "16813a12f718bc5c620f56944e1abc3ea13ccbac");
             GameAnalytics("addDesignEvent", "test");
         </script>
+        <p>GA JavaScript SDK test app</p>
     </body>
 </html>
