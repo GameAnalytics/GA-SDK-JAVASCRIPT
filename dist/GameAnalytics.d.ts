@@ -18,6 +18,31 @@ declare module gameanalytics {
         Source = 1,
         Sink = 2
     }
+    enum EGAAdAction {
+        Undefined = 0,
+        Clicked = 1,
+        Show = 2,
+        FailedShow = 3,
+        RewardReceived = 4
+    }
+    enum EGAAdError {
+        Undefined = 0,
+        Unknown = 1,
+        Offline = 2,
+        NoFill = 3,
+        InternalError = 4,
+        InvalidRequest = 5,
+        UnableToPrecache = 6
+    }
+    enum EGAAdType {
+        Undefined = 0,
+        Video = 1,
+        RewardedVideo = 2,
+        Playable = 3,
+        Interstitial = 4,
+        OfferWall = 5,
+        Banner = 6
+    }
     module http {
         enum EGAHTTPApiResponse {
             NoResponse = 0,
@@ -52,7 +77,8 @@ declare module gameanalytics {
             InitHttp = 9,
             EventsHttp = 10,
             ProcessEvents = 11,
-            AddEventsToStore = 12
+            AddEventsToStore = 12,
+            AdEvent = 20
         }
         enum EGASdkErrorAction {
             Undefined = 0,
@@ -76,7 +102,10 @@ declare module gameanalytics {
             DatabaseOpenOrCreate = 19,
             JsonError = 25,
             FailHttpJsonDecode = 29,
-            FailHttpJsonEncode = 30
+            FailHttpJsonEncode = 30,
+            InvalidAdAction = 31,
+            InvalidAdType = 32,
+            InvalidString = 33
         }
         enum EGASdkErrorParameter {
             Undefined = 0,
@@ -93,7 +122,11 @@ declare module gameanalytics {
             EventId = 11,
             ProgressionStatus = 12,
             Severity = 13,
-            Message = 14
+            Message = 14,
+            AdAction = 15,
+            AdType = 16,
+            AdSdkName = 17,
+            AdPlacement = 18
         }
     }
 }
@@ -156,6 +189,7 @@ declare module gameanalytics {
             static validateProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string): ValidationResult;
             static validateDesignEvent(eventId: string): ValidationResult;
             static validateErrorEvent(severity: EGAErrorSeverity, message: string): ValidationResult;
+            static validateAdEvent(adAction: EGAAdAction, adType: EGAAdType, adSdkName: string, adPlacement: string): ValidationResult;
             static validateSdkErrorEvent(gameKey: string, gameSecret: string, category: EGASdkErrorCategory, area: EGASdkErrorArea, action: EGASdkErrorAction): boolean;
             static validateKeys(gameKey: string, gameSecret: string): boolean;
             static validateCurrency(currency: string): boolean;
@@ -500,6 +534,7 @@ declare module gameanalytics {
             private static readonly CategoryProgression;
             private static readonly CategoryResource;
             private static readonly CategoryError;
+            private static readonly CategoryAds;
             private static readonly MaxEventCount;
             private constructor();
             static addSessionStartEvent(): void;
@@ -519,6 +554,9 @@ declare module gameanalytics {
             static addErrorEvent(severity: EGAErrorSeverity, message: string, fields: {
                 [id: string]: any;
             }): void;
+            static addAdEvent(adAction: EGAAdAction, adType: EGAAdType, adSdkName: string, adPlacement: string, noAdReason: EGAAdError, duration: number, sendDuration: boolean, fields: {
+                [id: string]: any;
+            }): void;
             static processEvents(category: string, performCleanUp: boolean): void;
             private static processEventsCallback;
             private static cleanupEvents;
@@ -530,6 +568,9 @@ declare module gameanalytics {
             private static resourceFlowTypeToString;
             private static progressionStatusToString;
             private static errorSeverityToString;
+            private static adActionToString;
+            private static adErrorToString;
+            private static adTypeToString;
         }
     }
 }
@@ -586,6 +627,9 @@ declare module gameanalytics {
         static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: any): void;
         static addDesignEvent(eventId: string, value?: any): void;
         static addErrorEvent(severity?: EGAErrorSeverity, message?: string): void;
+        static addAdEventWithNoAdReason(adAction?: EGAAdAction, adType?: EGAAdType, adSdkName?: string, adPlacement?: string, noAdReason?: EGAAdError): void;
+        static addAdEventWithDuration(adAction?: EGAAdAction, adType?: EGAAdType, adSdkName?: string, adPlacement?: string, duration?: number): void;
+        static addAdEvent(adAction?: EGAAdAction, adType?: EGAAdType, adSdkName?: string, adPlacement?: string): void;
         static setEnabledInfoLog(flag?: boolean): void;
         static setEnabledVerboseLog(flag?: boolean): void;
         static setEnabledManualSessionHandling(flag?: boolean): void;

@@ -25,6 +25,37 @@ module gameanalytics
         Sink = 2
     }
 
+    export enum EGAAdAction
+    {
+        Undefined = 0,
+        Clicked = 1,
+        Show = 2,
+        FailedShow = 3,
+        RewardReceived = 4
+    }
+
+    export enum EGAAdError
+    {
+        Undefined = 0,
+        Unknown = 1,
+        Offline = 2,
+        NoFill = 3,
+        InternalError = 4,
+        InvalidRequest = 5,
+        UnableToPrecache = 6
+    }
+
+    export enum EGAAdType
+    {
+        Undefined = 0,
+        Video = 1,
+        RewardedVideo = 2,
+        Playable = 3,
+        Interstitial = 4,
+        OfferWall = 5,
+        Banner = 6
+    }
+
     export module http
     {
         export enum EGAHTTPApiResponse
@@ -68,7 +99,8 @@ module gameanalytics
             InitHttp = 9,
             EventsHttp = 10,
             ProcessEvents = 11,
-            AddEventsToStore = 12
+            AddEventsToStore = 12,
+            AdEvent = 20
         }
 
         export enum EGASdkErrorAction
@@ -94,7 +126,10 @@ module gameanalytics
             DatabaseOpenOrCreate = 19,
             JsonError = 25,
             FailHttpJsonDecode = 29,
-            FailHttpJsonEncode = 30
+            FailHttpJsonEncode = 30,
+            InvalidAdAction = 31,
+            InvalidAdType = 32,
+            InvalidString = 33
         }
 
         export enum EGASdkErrorParameter
@@ -113,7 +148,11 @@ module gameanalytics
             EventId = 11,
             ProgressionStatus = 12,
             Severity = 13,
-            Message = 14
+            Message = 14,
+            AdAction = 15,
+            AdType = 16,
+            AdSdkName = 17,
+            AdPlacement = 18
         }
     }
 }

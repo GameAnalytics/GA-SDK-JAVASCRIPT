@@ -234,6 +234,31 @@ module gameanalytics
                 return null;
             }
 
+            public static validateAdEvent(adAction:EGAAdAction, adType:EGAAdType, adSdkName:string, adPlacement:string): ValidationResult
+            {
+                if (adAction == EGAAdAction.Undefined)
+                {
+                    GALogger.w("Validation fail - error event - severity: Severity was unsupported value.");
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.AdEvent, EGASdkErrorAction.InvalidAdAction, EGASdkErrorParameter.AdAction, "");
+                }
+                if (adType == EGAAdType.Undefined)
+                {
+                    GALogger.w("Validation fail - ad event - adType: Ad type was unsupported value.");
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.AdEvent, EGASdkErrorAction.InvalidAdType, EGASdkErrorParameter.AdType, "");
+                }
+                if (!GAValidator.validateShortString(adSdkName, false))
+                {
+                    GALogger.w("Validation fail - ad event - message: Ad SDK name cannot be above 32 characters.");
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.AdEvent, EGASdkErrorAction.InvalidShortString, EGASdkErrorParameter.AdSdkName, adSdkName);
+                }
+                if (!GAValidator.validateString(adPlacement, false))
+                {
+                    GALogger.w("Validation fail - ad event - message: Ad placement cannot be above 64 characters.");
+                    return new ValidationResult(EGASdkErrorCategory.EventValidation, EGASdkErrorArea.AdEvent, EGASdkErrorAction.InvalidString, EGASdkErrorParameter.AdPlacement, adPlacement);
+                }
+                return null;
+            }
+
             public static validateSdkErrorEvent(gameKey:string, gameSecret:string, category:EGASdkErrorCategory, area:EGASdkErrorArea, action:EGASdkErrorAction): boolean
             {
                 if(!GAValidator.validateKeys(gameKey, gameSecret))

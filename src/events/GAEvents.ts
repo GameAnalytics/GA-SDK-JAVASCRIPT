@@ -22,6 +22,7 @@ module gameanalytics
             private static readonly CategoryProgression:string = "progression";
             private static readonly CategoryResource:string = "resource";
             private static readonly CategoryError:string = "error";
+            private static readonly CategoryAds:string = "ads";
             private static readonly MaxEventCount:number = 500;
 
             private constructor()
@@ -336,6 +337,59 @@ module gameanalytics
 
                 // Log
                 GALogger.i("Add ERROR event: {severity:" + severityString + ", message:" + message + "}");
+
+                // Send to store
+                GAEvents.addEventToStore(eventData);
+            }
+
+            public static addAdEvent(adAction:EGAAdAction, adType:EGAAdType, adSdkName:string, adPlacement:string, noAdReason:EGAAdError, duration:number, sendDuration:boolean, fields:{[id:string]: any}): void
+            {
+                if(!GAState.isEventSubmissionEnabled())
+                {
+                    return;
+                }
+
+                var adActionString:string = GAEvents.adActionToString(adAction);
+                var adTypeString:string = GAEvents.adTypeToString(adType);
+                var noAdReasonString:string = GAEvents.adErrorToString(noAdReason);
+
+                // Validate
+                var validationResult:ValidationResult = GAValidator.validateAdEvent(adAction, adType, adSdkName, adPlacement);
+                if (validationResult != null)
+                {
+                    GAHTTPApi.instance.sendSdkErrorEvent(validationResult.category, validationResult.area, validationResult.action, validationResult.parameter, validationResult.reason, GAState.getGameKey(), GAState.getGameSecret());
+                    return;
+                }
+
+                // Create empty eventData
+                var eventData:{[key:string]: any} = {};
+
+                // Append event specifics
+                eventData["category"] = GAEvents.CategoryAds;
+                eventData["ad_sdk_name"] = adSdkName;
+                eventData["ad_placement"] = adPlacement;
+                eventData["ad_type"] = adTypeString;
+                eventData["ad_action"] = adActionString;
+
+                if(adAction == EGAAdAction.FailedShow && noAdReasonString.length > 0)
+                {
+                    eventData["ad_fail_show_reason"] = noAdReasonString;
+                }
+
+                if(sendDuration && (adType == EGAAdType.RewardedVideo || adType == EGAAdType.Video))
+                {
+                    eventData["ad_duration"] = duration;
+                }
+
+                // Add custom dimensions
+                GAEvents.addDimensionsToEvent(eventData);
+
+                GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
+
+                // Log
+                GALogger.i("Add AD event: {ad_sdk_name:" + adSdkName + ", ad_placement:" + adPlacement + ", ad_type:" + adTypeString + ", ad_action:" + adActionString +
+                    ((adAction == EGAAdAction.FailedShow && noAdReasonString.length > 0) ? (", ad_fail_show_reason:" + noAdReasonString) : "") +
+                    ((sendDuration && (adType == EGAAdType.RewardedVideo || adType == EGAAdType.Video)) ? (", ad_duration:" + duration) : "") + "}");
 
                 // Send to store
                 GAEvents.addEventToStore(eventData);
@@ -734,6 +788,94 @@ module gameanalytics
                 else if(value == EGAErrorSeverity.Critical || value == EGAErrorSeverity[EGAErrorSeverity.Critical])
                 {
                     return "critical";
+                }
+                else
+                {
+                    return "";
+                }
+            }
+
+            private static adActionToString(value:any): string
+            {
+                if(value == EGAAdAction.Clicked || value == EGAAdAction[EGAAdAction.Clicked])
+                {
+                    return "clicked";
+                }
+                else if(value == EGAAdAction.Show || value == EGAAdAction[EGAAdAction.Show])
+                {
+                    return "show";
+                }
+                else if(value == EGAAdAction.FailedShow || value == EGAAdAction[EGAAdAction.FailedShow])
+                {
+                    return "failed_show";
+                }
+                else if(value == EGAAdAction.RewardReceived || value == EGAAdAction[EGAAdAction.RewardReceived])
+                {
+                    return "reward_recevied";
+                }
+                else
+                {
+                    return "";
+                }
+            }
+
+            private static adErrorToString(value:any): string
+            {
+                if(value == EGAAdError.Unknown || value == EGAAdError[EGAAdError.Unknown])
+                {
+                    return "unknown";
+                }
+                else if(value == EGAAdError.Offline || value == EGAAdError[EGAAdError.Offline])
+                {
+                    return "offline";
+                }
+                else if(value == EGAAdError.NoFill || value == EGAAdError[EGAAdError.NoFill])
+                {
+                    return "no_fill";
+                }
+                else if(value == EGAAdError.InternalError || value == EGAAdError[EGAAdError.InternalError])
+                {
+                    return "internal_error";
+                }
+                else if(value == EGAAdError.InvalidRequest || value == EGAAdError[EGAAdError.InvalidRequest])
+                {
+                    return "invalid_request";
+                }
+                else if(value == EGAAdError.UnableToPrecache || value == EGAAdError[EGAAdError.UnableToPrecache])
+                {
+                    return "unable_to_precache";
+                }
+                else
+                {
+                    return "";
+                }
+            }
+
+            private static adTypeToString(value:any): string
+            {
+                if(value == EGAAdType.Video || value == EGAAdType[EGAAdType.Video])
+                {
+                    return "video";
+                }
+                else if(value == EGAAdType.RewardedVideo || value == EGAAdError[EGAAdType.RewardedVideo])
+                {
+                    return "rewarded_video";
+                }
+                else if(value == EGAAdType.Playable || value == EGAAdError[EGAAdType.Playable])
+                {
+                    return "playable";
+                }
+                else if(value == EGAAdType.Interstitial || value == EGAAdError[EGAAdType.Interstitial])
+                {
+                    return "interstitial";
+                }
+                else if(value == EGAAdType.OfferWall || value == EGAAdError[EGAAdType.OfferWall])
+                {
+                    return "offer_wall";
+                }
+                else if(value == EGAAdType.Banner || value == EGAAdError[EGAAdType.Banner])
+                {
+                    return "banner";
                 }
                 else
                 {
