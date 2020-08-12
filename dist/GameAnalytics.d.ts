@@ -130,9 +130,9 @@ declare module gameanalytics {
         }
     }
 }
-declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
-declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
-declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
+export declare var EGAErrorSeverity: typeof gameanalytics.EGAErrorSeverity;
+export declare var EGAProgressionStatus: typeof gameanalytics.EGAProgressionStatus;
+export declare var EGAResourceFlowType: typeof gameanalytics.EGAResourceFlowType;
 declare module gameanalytics {
     module logging {
         class GALogger {
@@ -660,4 +660,6 @@ declare module gameanalytics {
         private static isSdkReady;
     }
 }
-declare var GameAnalytics: typeof gameanalytics.GameAnalytics.gaCommand;
+declare var GameAnalyticsCommand: typeof gameanalytics.GameAnalytics.gaCommand;
+export declare var GameAnalytics: typeof gameanalytics.GameAnalytics;
+export default GameAnalytics;
