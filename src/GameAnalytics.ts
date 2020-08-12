@@ -335,6 +335,48 @@ module gameanalytics
             });
         }
 
+        public static addAdEventWithNoAdReason(adAction:EGAAdAction = EGAAdAction.Undefined, adType:EGAAdType = EGAAdType.Undefined, adSdkName:string = "", adPlacement:string = "", noAdReason:EGAAdError = EGAAdError.Undefined): void
+        {
+            GADevice.updateConnectionType();
+
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event"))
+                {
+                    return;
+                }
+                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, noAdReason, 0, false, {});
+            });
+        }
+
+        public static addAdEventWithDuration(adAction:EGAAdAction = EGAAdAction.Undefined, adType:EGAAdType = EGAAdType.Undefined, adSdkName:string = "", adPlacement:string = "", duration:number = 0): void
+        {
+            GADevice.updateConnectionType();
+
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event"))
+                {
+                    return;
+                }
+                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, duration, true, {});
+            });
+        }
+
+        public static addAdEvent(adAction:EGAAdAction = EGAAdAction.Undefined, adType:EGAAdType = EGAAdType.Undefined, adSdkName:string = "", adPlacement:string = ""): void
+        {
+            GADevice.updateConnectionType();
+
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event"))
+                {
+                    return;
+                }
+                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, 0, false, {});
+            });
+        }
+
         public static setEnabledInfoLog(flag:boolean = false): void
         {
             GAThreading.performTaskOnGAThread(() =>
