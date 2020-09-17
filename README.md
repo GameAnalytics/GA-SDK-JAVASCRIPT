@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.1.1**
+* added support for KaiOS
+
 **4.1.0**
 * added ad event
 
