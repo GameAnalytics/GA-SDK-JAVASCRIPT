@@ -30,7 +30,7 @@ module gameanalytics
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 4.1.1";
+            private static readonly sdkWrapperVersion:string = "javascript 4.1.2";
             private static readonly osVersionPair:NameVersion = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -47,7 +47,7 @@ module gameanalytics
                 new NameValueVersion("mac_osx", "Mac", "OS X"),
                 new NameValueVersion("tizen", "Tizen", "Tizen"),
                 new NameValueVersion("linux", "Linux", "rv"),
-                new NameValueVersion("kai_os", "KAIOS", "/")
+                new NameValueVersion("kai_os", "KAIOS", "KAIOS")
             ]);
 
             public static readonly buildPlatform:string = GADevice.runtimePlatformToString();
