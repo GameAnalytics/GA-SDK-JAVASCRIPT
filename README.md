@@ -12,6 +12,12 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.1.4**
+* corrected ad event annotation
+
+**4.1.3**
+* added godot to version validator
+
 **4.1.2**
 * small correction for support for KaiOS
 
