@@ -13,6 +13,9 @@ Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
 **4.1.3**
+* corrected ad event annotation
+
+**4.1.3**
 * added godot to version validator
 
 **4.1.2**

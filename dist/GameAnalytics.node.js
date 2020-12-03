@@ -3110,7 +3110,7 @@ var gameanalytics;
                     return "failed_show";
                 }
                 else if (value == gameanalytics.EGAAdAction.RewardReceived || value == gameanalytics.EGAAdAction[gameanalytics.EGAAdAction.RewardReceived]) {
-                    return "reward_recevied";
+                    return "reward_received";
                 }
                 else {
                     return "";

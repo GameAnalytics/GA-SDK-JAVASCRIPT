@@ -811,7 +811,7 @@ module gameanalytics
                 }
                 else if(value == EGAAdAction.RewardReceived || value == EGAAdAction[EGAAdAction.RewardReceived])
                 {
-                    return "reward_recevied";
+                    return "reward_received";
                 }
                 else
                 {
