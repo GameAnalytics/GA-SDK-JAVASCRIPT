@@ -30,7 +30,7 @@ module gameanalytics
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 4.1.3";
+            private static readonly sdkWrapperVersion:string = "javascript 4.1.4";
             private static readonly osVersionPair:NameVersion = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,

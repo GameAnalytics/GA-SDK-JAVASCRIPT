@@ -12,7 +12,7 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
-**4.1.3**
+**4.1.4**
 * corrected ad event annotation
 
 **4.1.3**
