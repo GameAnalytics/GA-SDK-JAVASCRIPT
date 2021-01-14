@@ -20,7 +20,7 @@ module gameanalytics
                 }
             });
             private readonly id2TimedBlockMap:{[key:number]: TimedBlock} = {};
-            private static runTimeoutId:number;
+            private static runTimeoutId:NodeJS.Timeout;
             private static readonly ThreadWaitTimeInMs:number = 1000;
             private static ProcessEventsIntervalInSeconds:number = 8.0;
             private keepRunning:boolean;
