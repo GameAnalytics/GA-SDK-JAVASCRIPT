@@ -113,6 +113,14 @@ var ga_node = function() {
 };
 gulp.task('ga_node', gulp.series(gulp.parallel('bundle_js', 'build_normal'), ga_node));
 
+var construct = function () {
+    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+        .pipe(concat('GameAnalytics.construct.js'))
+        .pipe(insert.wrap("'use strict';\n", "globalThis.gameanalytics = gameanalytics;"))
+        .pipe(gulp.dest('./dist'));
+};
+gulp.task('construct', gulp.series(gulp.parallel('bundle_js', 'build_normal'), construct));
+
 var debug = function() {
     return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.debug.js'])
         .pipe(concat('GameAnalytics.debug.js'))
@@ -121,4 +129,4 @@ var debug = function() {
 };
 gulp.task('debug', gulp.series(gulp.parallel('bundle_min_js', 'build_debug'), debug));
 
-gulp.task('default', gulp.series('debug', 'mini', 'unity', 'ga_node', 'normal', 'declaration'));
+gulp.task('default', gulp.series('debug', 'mini', 'unity', 'ga_node', 'construct', 'normal', 'declaration'));

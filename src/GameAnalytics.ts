@@ -17,6 +17,15 @@ module gameanalytics
         private static initTimedBlockId:number = -1;
         public static methodMap:{[id:string]: (...args: any[]) => void} = {};
 
+        private static getGlobalObject(): any
+        {
+            if (typeof globalThis !== 'undefined') { return globalThis; }
+            if (typeof self !== 'undefined') { return self; }
+            if (typeof window !== 'undefined') { return window; }
+            if (typeof global !== 'undefined') { return global; }
+            return undefined;
+        }
+
         public static init(): void
         {
             GADevice.touch();
@@ -54,9 +63,9 @@ module gameanalytics
             GameAnalytics.methodMap['isRemoteConfigsReady'] = GameAnalytics.isRemoteConfigsReady;
             GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
 
-            if(typeof window !== 'undefined' && typeof window['GameAnalytics'] !== 'undefined' && typeof window['GameAnalytics']['q'] !== 'undefined')
+            if (typeof GameAnalytics.getGlobalObject() !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics'] !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics']['q'] !== 'undefined')
             {
-                var q:any[] = window['GameAnalytics']['q'];
+                var q: any[] = GameAnalytics.getGlobalObject()['GameAnalytics']['q'];
                 for (let i in q)
                 {
                     GameAnalytics.gaCommand.apply(null, q[i]);
