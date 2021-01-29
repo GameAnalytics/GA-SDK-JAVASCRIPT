@@ -1134,7 +1134,7 @@ var gameanalytics;
                 return true;
             };
             GAValidator.validateClientTs = function (clientTs) {
-                if (clientTs < (-4294967295 + 1) || clientTs > (4294967295 - 1)) {
+                if (clientTs < (0) || clientTs > (99999999999)) {
                     return false;
                 }
                 return true;
@@ -2899,6 +2899,11 @@ var gameanalytics;
                         var ev = events[i];
                         var eventDict = JSON.parse(GAUtilities.decode64(ev["event"]));
                         if (eventDict.length != 0) {
+                            var clientTs = eventDict["client_ts"];
+                            if (clientTs && !GAValidator.validateClientTs(clientTs)) {
+                                delete eventDict["client_ts"];
+                            }
+                            GALogger.i("eventDict=" + JSON.stringify(eventDict));
                             payloadArray.push(eventDict);
                         }
                     }

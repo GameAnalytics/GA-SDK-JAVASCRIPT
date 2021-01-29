@@ -610,6 +610,7 @@ declare module gameanalytics {
         static methodMap: {
             [id: string]: (...args: any[]) => void;
         };
+        private static getGlobalObject;
         static init(): void;
         static gaCommand(...args: any[]): void;
         static configureAvailableCustomDimensions01(customDimensions?: Array<string>): void;
