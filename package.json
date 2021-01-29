@@ -32,7 +32,7 @@
         "gulp-uglify": "^3.0.2",
         "ini": "^2.0.0",
         "jasmine": "^3.6.4",
-        "karma": "^6.0.0",
+        "karma": "^6.0.3",
         "karma-chrome-launcher": "^3.1.0",
         "karma-jasmine": "^4.0.1",
         "kind-of": "^6.0.3",

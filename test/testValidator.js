@@ -468,22 +468,22 @@ describe("Validator", function () {
 
         it("should be valid client ts", function() {
             expect(GAValidator.validateClientTs(GAUtilities.timeIntervalSince1970())).toEqual(true);
+            expect(GAValidator.validateClientTs(4294967295)).toEqual(true);
         });
 
         it("should be invalid client ts", function() {
             expect(GAValidator.validateClientTs(-4294967295)).toEqual(false);
-            expect(GAValidator.validateClientTs(4294967295)).toEqual(false);
         });
     });
 
     describe("UserId", function () {
         var GAValidator = gameanalytics.validators.GAValidator;
 
-        it("should be valid client ts", function() {
+        it("should be valid user id", function() {
             expect(GAValidator.validateUserId("fhjkdfghdfjkgh")).toEqual(true);
         });
 
-        it("should be invalid client ts", function() {
+        it("should be invalid user id", function() {
             expect(GAValidator.validateUserId("")).toEqual(false);
             expect(GAValidator.validateUserId(null)).toEqual(false);
             expect(GAValidator.validateUserId(undefined)).toEqual(false);
