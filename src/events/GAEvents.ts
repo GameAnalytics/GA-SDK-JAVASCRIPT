@@ -489,7 +489,6 @@ module gameanalytics
                             {
                                 delete eventDict["client_ts"];
                             }
-                            GALogger.i("eventDict=" + JSON.stringify(eventDict));
                             payloadArray.push(eventDict);
                         }
                     }

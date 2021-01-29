@@ -1274,7 +1274,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.1.5";
+            GADevice.sdkWrapperVersion = "javascript 4.1.6";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -2902,7 +2902,6 @@ var gameanalytics;
                             if (clientTs && !GAValidator.validateClientTs(clientTs)) {
                                 delete eventDict["client_ts"];
                             }
-                            GALogger.i("eventDict=" + JSON.stringify(eventDict));
                             payloadArray.push(eventDict);
                         }
                     }
