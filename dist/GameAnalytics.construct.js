@@ -1275,7 +1275,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.1.4";
+            GADevice.sdkWrapperVersion = "javascript 4.1.5";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
