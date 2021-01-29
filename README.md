@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.1.6**
+* removed unused logs
+
 **4.1.5**
 * updated client ts validator
 
