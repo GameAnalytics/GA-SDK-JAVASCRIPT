@@ -1,3 +1,4 @@
+'use strict';
 /*
 CryptoJS v3.1.2
 code.google.com/p/crypto-js
@@ -3930,3 +3931,4 @@ var gameanalytics;
 })(gameanalytics || (gameanalytics = {}));
 gameanalytics.GameAnalytics.init();
 var GameAnalytics = gameanalytics.GameAnalytics.gaCommand;
+globalThis.gameanalytics = gameanalytics;

@@ -1,7 +1,7 @@
 {
     "name": "gameanalytics",
     "author": "GameAnalytics",
-    "version": "4.1.4",
+    "version": "4.1.5",
     "description": "Official JavaScript SDK for GameAnalytics. GameAnalytics is a free analytics platform that helps game developers understand their players' behaviour by delivering relevant insights.",
     "keywords": [
         "GameAnalytics",
@@ -31,8 +31,8 @@
         "gulp-typescript": "^5.0.1",
         "gulp-uglify": "^3.0.2",
         "ini": "^2.0.0",
-        "jasmine": "^3.6.3",
-        "karma": "^6.0.0",
+        "jasmine": "^3.6.4",
+        "karma": "^6.0.3",
         "karma-chrome-launcher": "^3.1.0",
         "karma-jasmine": "^4.0.1",
         "kind-of": "^6.0.3",

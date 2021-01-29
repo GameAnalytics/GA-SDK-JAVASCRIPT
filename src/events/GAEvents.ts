@@ -484,6 +484,12 @@ module gameanalytics
                         var eventDict = JSON.parse(GAUtilities.decode64(ev["event"]));
                         if (eventDict.length != 0)
                         {
+                            var clientTs: number = eventDict["client_ts"] as number;
+                            if (clientTs && !GAValidator.validateClientTs(clientTs))
+                            {
+                                delete eventDict["client_ts"];
+                            }
+                            GALogger.i("eventDict=" + JSON.stringify(eventDict));
                             payloadArray.push(eventDict);
                         }
                     }

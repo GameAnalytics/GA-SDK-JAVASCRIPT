@@ -675,7 +675,7 @@ module gameanalytics
 
             public static validateClientTs(clientTs:number): boolean
             {
-                if (clientTs < (-4294967295+1) || clientTs > (4294967295-1))
+                if (clientTs < (0) || clientTs > (99999999999))
                 {
                     return false;
                 }
