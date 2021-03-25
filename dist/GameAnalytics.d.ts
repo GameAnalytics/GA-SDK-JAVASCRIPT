@@ -358,6 +358,7 @@ declare module gameanalytics {
             static getSessionStart(): number;
             private sessionNum;
             static getSessionNum(): number;
+            isUnloading: boolean;
             private transactionNum;
             static getTransactionNum(): number;
             sessionId: string;
@@ -400,6 +401,7 @@ declare module gameanalytics {
             private configurations;
             private remoteConfigsIsReady;
             private remoteConfigsListeners;
+            private beforeUnloadListeners;
             initAuthorized: boolean;
             clientServerTimeOffset: number;
             configsHash: string;
@@ -471,6 +473,13 @@ declare module gameanalytics {
             static populateConfigurations(sdkConfig: {
                 [key: string]: any;
             }): void;
+            static addOnBeforeUnloadListener(listener: {
+                onBeforeUnload: () => void;
+            }): void;
+            static removeOnBeforeUnloadListener(listener: {
+                onBeforeUnload: () => void;
+            }): void;
+            static notifyBeforeUnloadListeners(): void;
         }
     }
 }
@@ -654,6 +663,12 @@ declare module gameanalytics {
         static getRemoteConfigsContentAsString(): string;
         static getABTestingId(): string;
         static getABTestingVariantId(): string;
+        static addOnBeforeUnloadListener(listener: {
+            onBeforeUnload: () => void;
+        }): void;
+        static removeOnBeforeUnloadListener(listener: {
+            onBeforeUnload: () => void;
+        }): void;
         private static internalInitialize;
         private static newSession;
         private static startNewSessionCallback;

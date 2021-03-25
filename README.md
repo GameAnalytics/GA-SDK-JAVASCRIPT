@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.2.0**
+* added before unload listener functions
+
 **4.1.6**
 * removed unused logs
 

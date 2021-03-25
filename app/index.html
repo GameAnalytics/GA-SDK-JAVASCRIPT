@@ -29,9 +29,16 @@
                     console.log("onRemoteConfigsUpdated called");
                 }
             };
+            var unloadListener = {
+                onBeforeUnload: function () {
+                    console.log("onBeforeUnload called");
+                    gameanalytics.GameAnalytics.addDesignEvent("test:unload");
+                }
+            };
             GameAnalytics("setEnabledInfoLog", true);
             GameAnalytics("setEnabledVerboseLog", true);
             GameAnalytics("addRemoteConfigsListener", listener);
+            GameAnalytics("addOnBeforeUnloadListener", unloadListener);
             //GameAnalytics("removeCommandCenterListener", listener);
             GameAnalytics("configureAvailableCustomDimensions01", ["ninja", "samurai"]);
             GameAnalytics("setEventProcessInterval", 15);

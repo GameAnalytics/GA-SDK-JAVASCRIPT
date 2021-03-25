@@ -22,6 +22,7 @@ module gameanalytics
             private constructor()
             {
                 this._isEventSubmissionEnabled = true;
+                this.isUnloading = false;
             }
 
             private userId:string;
@@ -58,6 +59,8 @@ module gameanalytics
             {
                 return GAState.instance.sessionNum;
             }
+
+            public isUnloading:boolean;
 
             private transactionNum:number;
             public static getTransactionNum(): number
@@ -222,6 +225,7 @@ module gameanalytics
             private configurations:{[key:string]: any} = {};
             private remoteConfigsIsReady:boolean;
             private remoteConfigsListeners:Array<{ onRemoteConfigsUpdated:() => void }> = [];
+            private beforeUnloadListeners: Array<{ onBeforeUnload: () => void }> = [];
             public initAuthorized:boolean;
             public clientServerTimeOffset:number;
             public configsHash:string;
@@ -841,6 +845,36 @@ module gameanalytics
                     if(listeners[i])
                     {
                         listeners[i].onRemoteConfigsUpdated();
+                    }
+                }
+            }
+
+            public static addOnBeforeUnloadListener(listener: { onBeforeUnload: () => void }): void
+            {
+                if (GAState.instance.beforeUnloadListeners.indexOf(listener) < 0)
+                {
+                    GAState.instance.beforeUnloadListeners.push(listener);
+                }
+            }
+
+            public static removeOnBeforeUnloadListener(listener: { onBeforeUnload: () => void }): void
+            {
+                var index = GAState.instance.beforeUnloadListeners.indexOf(listener);
+                if (index > -1)
+                {
+                    GAState.instance.beforeUnloadListeners.splice(index, 1);
+                }
+            }
+
+            public static notifyBeforeUnloadListeners(): void
+            {
+                var listeners: Array<{ onBeforeUnload: () => void }> = GAState.instance.beforeUnloadListeners;
+
+                for (let i = 0; i < listeners.length; ++i)
+                {
+                    if (listeners[i])
+                    {
+                        listeners[i].onBeforeUnload();
                     }
                 }
             }
