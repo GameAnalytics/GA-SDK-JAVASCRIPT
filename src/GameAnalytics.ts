@@ -62,6 +62,8 @@ module gameanalytics
             GameAnalytics.methodMap['getRemoteConfigsValueAsString'] = GameAnalytics.getRemoteConfigsValueAsString;
             GameAnalytics.methodMap['isRemoteConfigsReady'] = GameAnalytics.isRemoteConfigsReady;
             GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
+            GameAnalytics.methodMap['addOnBeforeUnloadListener'] = GameAnalytics.addOnBeforeUnloadListener;
+            GameAnalytics.methodMap['removeOnBeforeUnloadListener'] = GameAnalytics.removeOnBeforeUnloadListener;
 
             if (typeof GameAnalytics.getGlobalObject() !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics'] !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics']['q'] !== 'undefined')
             {
@@ -72,9 +74,13 @@ module gameanalytics
                 }
             }
 
-            window.addEventListener("beforeunload", () => {
+
+            window.addEventListener("beforeunload", (e) => {
                 console.log('addEventListener unload');
+                GAState.instance.isUnloading = true;
+                GAState.notifyBeforeUnloadListeners();
                 GAThreading.endSessionAndStopQueue();
+                GAState.instance.isUnloading = false;
             });
         }
 
@@ -264,126 +270,204 @@ module gameanalytics
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if(!GAState.instance.isUnloading)
             {
-                if (!GameAnalytics.isSdkReady(true, true, "Could not add business event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add business event")) {
+                        return;
+                    }
+                    // Send to events
+                    GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add business event")) {
                     return;
                 }
                 // Send to events
                 GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, {});
-            });
+            }
         }
 
         public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if (!GAState.instance.isUnloading)
             {
-                if (!GameAnalytics.isSdkReady(true, true, "Could not add resource event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add resource event")) {
+                        return;
+                    }
+
+                    GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add resource event")) {
                     return;
                 }
 
                 GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, {});
-            });
+            }
         }
 
         public static addProgressionEvent(progressionStatus:EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01:string = "", progression02:string = "", progression03:string = "", score?:any/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if (!GAState.instance.isUnloading)
             {
-                if(!GameAnalytics.isSdkReady(true, true, "Could not add progression event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add progression event")) {
+                        return;
+                    }
+
+                    // Send to events
+                    var sendScore: boolean = typeof score === "number";
+                    // if(typeof score === "object")
+                    // {
+                    //     fields = score as {[id:string]: any};
+                    // }
+                    GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add progression event")) {
                     return;
                 }
 
                 // Send to events
-                var sendScore:boolean = typeof score === "number";
+                var sendScore: boolean = typeof score === "number";
                 // if(typeof score === "object")
                 // {
                 //     fields = score as {[id:string]: any};
                 // }
                 GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, {});
-            });
+            }
         }
 
         public static addDesignEvent(eventId:string, value?:any/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if (!GAState.instance.isUnloading)
             {
-                if(!GameAnalytics.isSdkReady(true, true, "Could not add design event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add design event")) {
+                        return;
+                    }
+                    var sendValue: boolean = typeof value === "number";
+                    // if(typeof value === "object")
+                    // {
+                    //     fields = value as {[id:string]: any};
+                    // }
+                    GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add design event")) {
                     return;
                 }
-                var sendValue:boolean = typeof value === "number";
+                var sendValue: boolean = typeof value === "number";
                 // if(typeof value === "object")
                 // {
                 //     fields = value as {[id:string]: any};
                 // }
-                GAEvents.addDesignEvent(eventId, sendValue ? value  : 0, sendValue, {});
-            });
+                GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, {});
+            }
         }
 
         public static addErrorEvent(severity:EGAErrorSeverity = EGAErrorSeverity.Undefined, message:string = ""/*, fields:{[id:string]: any} = {}*/): void
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if (!GAState.instance.isUnloading)
             {
-                if (!GameAnalytics.isSdkReady(true, true, "Could not add error event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add error event")) {
+                        return;
+                    }
+                    GAEvents.addErrorEvent(severity, message, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add error event")) {
                     return;
                 }
                 GAEvents.addErrorEvent(severity, message, {});
-            });
+            }
         }
 
         public static addAdEventWithNoAdReason(adAction:EGAAdAction = EGAAdAction.Undefined, adType:EGAAdType = EGAAdType.Undefined, adSdkName:string = "", adPlacement:string = "", noAdReason:EGAAdError = EGAAdError.Undefined): void
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if (!GAState.instance.isUnloading)
             {
-                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
+                        return;
+                    }
+                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, noAdReason, 0, false, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                     return;
                 }
                 GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, noAdReason, 0, false, {});
-            });
+            }
         }
 
         public static addAdEventWithDuration(adAction:EGAAdAction = EGAAdAction.Undefined, adType:EGAAdType = EGAAdType.Undefined, adSdkName:string = "", adPlacement:string = "", duration:number = 0): void
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if (!GAState.instance.isUnloading)
             {
-                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
+                        return;
+                    }
+                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, duration, true, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                     return;
                 }
                 GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, duration, true, {});
-            });
+            }
         }
 
         public static addAdEvent(adAction:EGAAdAction = EGAAdAction.Undefined, adType:EGAAdType = EGAAdType.Undefined, adSdkName:string = "", adPlacement:string = ""): void
         {
             GADevice.updateConnectionType();
 
-            GAThreading.performTaskOnGAThread(() =>
+            if (!GAState.instance.isUnloading)
             {
-                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event"))
-                {
+                GAThreading.performTaskOnGAThread(() => {
+                    if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
+                        return;
+                    }
+                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, 0, false, {});
+                });
+            }
+            else
+            {
+                if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                     return;
                 }
                 GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, 0, false, {});
-            });
+            }
         }
 
         public static setEnabledInfoLog(flag:boolean = false): void
@@ -586,6 +670,16 @@ module gameanalytics
         public static getABTestingVariantId():string
         {
             return GAState.getABTestingVariantId();
+        }
+
+        public static addOnBeforeUnloadListener(listener: { onBeforeUnload: () => void }): void
+        {
+            GAState.addOnBeforeUnloadListener(listener);
+        }
+
+        public static removeOnBeforeUnloadListener(listener: { onBeforeUnload: () => void }): void
+        {
+            GAState.removeOnBeforeUnloadListener(listener);
         }
 
         private static internalInitialize(): void
