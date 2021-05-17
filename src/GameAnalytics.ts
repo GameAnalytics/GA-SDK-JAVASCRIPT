@@ -44,7 +44,7 @@ module gameanalytics
             GameAnalytics.methodMap['addProgressionEvent'] = GameAnalytics.addProgressionEvent;
             GameAnalytics.methodMap['addDesignEvent'] = GameAnalytics.addDesignEvent;
             GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
-            GameAnalytics.methodMap['addErrorEvent'] = GameAnalytics.addErrorEvent;
+            GameAnalytics.methodMap['addAdEvent'] = GameAnalytics.addAdEvent;
             GameAnalytics.methodMap['setEnabledInfoLog'] = GameAnalytics.setEnabledInfoLog;
             GameAnalytics.methodMap['setEnabledVerboseLog'] = GameAnalytics.setEnabledVerboseLog;
             GameAnalytics.methodMap['setEnabledManualSessionHandling'] = GameAnalytics.setEnabledManualSessionHandling;
