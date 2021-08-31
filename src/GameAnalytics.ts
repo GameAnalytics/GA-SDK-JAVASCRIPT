@@ -327,10 +327,10 @@ module gameanalytics
 
                     // Send to events
                     var sendScore: boolean = typeof score === "number";
-                    // if(typeof score === "object")
-                    // {
-                    //     fields = score as {[id:string]: any};
-                    // }
+                    if(typeof score === "object")
+                    {
+                        customFields = score as {[id:string]: any};
+                    }
                     GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
                 });
             }
@@ -342,10 +342,10 @@ module gameanalytics
 
                 // Send to events
                 var sendScore: boolean = typeof score === "number";
-                // if(typeof score === "object")
-                // {
-                //     fields = score as {[id:string]: any};
-                // }
+                if(typeof score === "object")
+                {
+                    customFields = score as {[id:string]: any};
+                }
                 GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
             }
         }
@@ -361,10 +361,10 @@ module gameanalytics
                         return;
                     }
                     var sendValue: boolean = typeof value === "number";
-                    // if(typeof value === "object")
-                    // {
-                    //     fields = value as {[id:string]: any};
-                    // }
+                    if(typeof value === "object")
+                    {
+                        customFields = value as {[id:string]: any};
+                    }
                     GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
                 });
             }
@@ -374,10 +374,10 @@ module gameanalytics
                     return;
                 }
                 var sendValue: boolean = typeof value === "number";
-                // if(typeof value === "object")
-                // {
-                //     fields = value as {[id:string]: any};
-                // }
+                if(typeof value === "object")
+                {
+                    customFields = value as {[id:string]: any};
+                }
                 GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
             }
         }
