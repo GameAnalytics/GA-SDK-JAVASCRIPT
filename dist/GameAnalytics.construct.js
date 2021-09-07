@@ -1275,7 +1275,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.2.1";
+            GADevice.sdkWrapperVersion = "javascript 4.2.2";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -2785,7 +2785,7 @@ var gameanalytics;
                 eventDict["event_id"] = progressionStatusString + ":" + progressionIdentifier;
                 var attempt_num = 0;
                 if (sendScore && progressionStatus != gameanalytics.EGAProgressionStatus.Start) {
-                    eventDict["score"] = score;
+                    eventDict["score"] = Math.round(score);
                 }
                 if (progressionStatus === gameanalytics.EGAProgressionStatus.Fail) {
                     GAState.incrementProgressionTries(progressionIdentifier);
@@ -2866,9 +2866,7 @@ var gameanalytics;
                 }
                 GAEvents.addDimensionsToEvent(eventData);
                 GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
-                GALogger.i("Add AD event: {ad_sdk_name:" + adSdkName + ", ad_placement:" + adPlacement + ", ad_type:" + adTypeString + ", ad_action:" + adActionString +
-                    ((adAction == gameanalytics.EGAAdAction.FailedShow && noAdReasonString.length > 0) ? (", ad_fail_show_reason:" + noAdReasonString) : "") +
-                    ((sendDuration && (adType == gameanalytics.EGAAdType.RewardedVideo || adType == gameanalytics.EGAAdType.Video)) ? (", ad_duration:" + duration) : "") + "}");
+                GALogger.i("Add AD event: {ad_sdk_name:" + adSdkName + ", ad_placement:" + adPlacement + ", ad_type:" + adTypeString + ", ad_action:" + adActionString + ((adAction == gameanalytics.EGAAdAction.FailedShow && noAdReasonString.length > 0) ? (", ad_fail_show_reason:" + noAdReasonString) : "") + ((sendDuration && (adType == gameanalytics.EGAAdType.RewardedVideo || adType == gameanalytics.EGAAdType.Video)) ? (", ad_duration:" + duration) : "") + "}");
                 GAEvents.addEventToStore(eventData);
             };
             GAEvents.processEvents = function (category, performCleanUp) {
