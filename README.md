@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.2.3**
+* added flutter to sdk version validator
+
 **4.2.2**
 * fixed addProgressionEvent score bug
 
