@@ -22,7 +22,7 @@
     },
     "homepage": "http://www.gameanalytics.com/",
     "devDependencies": {
-        "glob-parent": "^5.1.2",
+        "glob-parent": "^6.0.1",
         "gulp": "^4.0.2",
         "gulp-concat": "^2.6.1",
         "gulp-if": "^3.0.0",

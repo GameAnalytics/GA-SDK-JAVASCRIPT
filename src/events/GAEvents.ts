@@ -230,7 +230,7 @@ module gameanalytics
                 // Add score if specified and status is not start
                 if (sendScore && progressionStatus != EGAProgressionStatus.Start)
                 {
-                    eventDict["score"] = score;
+                    eventDict["score"] = Math.floor(score);
                 }
 
                 // Count attempts on each progression fail and persist
