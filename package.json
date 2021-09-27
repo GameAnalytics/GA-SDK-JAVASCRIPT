@@ -43,11 +43,11 @@
         "minimist": "^1.2.3",
         "mixin-deep": "^2.0.1",
         "path-parse": "^1.0.7",
-        "postcss": "^8.3.6",
-        "set-value": "^4.0.0",
-        "typescript": "^4.4.2",
-        "ws": "^8.2.1",
-        "yargs": "^17.1.1",
+        "postcss": "^8.3.8",
+        "set-value": "^4.1.0",
+        "typescript": "^4.4.3",
+        "ws": "^8.2.2",
+        "yargs": "^17.2.1",
         "yargs-parser": "^20.2.9"
     },
     "scripts": {
