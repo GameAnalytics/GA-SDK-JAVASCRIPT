@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.3.0**
+* added custom event fields feature
+
 **4.2.3**
 * added flutter to sdk version validator
 

@@ -1275,7 +1275,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.2.3";
+            GADevice.sdkWrapperVersion = "javascript 4.3.0";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -3630,6 +3630,9 @@ var gameanalytics;
                         return;
                     }
                     var sendScore = typeof score === "number";
+                    if (typeof score === "object") {
+                        customFields = score;
+                    }
                     GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
                 });
             }
@@ -3638,6 +3641,9 @@ var gameanalytics;
                     return;
                 }
                 var sendScore = typeof score === "number";
+                if (typeof score === "object") {
+                    customFields = score;
+                }
                 GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
             }
         };
@@ -3650,6 +3656,9 @@ var gameanalytics;
                         return;
                     }
                     var sendValue = typeof value === "number";
+                    if (typeof value === "object") {
+                        customFields = value;
+                    }
                     GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
                 });
             }
@@ -3658,6 +3667,9 @@ var gameanalytics;
                     return;
                 }
                 var sendValue = typeof value === "number";
+                if (typeof value === "object") {
+                    customFields = value;
+                }
                 GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
             }
         };
