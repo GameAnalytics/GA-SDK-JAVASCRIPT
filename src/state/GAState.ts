@@ -303,6 +303,7 @@ module gameanalytics
             private static readonly Dimension02Key:string = "dimension02";
             private static readonly Dimension03Key:string = "dimension03";
             public static readonly SdkConfigCachedKey:string = "sdk_config_cached";
+            public static readonly LastUsedIdentifierKey: string = "last_used_identifier";
 
             public static isEnabled(): boolean
             {
@@ -527,6 +528,8 @@ module gameanalytics
                     GAState.cacheIdentifier();
                 }
 
+                GAStore.setItem(GAState.getGameKey(), GAState.LastUsedIdentifierKey, GAState.getIdentifier());
+
                 initAnnotations["user_id"] = GAState.getIdentifier();
 
                 // SDK version
@@ -652,6 +655,16 @@ module gameanalytics
                     var sdkConfigCached = JSON.parse(GAUtilities.decode64(sdkConfigCachedString));
                     if (sdkConfigCached)
                     {
+                        var lastUsedIdentifier:string = GAStore.getItem(GAState.getGameKey(), GAState.LastUsedIdentifierKey);
+                        GALogger.d("lastUsedIdentifier=" + lastUsedIdentifier + ", GAState.getIdentifier()=" + GAState.getIdentifier());
+                        if (lastUsedIdentifier != null && lastUsedIdentifier != GAState.getIdentifier())
+                        {
+                            GALogger.w("New identifier spotted compared to last one used, clearing cached configs hash!!");
+                            if (sdkConfigCached["configs_hash"])
+                            {
+                                delete sdkConfigCached["configs_hash"];
+                            }
+                        }
                         instance.sdkConfigCached = sdkConfigCached;
                     }
                 }

@@ -429,6 +429,7 @@ declare module gameanalytics {
             private static readonly Dimension02Key;
             private static readonly Dimension03Key;
             static readonly SdkConfigCachedKey: string;
+            static readonly LastUsedIdentifierKey: string;
             static isEnabled(): boolean;
             static setCustomDimension01(dimension: string): void;
             static setCustomDimension02(dimension: string): void;
