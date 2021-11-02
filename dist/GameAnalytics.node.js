@@ -1275,7 +1275,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.3.1";
+            GADevice.sdkWrapperVersion = "javascript 4.4.0";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -3655,9 +3655,6 @@ var gameanalytics;
                         return;
                     }
                     var sendScore = typeof score === "number";
-                    if (typeof score === "object") {
-                        customFields = score;
-                    }
                     GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
                 });
             }
@@ -3666,9 +3663,6 @@ var gameanalytics;
                     return;
                 }
                 var sendScore = typeof score === "number";
-                if (typeof score === "object") {
-                    customFields = score;
-                }
                 GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
             }
         };

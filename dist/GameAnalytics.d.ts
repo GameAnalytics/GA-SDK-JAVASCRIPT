@@ -642,7 +642,7 @@ declare module gameanalytics {
         static addResourceEvent(flowType?: EGAResourceFlowType, currency?: string, amount?: number, itemType?: string, itemId?: string, customFields?: {
             [id: string]: any;
         }): void;
-        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: any, customFields?: {
+        static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: number, customFields?: {
             [id: string]: any;
         }): void;
         static addDesignEvent(eventId: string, value?: number, customFields?: {
