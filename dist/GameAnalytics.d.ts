@@ -382,6 +382,9 @@ declare module gameanalytics {
             private availableCustomDimensions03;
             static getAvailableCustomDimensions03(): Array<string>;
             static setAvailableCustomDimensions03(value: Array<string>): void;
+            currentGlobalCustomEventFields: {
+                [key: string]: any;
+            };
             private availableResourceCurrencies;
             static getAvailableResourceCurrencies(): Array<string>;
             static setAvailableResourceCurrencies(value: Array<string>): void;
@@ -574,7 +577,7 @@ declare module gameanalytics {
             private static addEventToStore;
             private static updateSessionStore;
             private static addDimensionsToEvent;
-            private static addFieldsToEvent;
+            private static addCustomFieldsToEvent;
             private static resourceFlowTypeToString;
             private static progressionStatusToString;
             private static errorSeverityToString;
@@ -642,7 +645,7 @@ declare module gameanalytics {
         static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: any, customFields?: {
             [id: string]: any;
         }): void;
-        static addDesignEvent(eventId: string, value?: any, customFields?: {
+        static addDesignEvent(eventId: string, value?: number, customFields?: {
             [id: string]: any;
         }): void;
         static addErrorEvent(severity?: EGAErrorSeverity, message?: string, customFields?: {
@@ -664,6 +667,9 @@ declare module gameanalytics {
         static setCustomDimension01(dimension?: string): void;
         static setCustomDimension02(dimension?: string): void;
         static setCustomDimension03(dimension?: string): void;
+        static setGlobalCustomEventFields(customFields?: {
+            [id: string]: any;
+        }): void;
         static setEventProcessInterval(intervalInSeconds: number): void;
         static startSession(): void;
         static endSession(): void;

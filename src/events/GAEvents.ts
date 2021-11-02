@@ -48,6 +48,10 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
 
+                var fieldsToUse: { [id: string]: any } = GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
+
                 // Add to store
                 GAEvents.addEventToStore(eventDict);
 
@@ -84,6 +88,10 @@ module gameanalytics
 
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
+
+                var fieldsToUse: { [id: string]: any } = GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
 
                 // Add to store
                 GAEvents.addEventToStore(eventDict);
@@ -133,7 +141,9 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
 
-                GAEvents.addFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fields));
+                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
 
                 // Log
                 GALogger.i("Add BUSINESS event: {currency:" + currency + ", amount:" + amount + ", itemType:" + itemType + ", itemId:" + itemId + ", cartType:" + cartType + "}");
@@ -175,7 +185,9 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
 
-                GAEvents.addFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fields));
+                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
 
                 // Log
                 GALogger.i("Add RESOURCE event: {currency:" + currency + ", amount:" + amount + ", itemType:" + itemType + ", itemId:" + itemId + "}");
@@ -257,7 +269,9 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
 
-                GAEvents.addFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fields));
+                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
 
                 // Log
                 GALogger.i("Add PROGRESSION event: {status:" + progressionStatusString + ", progression01:" + progression01 + ", progression02:" + progression02 + ", progression03:" + progression03 + ", score:" + score + ", attempt:" + attempt_num + "}");
@@ -296,7 +310,9 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventData);
 
-                GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
+                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse));
 
                 // Log
                 GALogger.i("Add DESIGN event: {eventId:" + eventId + ", value:" + value + "}");
@@ -333,7 +349,9 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventData);
 
-                GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
+                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse));
 
                 // Log
                 GALogger.i("Add ERROR event: {severity:" + severityString + ", message:" + message + "}");
@@ -384,7 +402,9 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventData);
 
-                GAEvents.addFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fields));
+                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+
+                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse));
 
                 // Log
                 GALogger.i("Add AD event: {ad_sdk_name:" + adSdkName + ", ad_placement:" + adPlacement + ", ad_type:" + adTypeString + ", ad_action:" + adActionString + ((adAction == EGAAdAction.FailedShow && noAdReasonString.length > 0) ? (", ad_fail_show_reason:" + noAdReasonString) : "") + ((sendDuration && (adType == EGAAdType.RewardedVideo || adType == EGAAdType.Video)) ? (", ad_duration:" + duration) : "") + "}");
@@ -690,7 +710,17 @@ module gameanalytics
                     var values:{[key:string]: any} = {};
                     values["session_id"] = GAState.instance.sessionId;
                     values["timestamp"] = GAState.getSessionStart();
-                    values["event"] = GAUtilities.encode64(JSON.stringify(GAState.getEventAnnotations()));
+
+                    var ev: { [key: string]: any } = GAState.getEventAnnotations();
+
+                    // Add custom dimensions
+                    GAEvents.addDimensionsToEvent(ev);
+
+                    var fieldsToUse: { [id: string]: any } = GAState.instance.currentGlobalCustomEventFields;
+
+                    GAEvents.addCustomFieldsToEvent(ev, GAState.validateAndCleanCustomFields(fieldsToUse));
+
+                    values["event"] = GAUtilities.encode64(JSON.stringify(ev));
                     GAStore.insert(EGAStore.Sessions, values, true, "session_id");
 
                     if(GAStore.isStorageAvailable())
@@ -721,7 +751,7 @@ module gameanalytics
                 }
             }
 
-            private static addFieldsToEvent(eventData:{[key:string]: any}, fields:{[key:string]: any}):void
+            private static addCustomFieldsToEvent(eventData:{[key:string]: any}, fields:{[key:string]: any}):void
             {
                 if(!eventData)
                 {

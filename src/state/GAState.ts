@@ -164,6 +164,8 @@ module gameanalytics
                 GALogger.i("Set available custom03 dimension values: (" + GAUtilities.joinStringArray(value, ", ") + ")");
             }
 
+            public currentGlobalCustomEventFields: { [key: string]: any } = {};
+
             private availableResourceCurrencies:Array<string> = [];
             public static getAvailableResourceCurrencies(): Array<string>
             {

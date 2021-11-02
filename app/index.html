@@ -35,10 +35,15 @@
                     gameanalytics.GameAnalytics.addDesignEvent("test:unload");
                 }
             };
+            var globalFields = {
+                    "test": 666,
+                    "test_2": "global_hello_world"
+            };
             GameAnalytics("setEnabledInfoLog", true);
             GameAnalytics("setEnabledVerboseLog", true);
             GameAnalytics("configureBuild", "0.0.1");
             GameAnalytics("configureUserId", " hgjklehgrh");
+            GameAnalytics("setGlobalCustomEventFields", globalFields);
             GameAnalytics("addRemoteConfigsListener", listener);
             GameAnalytics("addOnBeforeUnloadListener", unloadListener);
             //GameAnalytics("removeCommandCenterListener", listener);
@@ -50,7 +55,8 @@
                 "test": 100,
                 "test_2": "hello_world"
             };
-            GameAnalytics("addDesignEvent", "test", null, fields);
+            gameanalytics.GameAnalytics.addDesignEvent("test", null, fields);
+            gameanalytics.GameAnalytics.addDesignEvent("test2", null);
         </script>
         <p>GA JavaScript SDK test app</p>
     </body>

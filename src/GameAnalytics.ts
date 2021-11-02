@@ -52,6 +52,7 @@ module gameanalytics
             GameAnalytics.methodMap['setCustomDimension01'] = GameAnalytics.setCustomDimension01;
             GameAnalytics.methodMap['setCustomDimension02'] = GameAnalytics.setCustomDimension02;
             GameAnalytics.methodMap['setCustomDimension03'] = GameAnalytics.setCustomDimension03;
+            GameAnalytics.methodMap['setGlobalCustomEventFields'] = GameAnalytics.setGlobalCustomEventFields;
             GameAnalytics.methodMap['setEventProcessInterval'] = GameAnalytics.setEventProcessInterval;
             GameAnalytics.methodMap['startSession'] = GameAnalytics.startSession;
             GameAnalytics.methodMap['endSession'] = GameAnalytics.endSession;
@@ -314,7 +315,7 @@ module gameanalytics
             }
         }
 
-        public static addProgressionEvent(progressionStatus: EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01: string = "", progression02: string = "", progression03: string = "", score?: any, customFields:{[id:string]: any} = {}): void
+        public static addProgressionEvent(progressionStatus: EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01: string = "", progression02: string = "", progression03: string = "", score?: number, customFields:{[id:string]: any} = {}): void
         {
             GADevice.updateConnectionType();
 
@@ -327,10 +328,6 @@ module gameanalytics
 
                     // Send to events
                     var sendScore: boolean = typeof score === "number";
-                    if(typeof score === "object")
-                    {
-                        customFields = score as {[id:string]: any};
-                    }
                     GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
                 });
             }
@@ -342,15 +339,11 @@ module gameanalytics
 
                 // Send to events
                 var sendScore: boolean = typeof score === "number";
-                if(typeof score === "object")
-                {
-                    customFields = score as {[id:string]: any};
-                }
                 GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
             }
         }
 
-        public static addDesignEvent(eventId: string, value?: any, customFields:{[id:string]: any} = {}): void
+        public static addDesignEvent(eventId: string, value?: number, customFields:{[id:string]: any} = {}): void
         {
             GADevice.updateConnectionType();
 
@@ -361,10 +354,6 @@ module gameanalytics
                         return;
                     }
                     var sendValue: boolean = typeof value === "number";
-                    if(typeof value === "object")
-                    {
-                        customFields = value as {[id:string]: any};
-                    }
                     GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
                 });
             }
@@ -374,10 +363,6 @@ module gameanalytics
                     return;
                 }
                 var sendValue: boolean = typeof value === "number";
-                if(typeof value === "object")
-                {
-                    customFields = value as {[id:string]: any};
-                }
                 GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
             }
         }
@@ -565,6 +550,15 @@ module gameanalytics
                     return;
                 }
                 GAState.setCustomDimension03(dimension);
+            });
+        }
+
+        public static setGlobalCustomEventFields(customFields: { [id: string]: any } = {}): void
+        {
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                GALogger.i("Set global custom event fields: " + JSON.stringify(customFields));
+                GAState.instance.currentGlobalCustomEventFields = customFields;
             });
         }
 
