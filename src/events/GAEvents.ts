@@ -650,9 +650,6 @@ module gameanalytics
                     // Get default annotations
                     var ev:{[key:string]: any} = GAState.getEventAnnotations();
 
-                    // Create json with only default annotations
-                    var jsonDefaults:string = GAUtilities.encode64(JSON.stringify(ev));
-
                     // Merge with eventData
                     for(let e in eventData)
                     {
@@ -683,11 +680,7 @@ module gameanalytics
                     }
                     else
                     {
-                        values = {};
-                        values["session_id"] = ev["session_id"];
-                        values["timestamp"] = GAState.getSessionStart();
-                        values["event"] = jsonDefaults;
-                        GAStore.insert(EGAStore.Sessions, values, true, "session_id");
+                        GAEvents.updateSessionStore();
                     }
 
                     if(GAStore.isStorageAvailable())
