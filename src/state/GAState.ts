@@ -699,7 +699,18 @@ module gameanalytics
                 return serverTs - clientTs;
             }
 
-            public static validateAndCleanCustomFields(fields:{[id:string]: any}): {[id:string]: any}
+            private static formatString(s:string, args:Array<string>): string
+            {
+                var formatted: string = s;
+                for (var i = 0; i < args.length; i++)
+                {
+                    var regexp = new RegExp('\\{' + i + '\\}', 'gi');
+                    formatted = formatted.replace(regexp, arguments[i]);
+                }
+                return formatted;
+            }
+
+            public static validateAndCleanCustomFields(fields:{[id:string]: any}, errorCallback:(baseMessage:string, message:string) => void): {[id:string]: any}
             {
                 var result:{[id:string]: any} = {};
 
@@ -713,7 +724,10 @@ module gameanalytics
 
                         if(!key || !value)
                         {
-                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its key or value is null");
+                            var baseMessage:string = "validateAndCleanCustomFields: entry with key={0}, value={1} has been omitted because its key or value is null";
+                            var message:string = GAState.formatString(baseMessage, [key, value]);
+                            GALogger.w(message);
+                            errorCallback(baseMessage, message);
                         }
                         else if(count < GAState.MAX_CUSTOM_FIELDS_COUNT)
                         {
@@ -732,7 +746,10 @@ module gameanalytics
                                     }
                                     else
                                     {
-                                        GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its value is an empty string or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH + ")");
+                                        var baseMessage: string = "validateAndCleanCustomFields: entry with key={0}, value={1} has been omitted because its value is an empty string or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_VALUE_STRING_LENGTH + ")";
+                                        var message: string = GAState.formatString(baseMessage, [key, value]);
+                                        GALogger.w(message);
+                                        errorCallback(baseMessage, message);
                                     }
                                 }
                                 else if(type === "number" || value instanceof Number)
@@ -744,17 +761,26 @@ module gameanalytics
                                 }
                                 else
                                 {
-                                    GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its value is not a string or number");
+                                    var baseMessage: string = "validateAndCleanCustomFields: entry with key={0}, value={1} has been omitted because its value is not a string or number";
+                                    var message: string = GAState.formatString(baseMessage, [key, value]);
+                                    GALogger.w(message);
+                                    errorCallback(baseMessage, message);
                                 }
                             }
                             else
                             {
-                                GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because its key contains illegal character, is empty or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH + ")");
+                                var baseMessage: string = "validateAndCleanCustomFields: entry with key={0}, value={1} has been omitted because its key contains illegal character, is empty or exceeds the max number of characters (" + GAState.MAX_CUSTOM_FIELDS_KEY_LENGTH + ")";
+                                var message: string = GAState.formatString(baseMessage, [key, value]);
+                                GALogger.w(message);
+                                errorCallback(baseMessage, message);
                             }
                         }
                         else
                         {
-                            GALogger.w("validateAndCleanCustomFields: entry with key=" + key + ", value=" + value + " has been omitted because it exceeds the max number of custom fields (" + GAState.MAX_CUSTOM_FIELDS_COUNT + ")");
+                            var baseMessage: string = "validateAndCleanCustomFields: entry with key={0}, value={1} has been omitted because it exceeds the max number of custom fields (" + GAState.MAX_CUSTOM_FIELDS_COUNT + ")";
+                            var message: string = GAState.formatString(baseMessage, [key, value]);
+                            GALogger.w(message);
+                            errorCallback(baseMessage, message);
                         }
                     }
                 }
