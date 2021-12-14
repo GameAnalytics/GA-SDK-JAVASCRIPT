@@ -459,9 +459,10 @@ declare module gameanalytics {
             private static cacheIdentifier;
             static ensurePersistedStates(): void;
             static calculateServerTimeOffset(serverTs: number): number;
+            private static formatString;
             static validateAndCleanCustomFields(fields: {
                 [id: string]: any;
-            }): {
+            }, errorCallback?: (baseMessage: string, message: string) => void): {
                 [id: string]: any;
             };
             static validateAndFixCurrentDimensions(): void;
@@ -549,27 +550,31 @@ declare module gameanalytics {
             private static readonly CategoryError;
             private static readonly CategoryAds;
             private static readonly MaxEventCount;
+            private static readonly MAX_ERROR_COUNT;
+            private static readonly countMap;
+            private static readonly timestampMap;
             private constructor();
+            private static customEventFieldsErrorCallback;
             static addSessionStartEvent(): void;
             static addSessionEndEvent(): void;
             static addBusinessEvent(currency: string, amount: number, itemType: string, itemId: string, cartType: string, fields: {
                 [id: string]: any;
-            }): void;
+            }, mergeFields: boolean): void;
             static addResourceEvent(flowType: EGAResourceFlowType, currency: string, amount: number, itemType: string, itemId: string, fields: {
                 [id: string]: any;
-            }): void;
+            }, mergeFields: boolean): void;
             static addProgressionEvent(progressionStatus: EGAProgressionStatus, progression01: string, progression02: string, progression03: string, score: number, sendScore: boolean, fields: {
                 [id: string]: any;
-            }): void;
+            }, mergeFields: boolean): void;
             static addDesignEvent(eventId: string, value: number, sendValue: boolean, fields: {
                 [id: string]: any;
-            }): void;
+            }, mergeFields: boolean): void;
             static addErrorEvent(severity: EGAErrorSeverity, message: string, fields: {
                 [id: string]: any;
-            }): void;
+            }, mergeFields: boolean, skipAddingFields?: boolean): void;
             static addAdEvent(adAction: EGAAdAction, adType: EGAAdType, adSdkName: string, adPlacement: string, noAdReason: EGAAdError, duration: number, sendDuration: boolean, fields: {
                 [id: string]: any;
-            }): void;
+            }, mergeFields: boolean): void;
             static processEvents(category: string, performCleanUp: boolean): void;
             private static processEventsCallback;
             private static cleanupEvents;
@@ -638,28 +643,28 @@ declare module gameanalytics {
         static initialize(gameKey?: string, gameSecret?: string): void;
         static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static addResourceEvent(flowType?: EGAResourceFlowType, currency?: string, amount?: number, itemType?: string, itemId?: string, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static addProgressionEvent(progressionStatus?: EGAProgressionStatus, progression01?: string, progression02?: string, progression03?: string, score?: number, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static addDesignEvent(eventId: string, value?: number, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static addErrorEvent(severity?: EGAErrorSeverity, message?: string, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static addAdEventWithNoAdReason(adAction?: EGAAdAction, adType?: EGAAdType, adSdkName?: string, adPlacement?: string, noAdReason?: EGAAdError, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static addAdEventWithDuration(adAction?: EGAAdAction, adType?: EGAAdType, adSdkName?: string, adPlacement?: string, duration?: number, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static addAdEvent(adAction?: EGAAdAction, adType?: EGAAdType, adSdkName?: string, adPlacement?: string, customFields?: {
             [id: string]: any;
-        }): void;
+        }, mergeFields?: boolean): void;
         static setEnabledInfoLog(flag?: boolean): void;
         static setEnabledVerboseLog(flag?: boolean): void;
         static setEnabledManualSessionHandling(flag?: boolean): void;

@@ -25,9 +25,44 @@ module gameanalytics
             private static readonly CategoryAds:string = "ads";
             private static readonly MaxEventCount:number = 500;
 
+            private static readonly MAX_ERROR_COUNT:number = 10;
+            private static readonly countMap: { [key: string]: number } = {};
+            private static readonly timestampMap: { [key: string]: Date } = {};
+
             private constructor()
             {
 
+            }
+
+            private static customEventFieldsErrorCallback(baseMessage:string, message:string): void
+            {
+                if (!GAState.isEventSubmissionEnabled()) {
+                    return;
+                }
+
+                var now: Date = new Date();
+
+                if (!GAEvents.timestampMap[baseMessage]) {
+                    GAEvents.timestampMap[baseMessage] = now;
+                }
+                if (!GAEvents.countMap[baseMessage]) {
+                    GAEvents.countMap[baseMessage] = 0;
+                }
+                var diff: number = now.getTime() - GAEvents.timestampMap[baseMessage].getTime();
+                var diffSeconds: number = diff / 1000;
+                if (diffSeconds >= 3600) {
+                    GAEvents.timestampMap[baseMessage] = now;
+                    GAEvents.countMap[baseMessage] = 0;
+                }
+
+                if (GAEvents.countMap[baseMessage] >= GAEvents.MAX_ERROR_COUNT) {
+                    return;
+                }
+
+                gameanalytics.threading.GAThreading.performTaskOnGAThread(() => {
+                    GAEvents.addErrorEvent(EGAErrorSeverity.Warning, message, null, true);
+                    GAEvents.countMap[baseMessage] = GAEvents.countMap[baseMessage] + 1;
+                });
             }
 
             public static addSessionStartEvent(): void
@@ -50,7 +85,7 @@ module gameanalytics
 
                 var fieldsToUse: { [id: string]: any } = GAState.instance.currentGlobalCustomEventFields;
 
-                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                 // Add to store
                 GAEvents.addEventToStore(eventDict);
@@ -91,7 +126,7 @@ module gameanalytics
 
                 var fieldsToUse: { [id: string]: any } = GAState.instance.currentGlobalCustomEventFields;
 
-                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                 // Add to store
                 GAEvents.addEventToStore(eventDict);
@@ -103,7 +138,7 @@ module gameanalytics
                 GAEvents.processEvents("", false);
             }
 
-            public static addBusinessEvent(currency:string, amount:number, itemType:string, itemId:string, cartType:string = null, fields:{[id:string]: any}): void
+            public static addBusinessEvent(currency:string, amount:number, itemType:string, itemId:string, cartType:string = null, fields:{[id:string]: any}, mergeFields:boolean): void
             {
                 if(!GAState.isEventSubmissionEnabled())
                 {
@@ -141,9 +176,33 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
 
-                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+                var fieldsToUse: { [id: string]: any } = {};
+                if(fields && Object.keys(fields).length > 0)
+                {
+                    for (let key in fields)
+                    {
+                        fieldsToUse[key] = fields[key];
+                    }
+                }
+                else
+                {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                    }
+                }
 
-                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
+                if (mergeFields && fields && Object.keys(fields).length > 0)
+                {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields)
+                    {
+                        if (!fieldsToUse[key])
+                        {
+                            fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                        }
+                    }
+                }
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                 // Log
                 GALogger.i("Add BUSINESS event: {currency:" + currency + ", amount:" + amount + ", itemType:" + itemType + ", itemId:" + itemId + ", cartType:" + cartType + "}");
@@ -152,7 +211,7 @@ module gameanalytics
                 GAEvents.addEventToStore(eventDict);
             }
 
-            public static addResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string, fields:{[id:string]: any}): void
+            public static addResourceEvent(flowType:EGAResourceFlowType, currency:string, amount:number, itemType:string, itemId:string, fields:{[id:string]: any}, mergeFields:boolean): void
             {
                 if(!GAState.isEventSubmissionEnabled())
                 {
@@ -185,9 +244,27 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
 
-                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+                var fieldsToUse: { [id: string]: any } = {};
+                if (fields && Object.keys(fields).length > 0) {
+                    for (let key in fields) {
+                        fieldsToUse[key] = fields[key];
+                    }
+                }
+                else {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                    }
+                }
 
-                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
+                if (mergeFields && fields && Object.keys(fields).length > 0) {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        if (!fieldsToUse[key]) {
+                            fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                        }
+                    }
+                }
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                 // Log
                 GALogger.i("Add RESOURCE event: {currency:" + currency + ", amount:" + amount + ", itemType:" + itemType + ", itemId:" + itemId + "}");
@@ -196,7 +273,7 @@ module gameanalytics
                 GAEvents.addEventToStore(eventDict);
             }
 
-            public static addProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string, score:number, sendScore:boolean, fields:{[id:string]: any}): void
+            public static addProgressionEvent(progressionStatus:EGAProgressionStatus, progression01:string, progression02:string, progression03:string, score:number, sendScore:boolean, fields:{[id:string]: any}, mergeFields:boolean): void
             {
                 if(!GAState.isEventSubmissionEnabled())
                 {
@@ -269,9 +346,27 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventDict);
 
-                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+                var fieldsToUse: { [id: string]: any } = {};
+                if (fields && Object.keys(fields).length > 0) {
+                    for (let key in fields) {
+                        fieldsToUse[key] = fields[key];
+                    }
+                }
+                else {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                    }
+                }
 
-                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse));
+                if (mergeFields && fields && Object.keys(fields).length > 0) {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        if (!fieldsToUse[key]) {
+                            fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                        }
+                    }
+                }
+
+                GAEvents.addCustomFieldsToEvent(eventDict, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                 // Log
                 GALogger.i("Add PROGRESSION event: {status:" + progressionStatusString + ", progression01:" + progression01 + ", progression02:" + progression02 + ", progression03:" + progression03 + ", score:" + score + ", attempt:" + attempt_num + "}");
@@ -280,7 +375,7 @@ module gameanalytics
                 GAEvents.addEventToStore(eventDict);
             }
 
-            public static addDesignEvent(eventId:string, value:number, sendValue:boolean, fields:{[id:string]: any}): void
+            public static addDesignEvent(eventId:string, value:number, sendValue:boolean, fields:{[id:string]: any}, mergeFields:boolean): void
             {
                 if(!GAState.isEventSubmissionEnabled())
                 {
@@ -310,9 +405,27 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventData);
 
-                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+                var fieldsToUse: { [id: string]: any } = {};
+                if (fields && Object.keys(fields).length > 0) {
+                    for (let key in fields) {
+                        fieldsToUse[key] = fields[key];
+                    }
+                }
+                else {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                    }
+                }
 
-                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse));
+                if (mergeFields && fields && Object.keys(fields).length > 0) {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        if (!fieldsToUse[key]) {
+                            fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                        }
+                    }
+                }
+
+                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                 // Log
                 GALogger.i("Add DESIGN event: {eventId:" + eventId + ", value:" + value + "}");
@@ -321,7 +434,7 @@ module gameanalytics
                 GAEvents.addEventToStore(eventData);
             }
 
-            public static addErrorEvent(severity:EGAErrorSeverity, message:string, fields:{[id:string]: any}): void
+            public static addErrorEvent(severity:EGAErrorSeverity, message:string, fields:{[id:string]: any}, mergeFields:boolean, skipAddingFields:boolean=false): void
             {
                 if(!GAState.isEventSubmissionEnabled())
                 {
@@ -349,9 +462,30 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventData);
 
-                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+                if(!skipAddingFields)
+                {
+                    var fieldsToUse: { [id: string]: any } = {};
+                    if (fields && Object.keys(fields).length > 0) {
+                        for (let key in fields) {
+                            fieldsToUse[key] = fields[key];
+                        }
+                    }
+                    else {
+                        for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                            fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                        }
+                    }
 
-                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse));
+                    if (mergeFields && fields && Object.keys(fields).length > 0) {
+                        for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                            if (!fieldsToUse[key]) {
+                                fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                            }
+                        }
+                    }
+
+                    GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
+                }
 
                 // Log
                 GALogger.i("Add ERROR event: {severity:" + severityString + ", message:" + message + "}");
@@ -360,7 +494,7 @@ module gameanalytics
                 GAEvents.addEventToStore(eventData);
             }
 
-            public static addAdEvent(adAction:EGAAdAction, adType:EGAAdType, adSdkName:string, adPlacement:string, noAdReason:EGAAdError, duration:number, sendDuration:boolean, fields:{[id:string]: any}): void
+            public static addAdEvent(adAction:EGAAdAction, adType:EGAAdType, adSdkName:string, adPlacement:string, noAdReason:EGAAdError, duration:number, sendDuration:boolean, fields:{[id:string]: any}, mergeFields:boolean): void
             {
                 if(!GAState.isEventSubmissionEnabled())
                 {
@@ -402,9 +536,27 @@ module gameanalytics
                 // Add custom dimensions
                 GAEvents.addDimensionsToEvent(eventData);
 
-                var fieldsToUse: { [id: string]: any } = fields && Object.keys(fields).length > 0 ? fields : GAState.instance.currentGlobalCustomEventFields;
+                var fieldsToUse: { [id: string]: any } = {};
+                if (fields && Object.keys(fields).length > 0) {
+                    for (let key in fields) {
+                        fieldsToUse[key] = fields[key];
+                    }
+                }
+                else {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                    }
+                }
 
-                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse));
+                if (mergeFields && fields && Object.keys(fields).length > 0) {
+                    for (let key in GAState.instance.currentGlobalCustomEventFields) {
+                        if (!fieldsToUse[key]) {
+                            fieldsToUse[key] = GAState.instance.currentGlobalCustomEventFields[key];
+                        }
+                    }
+                }
+
+                GAEvents.addCustomFieldsToEvent(eventData, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                 // Log
                 GALogger.i("Add AD event: {ad_sdk_name:" + adSdkName + ", ad_placement:" + adPlacement + ", ad_type:" + adTypeString + ", ad_action:" + adActionString + ((adAction == EGAAdAction.FailedShow && noAdReasonString.length > 0) ? (", ad_fail_show_reason:" + noAdReasonString) : "") + ((sendDuration && (adType == EGAAdType.RewardedVideo || adType == EGAAdType.Video)) ? (", ad_duration:" + duration) : "") + "}");
@@ -711,7 +863,7 @@ module gameanalytics
 
                     var fieldsToUse: { [id: string]: any } = GAState.instance.currentGlobalCustomEventFields;
 
-                    GAEvents.addCustomFieldsToEvent(ev, GAState.validateAndCleanCustomFields(fieldsToUse));
+                    GAEvents.addCustomFieldsToEvent(ev, GAState.validateAndCleanCustomFields(fieldsToUse, GAEvents.customEventFieldsErrorCallback));
 
                     values["event"] = GAUtilities.encode64(JSON.stringify(ev));
                     GAStore.insert(EGAStore.Sessions, values, true, "session_id");

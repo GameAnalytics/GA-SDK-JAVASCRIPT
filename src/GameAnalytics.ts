@@ -267,7 +267,7 @@ module gameanalytics
             GAThreading.performTimedBlockOnGAThread(timedBlock);
         }
 
-        public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = "", customFields:{[id:string]: any} = {}): void
+        public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = "", customFields:{[id:string]: any} = {}, mergeFields:boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -278,7 +278,7 @@ module gameanalytics
                         return;
                     }
                     // Send to events
-                    GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, customFields);
+                    GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, customFields, mergeFields);
                 });
             }
             else
@@ -287,11 +287,11 @@ module gameanalytics
                     return;
                 }
                 // Send to events
-                GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, customFields);
+                GAEvents.addBusinessEvent(currency, amount, itemType, itemId, cartType, customFields, mergeFields);
             }
         }
 
-        public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", customFields:{[id:string]: any} = {}): void
+        public static addResourceEvent(flowType:EGAResourceFlowType = EGAResourceFlowType.Undefined, currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", customFields:{[id:string]: any} = {}, mergeFields:boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -302,7 +302,7 @@ module gameanalytics
                         return;
                     }
 
-                    GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, customFields);
+                    GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, customFields, mergeFields);
                 });
             }
             else
@@ -311,11 +311,11 @@ module gameanalytics
                     return;
                 }
 
-                GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, customFields);
+                GAEvents.addResourceEvent(flowType, currency, amount, itemType, itemId, customFields, mergeFields);
             }
         }
 
-        public static addProgressionEvent(progressionStatus: EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01: string = "", progression02: string = "", progression03: string = "", score?: number, customFields:{[id:string]: any} = {}): void
+        public static addProgressionEvent(progressionStatus: EGAProgressionStatus = EGAProgressionStatus.Undefined, progression01: string = "", progression02: string = "", progression03: string = "", score?: number, customFields: { [id: string]: any } = {}, mergeFields: boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -328,7 +328,7 @@ module gameanalytics
 
                     // Send to events
                     var sendScore: boolean = typeof score === "number";
-                    GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
+                    GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields, mergeFields);
                 });
             }
             else
@@ -339,11 +339,11 @@ module gameanalytics
 
                 // Send to events
                 var sendScore: boolean = typeof score === "number";
-                GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields);
+                GAEvents.addProgressionEvent(progressionStatus, progression01, progression02, progression03, sendScore ? score : 0, sendScore, customFields, mergeFields);
             }
         }
 
-        public static addDesignEvent(eventId: string, value?: number, customFields:{[id:string]: any} = {}): void
+        public static addDesignEvent(eventId: string, value?: number, customFields: { [id: string]: any } = {}, mergeFields: boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -354,7 +354,7 @@ module gameanalytics
                         return;
                     }
                     var sendValue: boolean = typeof value === "number";
-                    GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
+                    GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields, mergeFields);
                 });
             }
             else
@@ -363,11 +363,11 @@ module gameanalytics
                     return;
                 }
                 var sendValue: boolean = typeof value === "number";
-                GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields);
+                GAEvents.addDesignEvent(eventId, sendValue ? value : 0, sendValue, customFields, mergeFields);
             }
         }
 
-        public static addErrorEvent(severity: EGAErrorSeverity = EGAErrorSeverity.Undefined, message: string = "", customFields:{[id:string]: any} = {}): void
+        public static addErrorEvent(severity: EGAErrorSeverity = EGAErrorSeverity.Undefined, message: string = "", customFields: { [id: string]: any } = {}, mergeFields: boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -377,7 +377,7 @@ module gameanalytics
                     if (!GameAnalytics.isSdkReady(true, true, "Could not add error event")) {
                         return;
                     }
-                    GAEvents.addErrorEvent(severity, message, customFields);
+                    GAEvents.addErrorEvent(severity, message, customFields, mergeFields);
                 });
             }
             else
@@ -385,11 +385,11 @@ module gameanalytics
                 if (!GameAnalytics.isSdkReady(true, true, "Could not add error event")) {
                     return;
                 }
-                GAEvents.addErrorEvent(severity, message, customFields);
+                GAEvents.addErrorEvent(severity, message, customFields, mergeFields);
             }
         }
 
-        public static addAdEventWithNoAdReason(adAction: EGAAdAction = EGAAdAction.Undefined, adType: EGAAdType = EGAAdType.Undefined, adSdkName: string = "", adPlacement: string = "", noAdReason: EGAAdError = EGAAdError.Undefined, customFields: { [id: string]: any } = {}): void
+        public static addAdEventWithNoAdReason(adAction: EGAAdAction = EGAAdAction.Undefined, adType: EGAAdType = EGAAdType.Undefined, adSdkName: string = "", adPlacement: string = "", noAdReason: EGAAdError = EGAAdError.Undefined, customFields: { [id: string]: any } = {}, mergeFields: boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -399,7 +399,7 @@ module gameanalytics
                     if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                         return;
                     }
-                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, noAdReason, 0, false, customFields);
+                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, noAdReason, 0, false, customFields, mergeFields);
                 });
             }
             else
@@ -407,11 +407,11 @@ module gameanalytics
                 if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                     return;
                 }
-                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, noAdReason, 0, false, customFields);
+                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, noAdReason, 0, false, customFields, mergeFields);
             }
         }
 
-        public static addAdEventWithDuration(adAction: EGAAdAction = EGAAdAction.Undefined, adType: EGAAdType = EGAAdType.Undefined, adSdkName: string = "", adPlacement: string = "", duration: number = 0, customFields: { [id: string]: any } = {}): void
+        public static addAdEventWithDuration(adAction: EGAAdAction = EGAAdAction.Undefined, adType: EGAAdType = EGAAdType.Undefined, adSdkName: string = "", adPlacement: string = "", duration: number = 0, customFields: { [id: string]: any } = {}, mergeFields: boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -421,7 +421,7 @@ module gameanalytics
                     if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                         return;
                     }
-                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, duration, true, customFields);
+                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, duration, true, customFields, mergeFields);
                 });
             }
             else
@@ -429,11 +429,11 @@ module gameanalytics
                 if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                     return;
                 }
-                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, duration, true, customFields);
+                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, duration, true, customFields, mergeFields);
             }
         }
 
-        public static addAdEvent(adAction: EGAAdAction = EGAAdAction.Undefined, adType: EGAAdType = EGAAdType.Undefined, adSdkName: string = "", adPlacement: string = "", customFields: { [id: string]: any } = {}): void
+        public static addAdEvent(adAction: EGAAdAction = EGAAdAction.Undefined, adType: EGAAdType = EGAAdType.Undefined, adSdkName: string = "", adPlacement: string = "", customFields: { [id: string]: any } = {}, mergeFields: boolean = false): void
         {
             GADevice.updateConnectionType();
 
@@ -443,7 +443,7 @@ module gameanalytics
                     if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                         return;
                     }
-                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, 0, false, customFields);
+                    GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, 0, false, customFields, mergeFields);
                 });
             }
             else
@@ -451,7 +451,7 @@ module gameanalytics
                 if (!GameAnalytics.isSdkReady(true, true, "Could not add ad event")) {
                     return;
                 }
-                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, 0, false, customFields);
+                GAEvents.addAdEvent(adAction, adType, adSdkName, adPlacement, EGAAdError.Undefined, 0, false, customFields, mergeFields);
             }
         }
 
