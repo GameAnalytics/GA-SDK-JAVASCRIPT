@@ -148,12 +148,7 @@ module gameanalytics
 
             public static createGuid(): string
             {
-                return (GAUtilities.s4() + GAUtilities.s4() + "-" + GAUtilities.s4() + "-4" + GAUtilities.s4().substr(0,3) + "-" + GAUtilities.s4() + "-" + GAUtilities.s4() + GAUtilities.s4() + GAUtilities.s4()).toLowerCase();
-            }
-
-            private static s4(): string
-            {
-                return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+                return ("10000000-1000-4000-8000-100000000000").replace(/[018]/g, c => (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16));
             }
         }
     }
