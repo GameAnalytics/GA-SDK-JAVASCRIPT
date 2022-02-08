@@ -414,6 +414,8 @@ module gameanalytics
 
                 // collector event API version
                 annotations["v"] = 2;
+                // Event UUID
+                annotations["uuid"] = GAUtilities.createGuid();
                 // User identifier
                 annotations["user_id"] = GAState.instance.identifier;
 
@@ -492,6 +494,8 @@ module gameanalytics
 
                 // collector event API version
                 annotations["v"] = 2;
+                // Event UUID
+                annotations["uuid"] = GAUtilities.createGuid();
 
                 // Category
                 annotations["category"] = GAState.CategorySdkError;

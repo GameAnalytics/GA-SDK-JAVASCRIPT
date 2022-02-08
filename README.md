@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.4.3**
+* added event uuid to events sent
+
 **4.4.2**
 * added error events to be sent for invalid custom event fields used
 * added optional mergeFields argument to event methods to merge with global custom fields instead of overwrite them

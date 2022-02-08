@@ -165,7 +165,6 @@ declare module gameanalytics {
             static decode64(input: string): string;
             static timeIntervalSince1970(): number;
             static createGuid(): string;
-            private static s4;
         }
     }
 }
