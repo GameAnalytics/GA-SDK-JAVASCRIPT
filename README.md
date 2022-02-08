@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.4.4**
+* changed event uuid field name
+
 **4.4.3**
 * added event uuid to events sent
 
