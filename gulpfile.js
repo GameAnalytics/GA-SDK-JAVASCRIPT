@@ -28,9 +28,7 @@ gulp.task('declaration', function() {
         .pipe(tsDeclaration());
 
     return tsResult.dts
-        .pipe(replace('declare var EGAErrorSeverity', 'export declare var EGAErrorSeverity'))
-        .pipe(replace('declare var EGAProgressionStatus', 'export declare var EGAProgressionStatus'))
-        .pipe(replace('declare var EGAResourceFlowType', 'export declare var EGAResourceFlowType'))
+        .pipe(replace('declare module public_enums', 'export module gameanalytics'))
         .pipe(replace('declare var GameAnalytics', 'declare var GameAnalyticsCommand'))
         .pipe(insert.wrap("", "export declare var GameAnalytics: typeof gameanalytics.GameAnalytics;\n"))
         .pipe(insert.wrap("", "export default GameAnalytics;\n"))

@@ -8,7 +8,7 @@
         "JavaScript"
     ],
     "main": "./dist/GameAnalytics.node.js",
-    "typings": "./dist/GameAnalytics.d.ts",
+    "types": "./dist/GameAnalytics.d.ts",
     "contributors": [
         {
             "name": "Martin Treacy-Schwartz",

@@ -11,6 +11,7 @@
     },
     "files": [
         "./src/Enums.ts",
+        "./src/PublicEnums.ts",
         "./src/logging/GALogger.ts",
         "./src/utilities/GAUtilities.ts",
         "./src/validators/GAValidator.ts",
@@ -26,6 +27,7 @@
         "./src/GameAnalytics.ts"
     ],
     "include": [
-        "./vendor/*.d.ts"
+        "./vendor/*.d.ts",
+        "./src/ga.d.ts"
     ]
 }
