@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.4.5**
+* fixed enums in typescript decleration file
+
 **4.4.4**
 * changed event uuid field name
 
