@@ -1,7 +1,6 @@
 module gameanalytics
 {
-    export enum EGAErrorSeverity
-    {
+    export enum EGAErrorSeverity {
         Undefined = 0,
         Debug = 1,
         Info = 2,
@@ -10,23 +9,20 @@ module gameanalytics
         Critical = 5
     }
 
-    export enum EGAProgressionStatus
-    {
+    export enum EGAProgressionStatus {
         Undefined = 0,
         Start = 1,
         Complete = 2,
         Fail = 3
     }
 
-    export enum EGAResourceFlowType
-    {
+    export enum EGAResourceFlowType {
         Undefined = 0,
         Source = 1,
         Sink = 2
     }
 
-    export enum EGAAdAction
-    {
+    export enum EGAAdAction {
         Undefined = 0,
         Clicked = 1,
         Show = 2,
@@ -34,8 +30,7 @@ module gameanalytics
         RewardReceived = 4
     }
 
-    export enum EGAAdError
-    {
+    export enum EGAAdError {
         Undefined = 0,
         Unknown = 1,
         Offline = 2,
@@ -45,8 +40,7 @@ module gameanalytics
         UnableToPrecache = 6
     }
 
-    export enum EGAAdType
-    {
+    export enum EGAAdType {
         Undefined = 0,
         Video = 1,
         RewardedVideo = 2,
@@ -156,6 +150,3 @@ module gameanalytics
         }
     }
 }
-var EGAErrorSeverity = gameanalytics.EGAErrorSeverity;
-var EGAProgressionStatus = gameanalytics.EGAProgressionStatus;
-var EGAResourceFlowType = gameanalytics.EGAResourceFlowType;
