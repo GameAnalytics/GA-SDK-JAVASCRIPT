@@ -3453,14 +3453,14 @@ var gameanalytics;
             GAThreading.createTimedBlock = function (delayInSeconds) {
                 if (delayInSeconds === void 0) { delayInSeconds = 0; }
                 var time = new Date();
-                time.setSeconds(time.getSeconds() + delayInSeconds);
+                time.setUTCSeconds(time.getUTCSeconds() + delayInSeconds);
                 var timedBlock = new threading.TimedBlock(time);
                 return timedBlock;
             };
             GAThreading.performTaskOnGAThread = function (taskBlock, delayInSeconds) {
                 if (delayInSeconds === void 0) { delayInSeconds = 0; }
                 var time = new Date();
-                time.setSeconds(time.getSeconds() + delayInSeconds);
+                time.setUTCSeconds(time.getUTCSeconds() + delayInSeconds);
                 var timedBlock = new threading.TimedBlock(time);
                 timedBlock.block = taskBlock;
                 GAThreading.instance.id2TimedBlockMap[timedBlock.id] = timedBlock;
@@ -3472,7 +3472,7 @@ var gameanalytics;
             };
             GAThreading.scheduleTimer = function (interval, callback) {
                 var time = new Date();
-                time.setSeconds(time.getSeconds() + interval);
+                time.setUTCSeconds(time.getUTCSeconds() + interval);
                 var timedBlock = new threading.TimedBlock(time);
                 timedBlock.block = callback;
                 GAThreading.instance.id2TimedBlockMap[timedBlock.id] = timedBlock;
