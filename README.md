@@ -12,6 +12,9 @@ Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk)
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**4.4.6**
+* fixed timestamps for daylight saving time
+
 **4.4.5**
 * fixed enums in typescript decleration file
 
