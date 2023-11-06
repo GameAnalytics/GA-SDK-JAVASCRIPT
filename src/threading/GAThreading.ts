@@ -35,7 +35,7 @@ module gameanalytics
             public static createTimedBlock(delayInSeconds:number = 0): TimedBlock
             {
                 var time:Date = new Date();
-                time.setSeconds(time.getSeconds() + delayInSeconds);
+                time.setUTCSeconds(time.getUTCSeconds() + delayInSeconds);
 
                 var timedBlock:TimedBlock = new TimedBlock(time);
                 return timedBlock;
@@ -44,7 +44,7 @@ module gameanalytics
             public static performTaskOnGAThread(taskBlock:() => void, delayInSeconds:number = 0): void
             {
                 var time:Date = new Date();
-                time.setSeconds(time.getSeconds() + delayInSeconds);
+                time.setUTCSeconds(time.getUTCSeconds() + delayInSeconds);
 
                 var timedBlock:TimedBlock = new TimedBlock(time);
                 timedBlock.block = taskBlock;
@@ -61,7 +61,7 @@ module gameanalytics
             public static scheduleTimer(interval:number, callback:() => void): number
             {
                 var time:Date = new Date();
-                time.setSeconds(time.getSeconds() + interval);
+                time.setUTCSeconds(time.getUTCSeconds() + interval);
 
                 var timedBlock:TimedBlock = new TimedBlock(time);
                 timedBlock.block = callback;
