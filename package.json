@@ -47,7 +47,7 @@
         "minimatch": "^5.0.1",
         "minimist": "^1.2.3",
         "mixin-deep": "^2.0.1",
-        "nanoid": "^4.0.0",
+        "nanoid": "^5.0.3",
         "path-parse": "^1.0.7",
         "postcss": "^8.4.7",
         "set-value": "^4.1.0",
