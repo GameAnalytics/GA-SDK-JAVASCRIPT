@@ -1,63 +1,1151 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>GameAnalytics JavaScript SDK Test </title>
-        <!-- GameAnalytics -->
-        <!--<script>
-        window.GameAnalytics=window.GameAnalytics||function(){(GameAnalytics.q=GameAnalytics.q||[]).push(arguments)};
-        GameAnalytics("setEnabledInfoLog", true);
-        GameAnalytics("initialize", "GAME_KEY", "SECRET_KEY");
-        console.log(GameAnalytics.q);
-        </script>
-        <script async src='http://download.gameanalytics.com/js/GameAnalytics-2.0.1.min.js'></script>-->
-        <!-- <script>
-        (function(w,d,a,m){var s='script';var g='GameAnalytics';w[g]=w[g]||function(){
-        (w[g].q=w[g].q||[]).push(arguments)},a=d.createElement(s),
-        m=d.getElementsByTagName(s)[0];a.async=1;a.src='http://download.gameanalytics.com/js/GameAnalytics.js';m.parentNode.insertBefore(a,m)
-        })(window,document);
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameAnalytics JS SDK — Test Dashboard</title>
+  <link rel="icon" href="data:,">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        GameAnalytics("setEnabledInfoLog", true);
-        GameAnalytics("setEnabledVerboseLog", true);
-        </script> -->
-        <!-- End GameAnalytics -->
-    </head>
-    <body>
-        <script type="text/javascript" src='../dist/GameAnalytics.debug.js'></script>
-        <script type="text/javascript">
-            var listener = {
-                onRemoteConfigsUpdated: function() {
-                    console.log("onRemoteConfigsUpdated called");
-                }
-            };
-            var unloadListener = {
-                onBeforeUnload: function () {
-                    console.log("onBeforeUnload called");
-                    gameanalytics.GameAnalytics.addDesignEvent("test:unload");
-                }
-            };
-            var globalFields = {
-                    "test": 666,
-                    "test_2": "global_hello_world"
-            };
-            GameAnalytics("setEnabledInfoLog", true);
-            GameAnalytics("setEnabledVerboseLog", true);
-            GameAnalytics("configureBuild", "0.0.1");
-            GameAnalytics("configureUserId", " hgjklehgrh");
-            GameAnalytics("setGlobalCustomEventFields", globalFields);
-            GameAnalytics("addRemoteConfigsListener", listener);
-            GameAnalytics("addOnBeforeUnloadListener", unloadListener);
-            //GameAnalytics("removeCommandCenterListener", listener);
-            GameAnalytics("configureAvailableCustomDimensions01", ["ninja", "samurai"]);
-            GameAnalytics("setEventProcessInterval", 15);
-            GameAnalytics("initialize", "c6cfc80ff69d1e7316bf1e0c8194eda6", "e0ae4809f70e2fa96916c7060f417ae53895f18d");
-            //GameAnalytics("initialize", "5c6bcb5402204249437fb5a7a80a4959", "16813a12f718bc5c620f56944e1abc3ea13ccbac");
-            var fields = {
-                "test": 100,
-                "test_2": "hello_world"
-            };
-            gameanalytics.GameAnalytics.addDesignEvent("test", null, fields);
-            gameanalytics.GameAnalytics.addDesignEvent("test2", null);
-        </script>
-        <p>GA JavaScript SDK test app</p>
-    </body>
+    :root {
+      --bg: #0f1117;
+      --bg2: #1a1d2e;
+      --bg3: #252840;
+      --border: #2e3155;
+      --accent: #5b6af0;
+      --accent2: #7c8cf8;
+      --green: #3ecf8e;
+      --yellow: #f6c90e;
+      --red: #f06060;
+      --orange: #f0944d;
+      --text: #e2e4f0;
+      --muted: #7a7f9a;
+      --radius: 6px;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-rows: 52px 1fr 240px;
+      grid-template-columns: 200px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      grid-column: 1 / -1;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 20px;
+    }
+    header h1 { font-size: 15px; font-weight: 600; letter-spacing: .3px; }
+    header h1 span { color: var(--accent2); }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: .5px;
+    }
+    .badge-sdk  { background: #1e2d50; color: var(--accent2); }
+    .badge-ok   { background: #0d3325; color: var(--green); }
+    .badge-err  { background: #3d1515; color: var(--red); }
+    .badge-warn { background: #3d2e05; color: var(--yellow); }
+    #status-badge { margin-left: auto; }
+    #rebuild-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    #rebuild-btn:hover:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent); }
+    #rebuild-btn:disabled { opacity: 0.45; cursor: default; }
+    #build-badge { font-size: 11px; white-space: nowrap; }
+
+    /* ── Build success toast ─────────────────────────────────────── */
+    #build-success-toast {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #0d3325;
+      border: 1px solid #1a5e40;
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    #build-success-toast .bs-summary {
+      color: var(--muted);
+      font-weight: 400;
+      font-family: var(--mono);
+      font-size: 11px;
+      white-space: pre;
+    }
+
+    /* ── Build error panel ───────────────────────────────────────── */
+    #build-error-panel {
+      background: #2a0f0f;
+      border: 1px solid #6b2020;
+      border-radius: var(--radius);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .build-error-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 14px;
+      background: #3d1515;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .build-error-hdr button {
+      background: none;
+      border: none;
+      color: var(--red);
+      cursor: pointer;
+      font-size: 11px;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+    .build-error-hdr button:hover { opacity: 1; }
+    #build-error-output {
+      margin: 0;
+      padding: 10px 14px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: #f0a0a0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 260px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+    #build-error-output .be-entry {
+      display: flex;
+      gap: 10px;
+      padding: 3px 0;
+      border-bottom: 1px solid #4a1a1a;
+      flex-wrap: wrap;
+    }
+    #build-error-output .be-loc  { color: #f0c080; flex-shrink: 0; }
+    #build-error-output .be-msg  { color: #f0a0a0; }
+    #build-error-output .be-line { color: #a07070; padding: 1px 0; }
+
+    /* ── Sidebar ─────────────────────────────────────────────── */
+    nav {
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 12px 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    nav .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--muted);
+      padding: 10px 16px 4px;
+      text-transform: uppercase;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      text-align: left;
+      padding: 7px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .1s, color .1s;
+    }
+    nav button:hover { background: var(--bg3); color: var(--text); }
+    nav button.active { background: var(--bg3); color: var(--accent2); border-left: 2px solid var(--accent); padding-left: 14px; }
+    nav button .icon { font-size: 14px; width: 18px; text-align: center; }
+
+    /* ── Main ────────────────────────────────────────────────── */
+    main {
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .panel { display: none; flex-direction: column; gap: 20px; }
+    .panel.active { display: flex; }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+    .card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 14px;
+    }
+    .card h3 em { font-style: normal; color: var(--accent2); }
+
+    /* ── Form controls ───────────────────────────────────────── */
+    .grid { display: grid; gap: 10px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    label { font-size: 12px; color: var(--muted); margin-bottom: 3px; display: block; }
+    input[type=text], input[type=number], select, textarea {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    select option { background: var(--bg3); }
+    textarea { resize: vertical; font-family: var(--mono); font-size: 12px; }
+
+    .field { display: flex; flex-direction: column; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    button.btn {
+      border: none;
+      border-radius: var(--radius);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: filter .15s, opacity .15s;
+    }
+    button.btn:hover { filter: brightness(1.15); }
+    button.btn:active { filter: brightness(.9); }
+    button.btn:disabled { opacity: .4; cursor: default; filter: none; }
+
+    .btn-primary { background: var(--accent);  color: #fff; }
+    .btn-green   { background: var(--green);   color: #0a2116; }
+    .btn-yellow  { background: var(--yellow);  color: #1a1200; }
+    .btn-red     { background: var(--red);     color: #fff; }
+    .btn-orange  { background: var(--orange);  color: #1a0a00; }
+    .btn-ghost   { background: var(--bg3); border: 1px solid var(--border); color: var(--text); }
+
+    /* ── Toggle ──────────────────────────────────────────────── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .toggle-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); }
+
+    /* ── Log panel ───────────────────────────────────────────── */
+    #log-panel {
+      grid-column: 1 / -1;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #log-panel .log-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    #log-panel .log-header span { color: var(--muted); }
+    #log-clear { margin-left: auto; font-size: 11px; padding: 3px 10px; }
+    #log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .log-line { display: flex; gap: 8px; }
+    .log-ts { color: var(--muted); flex-shrink: 0; }
+    .log-debug   { color: #8891c0; }
+    .log-info    { color: var(--green); }
+    .log-warn    { color: var(--yellow); }
+    .log-error   { color: var(--red); }
+    .log-sent    { color: var(--accent2); }
+    .log-verbose { color: var(--muted); font-style: italic; }
+
+    /* ── Misc ────────────────────────────────────────────────── */
+    .sep { height: 1px; background: var(--border); margin: 4px 0; }
+    .info-box {
+      background: #1a2040;
+      border: 1px solid #2a3560;
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--accent2);
+      line-height: 1.5;
+    }
+    code { font-family: var(--mono); background: var(--bg3); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+    #rc-display {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      min-height: 60px;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════ HEADER -->
+<header>
+  <h1>🎮 <span>GameAnalytics</span> JS SDK Test Dashboard</h1>
+  <span class="badge badge-sdk" id="sdk-version">v4.4.7</span>
+  <span class="badge badge-err" id="status-badge">⬤ Not initialized</span>
+  <span class="badge" id="proxy-badge" style="display:none;background:#1a2d1a;color:#3ecf8e">⬤ Proxy active</span>
+  <button id="rebuild-btn" onclick="triggerRebuild()" title="Rebuild dist/GameAnalytics.debug.js from src/, then reload the page">⟳ Rebuild SDK</button>
+  <span class="badge" id="build-badge" style="color:var(--muted)">● idle</span>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════ NAV -->
+<nav id="nav">
+  <div class="section-label">Setup</div>
+  <button class="active" data-panel="init" onclick="showPanel(this)">
+    <span class="icon">⚙️</span> Initialize
+  </button>
+  <button data-panel="config" onclick="showPanel(this)">
+    <span class="icon">🔧</span> Pre-Init Config
+  </button>
+
+  <div class="section-label">Events</div>
+  <button data-panel="health" onclick="showPanel(this)">
+    <span class="icon">🩺</span> Health &amp; Init
+  </button>
+  <button data-panel="business" onclick="showPanel(this)">
+    <span class="icon">💰</span> Business
+  </button>
+  <button data-panel="resource" onclick="showPanel(this)">
+    <span class="icon">💎</span> Resource
+  </button>
+  <button data-panel="progression" onclick="showPanel(this)">
+    <span class="icon">🏆</span> Progression
+  </button>
+  <button data-panel="design" onclick="showPanel(this)">
+    <span class="icon">🎨</span> Design
+  </button>
+  <button data-panel="error" onclick="showPanel(this)">
+    <span class="icon">⚠️</span> Error
+  </button>
+  <button data-panel="ad" onclick="showPanel(this)">
+    <span class="icon">📺</span> Ad
+  </button>
+
+  <div class="section-label">Session</div>
+  <button data-panel="session" onclick="showPanel(this)">
+    <span class="icon">🔄</span> Session
+  </button>
+  <button data-panel="dimensions" onclick="showPanel(this)">
+    <span class="icon">📐</span> Dimensions
+  </button>
+
+  <div class="section-label">Advanced</div>
+  <button data-panel="remoteconfig" onclick="showPanel(this)">
+    <span class="icon">🌐</span> Remote Configs
+  </button>
+  <button data-panel="newfeatures" onclick="showPanel(this)">
+    <span class="icon">✨</span> New Features
+  </button>
+
+  <div class="section-label">Dev Tools</div>
+  <button data-panel="build" onclick="showPanel(this)" id="nav-build-btn">
+    <span class="icon">🔨</span> Build Console
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════ MAIN -->
+<main>
+
+  <!-- ─── Build success toast ──────────────────────────────────────── -->
+  <div id="build-success-toast" style="display:none">
+    <span>✓ Build succeeded</span>
+    <span class="bs-summary"></span>
+  </div>
+
+  <!-- ─── Build error panel (shown across all nav tabs on failure) ── -->
+  <div id="build-error-panel" style="display:none">
+    <div class="build-error-hdr">
+      <span>⚠ Build failed — fix the error in <code>src/</code> then press Rebuild SDK</span>
+      <button onclick="hideBuildError()" title="Dismiss">✕ Dismiss</button>
+    </div>
+    <pre id="build-error-output"></pre>
+  </div>
+
+  <!-- ─── INITIALIZE ─────────────────────────────────────────────── -->
+  <div class="panel active" id="panel-init">
+    <div class="card">
+      <h3>SDK <em>Keys</em></h3>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Game Key (32 chars)</label>
+          <input type="text" id="game-key" value="c6cfc80ff69d1e7316bf1e0c8194eda6" placeholder="32-char game key" />
+        </div>
+        <div class="field">
+          <label>Secret Key (40 chars)</label>
+          <input type="text" id="secret-key" value="e0ae4809f70e2fa96916c7060f417ae53895f18d" placeholder="40-char secret key" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn btn-green" onclick="doInitialize()">▶ Initialize SDK</button>
+        <button class="btn btn-ghost" onclick="doStop()">⏹ Stop (endSession)</button>
+        <button class="btn btn-ghost" onclick="doResume()">⏩ Resume (onResume)</button>
+        <button class="btn btn-primary" onclick="useLocalProxy()" title="Route SDK requests through the local dev server to avoid browser CORS restrictions">🔀 Use Local Proxy</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Quick <em>Logging</em></h3>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="GA('setEnabledInfoLog', true)">Info log ON</button>
+        <button class="btn btn-ghost" onclick="GA('setEnabledInfoLog', false)">Info log OFF</button>
+        <button class="btn btn-ghost" onclick="GA('setEnabledVerboseLog', true)">Verbose ON</button>
+        <button class="btn btn-ghost" onclick="GA('setEnabledVerboseLog', false)">Verbose OFF</button>
+        <button class="btn btn-ghost" onclick="GA('setEnabledEventSubmission', true)">Events ON</button>
+        <button class="btn btn-ghost" onclick="GA('setEnabledEventSubmission', false)">Events OFF</button>
+      </div>
+    </div>
+
+    <div class="info-box" id="proxy-notice" style="display:none">
+      🔀 <strong>Local proxy active</strong> — SDK traffic is routed through
+      <code id="proxy-url-display"></code> → <code>api.gameanalytics.com</code>.
+      No CORS restrictions apply.
+    </div>
+    <div class="info-box" id="cors-notice">
+      ⚠️ <strong>Running in a browser?</strong> XHR to <code>api.gameanalytics.com</code> is
+      cross-origin and will be blocked with status&nbsp;0 unless the SDK routes through the
+      local proxy. Click <strong>Use Local Proxy</strong> above before initializing.
+      <br/><em>If you're already using the proxy this notice is harmless — it auto-hides.</em>
+    </div>
+  </div>
+
+  <!-- ─── PRE-INIT CONFIG ─────────────────────────────────────────── -->
+  <div class="panel" id="panel-config">
+    <div class="card">
+      <h3>Build &amp; <em>Identity</em></h3>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Build string</label>
+          <input type="text" id="cfg-build" value="0.1.0-test" />
+        </div>
+        <div class="field">
+          <label>Custom User ID (≤64 chars)</label>
+          <input type="text" id="cfg-userid" placeholder="leave blank to auto-generate" />
+        </div>
+        <div class="field">
+          <label>External User ID <em>(new)</em></label>
+          <input type="text" id="cfg-extuser" placeholder="e.g. user-12345" />
+        </div>
+        <div class="field">
+          <label>Engine version</label>
+          <input type="text" id="cfg-engine" placeholder="e.g. unity 2021.3.0" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="applyIdentityConfig()">Apply Identity Config</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Custom <em>Dimensions</em></h3>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Dimension01 values (comma-separated)</label>
+          <input type="text" id="cfg-dim01" value="ninja,samurai,mage" />
+        </div>
+        <div class="field">
+          <label>Dimension02 values</label>
+          <input type="text" id="cfg-dim02" value="free,paid" />
+        </div>
+        <div class="field">
+          <label>Dimension03 values</label>
+          <input type="text" id="cfg-dim03" value="europe,americas,apac" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="applyDimensionConfig()">Apply Dimension Config</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Resource <em>Currencies &amp; Item Types</em></h3>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Resource currencies (comma-separated)</label>
+          <input type="text" id="cfg-currencies" value="Gold,Gems,Energy" />
+        </div>
+        <div class="field">
+          <label>Resource item types (comma-separated)</label>
+          <input type="text" id="cfg-itemtypes" value="Weapon,Armor,Consumable,Boost" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="applyResourceConfig()">Apply Resource Config</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Advanced <em>Pre-Init</em></h3>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Custom Endpoint URL <em>(new)</em></label>
+          <input type="text" id="cfg-endpoint" placeholder="https://api.gameanalytics.com" />
+        </div>
+        <div class="field">
+          <label>Event process interval (seconds)</label>
+          <input type="number" id="cfg-interval" value="8" min="1" max="600" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="applyAdvancedConfig()">Apply Advanced Config</button>
+        <button class="btn btn-ghost" onclick="GA('enableHealthEvent', true)">Enable Health Event</button>
+        <button class="btn btn-ghost" onclick="GA('enableHealthEvent', false)">Disable Health Event</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── HEALTH & INIT EVENTS ────────────────────────────────────── -->
+  <div class="panel" id="panel-health">
+
+    <div class="card">
+      <h3>Health <em>Event</em></h3>
+      <p class="info-box" style="margin-bottom:14px">
+        Enables FPS + memory sampling via <code>requestAnimationFrame</code>.
+        Must be enabled before events are sent — call <strong>Enable</strong> then <strong>Initialize SDK</strong>.
+        A <code>health</code> event is automatically queued at each session end.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-green"  onclick="GA('enableHealthEvent', true)">Enable</button>
+        <button class="btn btn-ghost"  onclick="GA('enableHealthEvent', false)">Disable</button>
+        <button class="btn btn-primary" onclick="sendHealthEventNow()">Send Health Event Now</button>
+        <button class="btn btn-ghost"  onclick="showHealthSnapshot()">View Snapshot</button>
+      </div>
+      <pre id="health-snapshot-display" style="margin-top:12px;font-size:11px;display:none"></pre>
+    </div>
+
+    <div class="card">
+      <h3>SDK Init <em>Event</em></h3>
+      <p class="info-box" style="margin-bottom:14px">
+        Sent automatically on <code>initialize()</code> when health tracking is enabled.
+        Captures SDK version, engine version, build, and first-session flag.
+        Use <strong>Send Now</strong> to fire it manually (health must be enabled).
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendSdkInitEventNow()">Send SDK Init Event Now</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── BUSINESS ────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-business">
+    <div class="card">
+      <h3>Business <em>Event</em></h3>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Currency (ISO 4217)</label>
+          <input type="text" id="biz-currency" value="USD" />
+        </div>
+        <div class="field">
+          <label>Amount (cents)</label>
+          <input type="number" id="biz-amount" value="99" min="1" />
+        </div>
+        <div class="field">
+          <label>Item Type</label>
+          <input type="text" id="biz-itemtype" value="IAP" />
+        </div>
+        <div class="field">
+          <label>Item ID</label>
+          <input type="text" id="biz-itemid" value="coins_500" />
+        </div>
+        <div class="field">
+          <label>Cart Type</label>
+          <input type="text" id="biz-cart" value="main_shop" />
+        </div>
+        <div class="field">
+          <label>Custom fields (JSON)</label>
+          <input type="text" id="biz-fields" value='{"level":5}' />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-green" onclick="sendBusiness()">Send Business Event</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RESOURCE ────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-resource">
+    <div class="card">
+      <h3>Resource <em>Event</em></h3>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Flow Type</label>
+          <select id="res-flow">
+            <option value="1">Source (earn)</option>
+            <option value="2">Sink (spend)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Currency</label>
+          <input type="text" id="res-currency" value="Gold" />
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" id="res-amount" value="50" min="0.01" step="any" />
+        </div>
+        <div class="field">
+          <label>Item Type</label>
+          <input type="text" id="res-itemtype" value="Weapon" />
+        </div>
+        <div class="field">
+          <label>Item ID</label>
+          <input type="text" id="res-itemid" value="SwordOfFire" />
+        </div>
+        <div class="field">
+          <label>Custom fields (JSON)</label>
+          <input type="text" id="res-fields" value='{}' />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-green" onclick="sendResource()">Send Resource Event</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PROGRESSION ─────────────────────────────────────────────── -->
+  <div class="panel" id="panel-progression">
+    <div class="card">
+      <h3>Progression <em>Event</em></h3>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Status</label>
+          <select id="prog-status">
+            <option value="1">Start</option>
+            <option value="2">Complete</option>
+            <option value="3">Fail</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Progression 01 (required)</label>
+          <input type="text" id="prog-01" value="World01" />
+        </div>
+        <div class="field">
+          <label>Progression 02</label>
+          <input type="text" id="prog-02" value="Level05" />
+        </div>
+        <div class="field">
+          <label>Progression 03</label>
+          <input type="text" id="prog-03" value="" placeholder="optional" />
+        </div>
+        <div class="field">
+          <label>Score (optional)</label>
+          <input type="number" id="prog-score" value="" placeholder="leave blank = no score" />
+        </div>
+        <div class="field">
+          <label>Custom fields (JSON)</label>
+          <input type="text" id="prog-fields" value='{}' />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-yellow" onclick="sendProgression('1')">▶ Start</button>
+        <button class="btn btn-green" onclick="sendProgression('2')">✔ Complete</button>
+        <button class="btn btn-red" onclick="sendProgression('3')">✘ Fail</button>
+        <button class="btn btn-primary" onclick="sendProgressionCustom()">Send with status dropdown</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DESIGN ──────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-design">
+    <div class="card">
+      <h3>Design <em>Event</em></h3>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Event ID (colon-separated hierarchy)</label>
+          <input type="text" id="des-id" value="UI:Button:MainMenu" />
+        </div>
+        <div class="field">
+          <label>Value (optional float)</label>
+          <input type="number" id="des-value" placeholder="leave blank = no value" step="any" />
+        </div>
+        <div class="field">
+          <label>Custom fields (JSON)</label>
+          <input type="text" id="des-fields" value='{}' />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-green" onclick="sendDesign()">Send Design Event</button>
+      </div>
+      <div class="sep" style="margin-top:16px"></div>
+      <h3 style="margin-top:12px">Quick <em>Design Events</em></h3>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-ghost" onclick="GA('addDesignEvent','LevelStart:World01:Level01')">Level Start</button>
+        <button class="btn btn-ghost" onclick="GA('addDesignEvent','LevelComplete:World01:Level01', 1250)">Level Complete</button>
+        <button class="btn btn-ghost" onclick="GA('addDesignEvent','LevelFail:World01:Level01', 3)">Level Fail</button>
+        <button class="btn btn-ghost" onclick="GA('addDesignEvent','ShopOpen')">Shop Open</button>
+        <button class="btn btn-ghost" onclick="GA('addDesignEvent','Tutorial:StepCompleted', 1)">Tutorial Step</button>
+        <button class="btn btn-ghost" onclick="GA('addDesignEvent','Match:Duration', 142.5)">Match Duration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ERROR ───────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-error">
+    <div class="card">
+      <h3>Error <em>Event</em></h3>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Severity</label>
+          <select id="err-severity">
+            <option value="1">Debug</option>
+            <option value="2">Info</option>
+            <option value="3" selected>Warning</option>
+            <option value="4">Error</option>
+            <option value="5">Critical</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Message (≤8192 chars)</label>
+          <input type="text" id="err-message" value="NullReferenceException in PlayerController.Update()" />
+        </div>
+        <div class="field">
+          <label>Custom fields (JSON)</label>
+          <input type="text" id="err-fields" value='{}' />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-red" onclick="sendError()">Send Error Event</button>
+      </div>
+      <div class="sep" style="margin-top:16px"></div>
+      <h3 style="margin-top:12px">Quick <em>Error Events</em></h3>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-ghost" onclick="GA('addErrorEvent',1,'Debug checkpoint reached')">Debug</button>
+        <button class="btn btn-ghost" onclick="GA('addErrorEvent',2,'Player inventory loaded')">Info</button>
+        <button class="btn btn-ghost" onclick="GA('addErrorEvent',3,'Asset bundle load slow')">Warning</button>
+        <button class="btn btn-ghost" onclick="GA('addErrorEvent',4,'Socket connection lost')">Error</button>
+        <button class="btn btn-ghost" onclick="GA('addErrorEvent',5,'Out of memory — crash imminent')">Critical</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── AD ──────────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-ad">
+    <div class="card">
+      <h3>Ad <em>Event</em></h3>
+      <div class="grid grid-4">
+        <div class="field">
+          <label>Ad Action</label>
+          <select id="ad-action">
+            <option value="1">Clicked</option>
+            <option value="2" selected>Show</option>
+            <option value="3">FailedShow</option>
+            <option value="4">RewardReceived</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ad Type</label>
+          <select id="ad-type">
+            <option value="1">Video</option>
+            <option value="2" selected>RewardedVideo</option>
+            <option value="3">Playable</option>
+            <option value="4">Interstitial</option>
+            <option value="5">OfferWall</option>
+            <option value="6">Banner</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ad SDK Name</label>
+          <input type="text" id="ad-sdk" value="AdMob" />
+        </div>
+        <div class="field">
+          <label>Placement</label>
+          <input type="text" id="ad-placement" value="main_menu_banner" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-green" onclick="sendAd()">Send Ad Event (basic)</button>
+        <button class="btn btn-primary" onclick="sendAdWithDuration()">Send + Duration (5s)</button>
+        <button class="btn btn-orange" onclick="sendAdFailed()">Send FailedShow (NoFill)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SESSION ─────────────────────────────────────────────────── -->
+  <div class="panel" id="panel-session">
+    <div class="card">
+      <h3>Session <em>Control</em></h3>
+      <div class="info-box" style="margin-bottom:14px">
+        Manual session handling must be enabled before init. Call <code>setEnabledManualSessionHandling(true)</code> then
+        use <code>startSession</code> / <code>endSession</code> to control sessions explicitly.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="GA('setEnabledManualSessionHandling', true)">Enable Manual Session Handling</button>
+        <button class="btn btn-ghost" onclick="GA('setEnabledManualSessionHandling', false)">Disable Manual Session Handling</button>
+      </div>
+      <div class="sep" style="margin:14px 0"></div>
+      <div class="btn-row">
+        <button class="btn btn-green"   onclick="GA('startSession')">▶ startSession</button>
+        <button class="btn btn-red"     onclick="GA('endSession')">⏹ endSession</button>
+        <button class="btn btn-primary" onclick="GA('onResume')">⏩ onResume</button>
+        <button class="btn btn-ghost"   onclick="GA('onStop')">⏸ onStop</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Global <em>Custom Fields</em></h3>
+      <div class="field">
+        <label>Global custom fields (JSON — applied to all subsequent events)</label>
+        <textarea id="global-fields" rows="3">{"level": 10, "class": "warrior", "vip": false}</textarea>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn btn-primary" onclick="setGlobalFields()">Set Global Custom Fields</button>
+        <button class="btn btn-ghost" onclick="GA('setGlobalCustomEventFields', {})">Clear Global Fields</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── DIMENSIONS ──────────────────────────────────────────────── -->
+  <div class="panel" id="panel-dimensions">
+    <div class="card">
+      <h3>Set <em>Custom Dimensions</em></h3>
+      <div class="info-box" style="margin-bottom:14px">
+        Dimension values must be in the pre-configured list set via <code>configureAvailableCustomDimensions01/02/03</code>.
+        Go to <strong>Pre-Init Config</strong> to set available values before initializing.
+      </div>
+      <div class="grid grid-3">
+        <div class="field">
+          <label>Dimension01</label>
+          <select id="dim01-val">
+            <option value="">— none —</option>
+            <option value="ninja">ninja</option>
+            <option value="samurai">samurai</option>
+            <option value="mage">mage</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Dimension02</label>
+          <select id="dim02-val">
+            <option value="">— none —</option>
+            <option value="free">free</option>
+            <option value="paid">paid</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Dimension03</label>
+          <select id="dim03-val">
+            <option value="">— none —</option>
+            <option value="europe">europe</option>
+            <option value="americas">americas</option>
+            <option value="apac">apac</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="setDimensions()">Set Dimensions</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── REMOTE CONFIG ───────────────────────────────────────────── -->
+  <div class="panel" id="panel-remoteconfig">
+    <div class="card">
+      <h3>Remote <em>Configs</em></h3>
+      <div class="grid grid-2" style="margin-bottom:12px">
+        <div class="field">
+          <label>Key to look up</label>
+          <input type="text" id="rc-key" value="my_config_key" />
+        </div>
+        <div class="field">
+          <label>Default value (fallback)</label>
+          <input type="text" id="rc-default" value="default_value" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="getRCValue()">Get Value</button>
+        <button class="btn btn-ghost" onclick="showRCContent()">Show All Configs</button>
+        <button class="btn btn-ghost" onclick="checkRCReady()">Is Ready?</button>
+        <button class="btn btn-ghost" onclick="addRCListener()">Add Listener</button>
+        <button class="btn btn-ghost" onclick="removeRCListener()">Remove Listener</button>
+      </div>
+      <div id="rc-display" style="margin-top:14px">— press a button to query —</div>
+    </div>
+  </div>
+
+  <!-- ─── NEW FEATURES ────────────────────────────────────────────── -->
+  <div class="panel" id="panel-newfeatures">
+
+    <div class="card">
+      <h3>Health <em>Tracking</em> (P5)</h3>
+      <div class="info-box" style="margin-bottom:14px">
+        rAF-based FPS sampling + memory info. Enable before or after init.
+        See the dedicated <strong>Health &amp; Init</strong> panel for full controls.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green"  onclick="GA('enableHealthEvent', true)">Enable Health Event</button>
+        <button class="btn btn-ghost"  onclick="GA('enableHealthEvent', false)">Disable</button>
+        <button class="btn btn-primary" onclick="showHealthSnapshot()">View Snapshot</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Storage <em>Adapter</em> (P12)</h3>
+      <div class="info-box" style="margin-bottom:14px">
+        Swap the storage backend. <em>Must be called before <code>initialize()</code></em>.
+        The <code>InMemoryAdapter</code> keeps everything in RAM (lost on reload — useful for SSR/Node).
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="useLocalStorage()">Use LocalStorageAdapter (default)</button>
+        <button class="btn btn-ghost" onclick="useInMemoryStorage()">Use InMemoryAdapter</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Custom <em>HTTP Handler</em> (P9)</h3>
+      <div class="info-box" style="margin-bottom:14px">
+        Intercept every outgoing HTTP request. The handler receives <code>(url, payload, authHeader, callback(status, body))</code>.
+        <em>Must be set before <code>initialize()</code></em>.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="installHttpInterceptor()">Install logging interceptor</button>
+        <button class="btn btn-ghost" onclick="clearHttpInterceptor()">Clear (restore XHR)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>External <em>User ID</em> (P7)</h3>
+      <div class="info-box" style="margin-bottom:14px">
+        Attach your own user identifier (≤64 chars) that gets injected into every event annotation.
+        <em>Must be set before <code>initialize()</code></em>.
+      </div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>External User ID</label>
+          <input type="text" id="ext-user-id" value="player_abc123" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn btn-primary" onclick="setExternalUserId()">Set External User ID</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Backoff <em>Interval</em> (P1)</h3>
+      <div class="info-box" style="margin-bottom:14px">
+        Set the event-queue poll interval. The SDK doubles it automatically on network failures
+        (up to 300 s) and resets on success or when the browser comes back online.
+      </div>
+      <div class="grid grid-2">
+        <div class="field">
+          <label>Interval (seconds, 1–600)</label>
+          <input type="number" id="backoff-interval" value="8" min="1" max="600" />
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn btn-primary" onclick="setEventInterval()">Set Process Interval</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ESM <em>Import</em> (P2)</h3>
+      <div class="info-box">
+        The <code>dist/GameAnalytics.esm.js</code> bundle exports:<br/>
+        <code>import GameAnalytics from '../dist/GameAnalytics.esm.js';</code><br/>
+        <code>import { gameanalytics } from '../dist/GameAnalytics.esm.js';</code><br/><br/>
+        Open DevTools → Console and run:<br/>
+        <code>import('../dist/GameAnalytics.esm.js').then(m => console.log(Object.keys(m)))</code>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── BUILD CONSOLE ────────────────────────────────────────────── -->
+  <div class="panel" id="panel-build">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2)">
+        <span style="font-weight:600;font-size:13px">Build Console</span>
+        <span id="build-console-badge" style="font-size:11px;color:var(--text-dim)">idle</span>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" onclick="triggerRebuild()" style="font-size:11px;padding:4px 10px">&#8635; Rebuild SDK</button>
+        <button class="btn btn-ghost" onclick="clearBuildConsole()" style="font-size:11px;padding:4px 10px">Clear</button>
+      </div>
+      <pre id="build-console-output" style="margin:0;padding:12px 16px;min-height:400px;max-height:60vh;overflow-y:auto;font-size:11px;line-height:1.7;background:var(--bg);color:#c8cde8;white-space:pre-wrap;word-break:break-all">(no build output yet — press Rebuild SDK)</pre>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════ LOG -->
+<div id="log-panel">
+  <div class="log-header">
+    <span>📋 SDK Log</span>
+    <span class="badge badge-sdk" id="log-count">0 lines</span>
+    <button class="btn btn-ghost" id="log-clear" onclick="clearLog()">Clear</button>
+    <label class="toggle-row" style="margin-left:8px">
+      <input type="checkbox" id="log-autoscroll" checked /> Auto-scroll
+    </label>
+    <label class="toggle-row" style="margin-left:8px">
+      <input type="checkbox" id="log-verbose" /> Show verbose
+    </label>
+  </div>
+  <div id="log"></div>
+</div>
+
+<!-- SDK -->
+<script src="../dist/GameAnalytics.debug.js"></script>
+<script src="app.js"></script>
+
+<!-- Dev build controller -->
+<script>
+(function () {
+  var isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+  if (!isLocal) return;
+
+  var badge      = document.getElementById('build-badge');
+  var btn        = document.getElementById('rebuild-btn');
+  var errPanel   = document.getElementById('build-error-panel');
+  var errOutput  = document.getElementById('build-error-output');
+  var consoleEl  = document.getElementById('build-console-output');
+  var consBadge  = document.getElementById('build-console-badge');
+
+  var userTriggered = false;
+  var COLORS = { building: '#f6c90e', ready: '#3ecf8e', error: '#f06060', idle: '#7a7f9a' };
+
+  function setStatus(state, label) {
+    if (badge)     { badge.textContent = '● ' + label; badge.style.color = COLORS[state]; }
+    if (btn)       { btn.disabled = state === 'building'; }
+    if (consBadge) { consBadge.textContent = label; consBadge.style.color = COLORS[state]; }
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  window.hideBuildError = function () {
+    if (errPanel)  errPanel.style.display = 'none';
+    if (errOutput) errOutput.textContent  = '';
+  };
+
+  window.clearBuildConsole = function () {
+    if (consoleEl) consoleEl.textContent = '';
+  };
+
+  function showError(msg) {
+    var raw = msg || '(no output)';
+    var html = '';
+    raw.split('\n').forEach(function (line) {
+      var m = line.match(/^(.+\.ts)\((\d+),(\d+)\):\s*(error TS\d+:.+)$/);
+      if (m) {
+        html += '<div class="be-entry"><span class="be-loc">' + escHtml(m[1]) + ':' + m[2] + '</span> <span class="be-msg">' + escHtml(m[4]) + '</span></div>';
+      } else if (line.trim()) {
+        html += '<div class="be-line">' + escHtml(line) + '</div>';
+      }
+    });
+    if (errOutput) errOutput.innerHTML = html || escHtml(raw);
+    if (errPanel)  errPanel.style.display = '';
+  }
+
+  function poll() {
+    fetch('/build-status')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (consoleEl && data.log && data.log.length) {
+          consoleEl.textContent = data.log.join('\n');
+          consoleEl.scrollTop  = consoleEl.scrollHeight;
+        }
+        if (data.building) {
+          setStatus('building', 'building…');
+        } else if (data.result && data.result.status === 'done') {
+          setStatus('ready', 'ready');
+          if (userTriggered) {
+            userTriggered = false;
+            try { sessionStorage.setItem('ga-build-ok', '✓'); } catch (_) {}
+            setTimeout(function () { window.location.reload(); }, 500);
+          }
+        } else if (data.result && data.result.status === 'failed') {
+          setStatus('error', 'build failed');
+          if (userTriggered) {
+            userTriggered = false;
+            showError(data.result.message || '');
+          }
+        } else {
+          setStatus('idle', 'idle');
+        }
+      })
+      .catch(function () { setStatus('error', 'server offline'); });
+  }
+
+  window.triggerRebuild = function () {
+    userTriggered = true;
+    setStatus('building', 'building…');
+    hideBuildError();
+    if (consoleEl) consoleEl.textContent = '[build] starting…';
+    fetch('/rebuild', { method: 'POST' })
+      .catch(function () { userTriggered = false; setStatus('error', 'server unreachable'); });
+  };
+
+  setInterval(poll, 1000);
+  poll();
+
+  try {
+    var ok = sessionStorage.getItem('ga-build-ok');
+    if (ok) {
+      sessionStorage.removeItem('ga-build-ok');
+      setStatus('ready', 'ready');
+      var toast = document.getElementById('build-success-toast');
+      if (toast) {
+        toast.querySelector('.bs-summary').textContent = 'Build succeeded';
+        toast.style.display = '';
+        setTimeout(function () { toast.style.display = 'none'; }, 4000);
+      }
+    }
+  } catch (_) {}
+})();
+</script>
+
+</body>
 </html>
