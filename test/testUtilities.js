@@ -14,18 +14,14 @@ function getRandomString(numberOfCharacters)
 
 function countPatternFoundInBlocks(pattern)
 {
-    var GAThreading = gameanalytics.threading.GAThreading;
+    var queue = gameanalytics.threading.GAThreading.instance.taskQueue;
     var result = 0;
-    for (var i = 0; i < GAThreading.instance.blocks._sortedKeys.length; i++)
+    for (var i = 0; i < queue.length; i++)
     {
-        for (var j = 0; j < GAThreading.instance.blocks._subQueues[GAThreading.instance.blocks._sortedKeys[i]].length; j++)
+        if (queue[i].toString().indexOf(pattern) !== -1)
         {
-            if(GAThreading.instance.blocks._subQueues[GAThreading.instance.blocks._sortedKeys[i]][j].block.toString().indexOf(pattern) != -1)
-            {
-                result++;
-            }
+            result++;
         }
     }
-
     return result;
 }
