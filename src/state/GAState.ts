@@ -38,6 +38,17 @@ module gameanalytics
                 return GAState.instance.identifier;
             }
 
+            private extUserId:string;
+            public static setExtUserId(uid:string): void
+            {
+                GAState.instance.extUserId = uid; 
+            }
+
+            public static getExtUserId(): string
+            {
+                return GAState.instance.extUserId;
+            }
+
             private initialized:boolean;
             public static isInitialized(): boolean
             {
@@ -225,6 +236,7 @@ module gameanalytics
 
             public sdkConfigCached:{[key:string]: any};
             private configurations:{[key:string]: any} = {};
+            private trackingConfigurations: any[] = [];
             private remoteConfigsIsReady:boolean;
             private remoteConfigsListeners:Array<{ onRemoteConfigsUpdated:() => void }> = [];
             private beforeUnloadListeners: Array<{ onBeforeUnload: () => void }> = [];
@@ -419,6 +431,12 @@ module gameanalytics
                 // User identifier
                 annotations["user_id"] = GAState.instance.identifier;
 
+                // ext user id
+                if(GAState.instance.extUserId && GAState.instance.extUserId.length > 0)
+                {
+                    annotations["user_id_ext"] = GAState.instance.extUserId;
+                }
+
                 // Client Timestamp (the adjusted timestamp)
                 annotations["client_ts"] = GAState.getClientTsAdjusted();
                 // SDK version
@@ -451,18 +469,9 @@ module gameanalytics
                 }
 
                 // remote configs
-                if(GAState.instance.configurations)
+                if(GAState.instance.trackingConfigurations && GAState.instance.trackingConfigurations.length > 0)
                 {
-                    var count:number = 0;
-                    for(let _ in GAState.instance.configurations)
-                    {
-                        count++;
-                        break;
-                    }
-                    if(count > 0)
-                    {
-                        annotations["configurations"] = GAState.instance.configurations;
-                    }
+                    annotations["configurations_v3"] = GAState.instance.trackingConfigurations;
                 }
 
                 // A/B testing
@@ -837,6 +846,18 @@ module gameanalytics
                 }
             }
 
+            public static getConfigurationJsonValue(key:string, defaultValue:string):string
+            {
+                if(GAState.instance.configurations[key])
+                {
+                    return GAState.instance.configurations[key];
+                }
+                else
+                {
+                    return defaultValue;
+                }
+            }
+
             public static isRemoteConfigsReady():boolean
             {
                 return GAState.instance.remoteConfigsIsReady;
@@ -868,6 +889,8 @@ module gameanalytics
             {
                 var configurations:any[] = sdkConfig["configs"];
 
+                GAState.instance.trackingConfigurations = []
+
                 if(configurations)
                 {
                     GAState.instance.configurations = {};
@@ -889,6 +912,14 @@ module gameanalytics
                                 GAState.instance.configurations[key] = value;
                                 GALogger.d("configuration added: " + JSON.stringify(configuration));
                             }
+
+                            var trackConfig:any = {};
+
+                            trackConfig["key"] = configuration["key"]
+                            trackConfig["id"] = configuration["id"]
+                            trackConfig["vsn"] = configuration["vsn"]
+
+                            this.instance.trackingConfigurations.push(trackConfig)
                         }
                     }
                 }
