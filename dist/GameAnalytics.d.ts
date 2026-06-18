@@ -301,41 +301,6 @@ declare module gameanalytics {
     }
 }
 declare module gameanalytics {
-    module threading {
-        class TimedBlock {
-            readonly deadline: Date;
-            block: () => void;
-            readonly id: number;
-            ignore: boolean;
-            async: boolean;
-            running: boolean;
-            private static idCounter;
-            constructor(deadline: Date);
-        }
-    }
-}
-declare module gameanalytics {
-    module threading {
-        interface IComparer<T> {
-            compare(x: T, y: T): number;
-        }
-        class PriorityQueue<TItem> {
-            _subQueues: {
-                [key: number]: Array<TItem>;
-            };
-            _sortedKeys: Array<number>;
-            private comparer;
-            constructor(priorityComparer: IComparer<number>);
-            enqueue(priority: number, item: TItem): void;
-            private addQueueOfPriority;
-            peek(): TItem;
-            hasItems(): boolean;
-            dequeue(): TItem;
-            private dequeueFromHighPriorityQueue;
-        }
-    }
-}
-declare module gameanalytics {
     module store {
         enum EGAStoreArgsOperator {
             Equal = 0,
@@ -393,6 +358,9 @@ declare module gameanalytics {
             static setUserId(userId: string): void;
             private identifier;
             static getIdentifier(): string;
+            private extUserId;
+            static setExtUserId(uid: string): void;
+            static getExtUserId(): string;
             private initialized;
             static isInitialized(): boolean;
             static setInitialized(value: boolean): void;
@@ -444,6 +412,7 @@ declare module gameanalytics {
                 [key: string]: any;
             };
             private configurations;
+            private trackingConfigurations;
             private remoteConfigsIsReady;
             private remoteConfigsListeners;
             private beforeUnloadListeners;
@@ -581,6 +550,58 @@ declare module gameanalytics {
     }
 }
 declare module gameanalytics {
+    module health {
+        interface HealthSnapshot {
+            memory_used_mb: number;
+            hardware_concurrency: number;
+            screen_width: number;
+            screen_height: number;
+            cpu_model: string;
+            hardware: string;
+            gpu_model: string;
+            screen_resolution: string;
+        }
+        class GAHealth {
+            private static readonly FPS_MAX;
+            private static readonly MEM_INTERVAL;
+            private static _enabled;
+            private static rafId;
+            private static lastFrameTime;
+            private static fpsBuckets;
+            private static frameAccum;
+            private static frameCount;
+            private static secondTimer;
+            private static memTimer;
+            private static memSysBuckets;
+            private static memAppBuckets;
+            private static _gpuModel;
+            private static _hardware;
+            private static _screenResolution;
+            private constructor();
+            private static reset;
+            private static sampleMemory;
+            private static getGpuModel;
+            private static getHardware;
+            private static getDeviceMemoryBytes;
+            private static getScreenResolution;
+            static configure(enabled: boolean): void;
+            private static startTracking;
+            private static stopTracking;
+            static getSnapshot(): HealthSnapshot;
+            static addHealthAnnotations(out: {
+                [key: string]: any;
+            }): void;
+            static addPerformanceData(out: {
+                [key: string]: any;
+            }): void;
+            static addSDKInitData(out: {
+                [key: string]: any;
+            }): void;
+            static isEnabled(): boolean;
+        }
+    }
+}
+declare module gameanalytics {
     module events {
         class GAEvents {
             private static readonly CategorySessionStart;
@@ -591,6 +612,8 @@ declare module gameanalytics {
             private static readonly CategoryResource;
             private static readonly CategoryError;
             private static readonly CategoryAds;
+            private static readonly CategorySDKInit;
+            private static readonly CategoryHealth;
             private static readonly MaxEventCount;
             private static readonly MAX_ERROR_COUNT;
             private static readonly countMap;
@@ -599,6 +622,8 @@ declare module gameanalytics {
             private static customEventFieldsErrorCallback;
             static addSessionStartEvent(): void;
             static addSessionEndEvent(): void;
+            static addSDKInitEvent(): void;
+            static addHealthEvent(): void;
             static addBusinessEvent(currency: string, amount: number, itemType: string, itemId: string, cartType: string, fields: {
                 [id: string]: any;
             }, mergeFields: boolean): void;
@@ -638,35 +663,23 @@ declare module gameanalytics {
     module threading {
         class GAThreading {
             private static readonly instance;
-            readonly blocks: PriorityQueue<TimedBlock>;
-            private readonly id2TimedBlockMap;
-            private static runTimeoutId;
-            private static readonly ThreadWaitTimeInMs;
+            private readonly taskQueue;
+            private static eventIntervalId;
             private static ProcessEventsIntervalInSeconds;
-            private keepRunning;
             private isRunning;
             private constructor();
-            static createTimedBlock(delayInSeconds?: number): TimedBlock;
-            static performTaskOnGAThread(taskBlock: () => void, delayInSeconds?: number): void;
-            static performTimedBlockOnGAThread(timedBlock: TimedBlock): void;
-            static scheduleTimer(interval: number, callback: () => void): number;
-            static getTimedBlockById(blockIdentifier: number): TimedBlock;
+            static performTaskOnGAThread(taskBlock: () => void): void;
             static ensureEventQueueIsRunning(): void;
             static endSessionAndStopQueue(): void;
             static stopEventQueue(): void;
-            static ignoreTimer(blockIdentifier: number): void;
             static setEventProcessInterval(interval: number): void;
-            private addTimedBlock;
             private static run;
-            private static startThread;
-            private static getNextBlock;
             private static processEventQueue;
         }
     }
 }
 declare module gameanalytics {
     class GameAnalytics {
-        private static initTimedBlockId;
         static methodMap: {
             [id: string]: (...args: any[]) => void;
         };
@@ -682,6 +695,8 @@ declare module gameanalytics {
         static configureSdkGameEngineVersion(sdkGameEngineVersion?: string): void;
         static configureGameEngineVersion(gameEngineVersion?: string): void;
         static configureUserId(uId?: string): void;
+        static setExtUserId(uId?: string): void;
+        static getExtUserId(): string;
         static initialize(gameKey?: string, gameSecret?: string): void;
         static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string, customFields?: {
             [id: string]: any;
@@ -711,6 +726,7 @@ declare module gameanalytics {
         static setEnabledVerboseLog(flag?: boolean): void;
         static setEnabledManualSessionHandling(flag?: boolean): void;
         static setEnabledEventSubmission(flag?: boolean): void;
+        static enableHealthEvent(flag?: boolean): void;
         static setCustomDimension01(dimension?: string): void;
         static setCustomDimension02(dimension?: string): void;
         static setCustomDimension03(dimension?: string): void;
