@@ -846,7 +846,7 @@ module gameanalytics
                 }
             }
 
-            public static getConfigurationJsonValue(key:string, defaultValue:string):string
+            public static getConfigurationJsonValue(key:string, defaultValue:any):any
             {
                 if(GAState.instance.configurations[key])
                 {

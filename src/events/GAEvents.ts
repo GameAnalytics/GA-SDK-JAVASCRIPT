@@ -31,6 +31,8 @@ module gameanalytics
             private static readonly countMap: { [key: string]: number } = {};
             private static readonly timestampMap: { [key: string]: Date } = {};
 
+            private static wasSDKInitEventSent: boolean = false;
+
             private constructor()
             {
 
@@ -153,6 +155,14 @@ module gameanalytics
                     {
                         return;
                     }
+
+                    if(GAEvents.wasSDKInitEventSent)
+                    {
+                        return;
+                    }
+
+                    // sdk init needs to be sent only once on app open
+                    GAEvents.wasSDKInitEventSent = true;
 
                     var eventDict:{[key:string]: any} = {};
                     eventDict["category"] = GAEvents.CategorySDKInit;

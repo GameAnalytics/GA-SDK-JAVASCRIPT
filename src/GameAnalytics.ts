@@ -63,6 +63,7 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             GameAnalytics.methodMap['addRemoteConfigsListener'] = GameAnalytics.addRemoteConfigsListener;
             GameAnalytics.methodMap['removeRemoteConfigsListener'] = GameAnalytics.removeRemoteConfigsListener;
             GameAnalytics.methodMap['getRemoteConfigsValueAsString'] = GameAnalytics.getRemoteConfigsValueAsString;
+            GameAnalytics.methodMap['getRemoteConfigsValueAsJSON'] = GameAnalytics.getRemoteConfigsValueAsJSON;
             GameAnalytics.methodMap['isRemoteConfigsReady'] = GameAnalytics.isRemoteConfigsReady;
             GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
             GameAnalytics.methodMap['addOnBeforeUnloadListener'] = GameAnalytics.addOnBeforeUnloadListener;
@@ -645,6 +646,11 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             return GAState.getConfigurationStringValue(key, defaultValue);
         }
 
+        public static getRemoteConfigsValueAsJSON(key:string, defaultValue:any = null):any
+        {
+            return GAState.getConfigurationJsonValue(key, defaultValue);
+        }
+
         public static isRemoteConfigsReady():boolean
         {
             return GAState.isRemoteConfigsReady();
@@ -698,8 +704,6 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             {
                 GAThreading.ensureEventQueueIsRunning();
             }
-
-            GAEvents.addSDKInitEvent();
         }
 
         private static newSession(): void
@@ -836,6 +840,9 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
 
             // Add session start event
             GAEvents.addSessionStartEvent();
+
+            // Add sdk init event if enabled
+            GAEvents.addSDKInitEvent();
         }
 
         private static resumeSessionAndStartQueue(): void
