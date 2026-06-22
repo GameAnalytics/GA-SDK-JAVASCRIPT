@@ -1,5 +1,36 @@
+# Dependencies
 node_modules/
-*.mem
+
+# Build output
+dist/*.map
+
+# Vendor bundles (generated)
 vendor/bundle.js
 vendor/bundle.min.js
-dist/*.map
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Emscripten memory init files
+*.mem
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
