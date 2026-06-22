@@ -25,7 +25,7 @@ module gameanalytics
             private static fpsBuckets: number[] = [];
             private static frameAccum: number = 0;
             private static frameCount: number = 0;
-            private static secondTimer: number = 0;
+            private static fpsTimer: number = 0;
             private static memTimer: number = 0;
             private static memSysBuckets: number[] = [];
             private static memAppBuckets: number[] = [];
@@ -40,7 +40,7 @@ module gameanalytics
             {
                 GAHealth.frameAccum = 0;
                 GAHealth.frameCount = 0;
-                GAHealth.secondTimer = 0;
+                GAHealth.fpsTimer = 0;
                 GAHealth.memTimer = 0;
             }
 
@@ -147,16 +147,16 @@ module gameanalytics
                     {
                         GAHealth.frameAccum += 1000 / delta;
                         GAHealth.frameCount++;
-                        GAHealth.secondTimer += delta;
+                        GAHealth.fpsTimer += delta;
                         GAHealth.memTimer += delta;
 
-                        if (GAHealth.secondTimer >= 1000)
+                        if (GAHealth.fpsTimer >= 1000)
                         {
                             var avgFps: number = Math.min(GAHealth.FPS_MAX, Math.max(0, Math.round(GAHealth.frameAccum / GAHealth.frameCount)));
                             GAHealth.fpsBuckets[avgFps]++;
                             GAHealth.frameAccum = 0;
                             GAHealth.frameCount = 0;
-                            GAHealth.secondTimer -= 1000;
+                            GAHealth.fpsTimer -= 1000;
                         }
 
                         if (GAHealth.memTimer >= GAHealth.MEM_INTERVAL)
@@ -203,7 +203,6 @@ module gameanalytics
 
             public static addHealthAnnotations(out: {[key: string]: any}): void
             {
-
                 out['cpu_model'] = 'unknown';
 
                 out['hardware'] = GAHealth.getHardware();
