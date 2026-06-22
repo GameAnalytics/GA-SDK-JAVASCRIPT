@@ -257,6 +257,11 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             return GAState.getExtUserId();
         }
 
+        public static getUserId() : string
+        {
+            return GAState.getIdentifier();
+        }
+
         public static initialize(gameKey:string = "", gameSecret:string = ""): void
         {
             GADevice.updateConnectionType();
