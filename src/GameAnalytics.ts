@@ -37,6 +37,7 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             GameAnalytics.methodMap['configureSdkGameEngineVersion'] = GameAnalytics.configureSdkGameEngineVersion;
             GameAnalytics.methodMap['configureGameEngineVersion'] = GameAnalytics.configureGameEngineVersion;
             GameAnalytics.methodMap['configureUserId'] = GameAnalytics.configureUserId;
+            GameAnalytics.methodMap['getUserId'] = GameAnalytics.getUserId;
             GameAnalytics.methodMap['setExtUserId'] = GameAnalytics.setExtUserId;
             GameAnalytics.methodMap['getExtUserId'] = GameAnalytics.getExtUserId;
             GameAnalytics.methodMap['initialize'] = GameAnalytics.initialize;
