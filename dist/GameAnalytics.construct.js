@@ -1322,7 +1322,7 @@ var gameanalytics;
                 }
                 return result;
             };
-            GADevice.sdkWrapperVersion = "javascript 4.4.6";
+            GADevice.sdkWrapperVersion = "javascript 5.0.0";
             GADevice.osVersionPair = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -2205,6 +2205,14 @@ var gameanalytics;
                     return defaultValue;
                 }
             };
+            GAState.getConfigurationJsonValue = function (key, defaultValue) {
+                if (GAState.instance.configurations[key]) {
+                    return GAState.instance.configurations[key];
+                }
+                else {
+                    return defaultValue;
+                }
+            };
             GAState.isRemoteConfigsReady = function () {
                 return GAState.instance.remoteConfigsIsReady;
             };
@@ -2703,7 +2711,7 @@ var gameanalytics;
             GAHealth.reset = function () {
                 GAHealth.frameAccum = 0;
                 GAHealth.frameCount = 0;
-                GAHealth.secondTimer = 0;
+                GAHealth.fpsTimer = 0;
                 GAHealth.memTimer = 0;
             };
             GAHealth.sampleMemory = function () {
@@ -2788,14 +2796,14 @@ var gameanalytics;
                     if (delta > 0) {
                         GAHealth.frameAccum += 1000 / delta;
                         GAHealth.frameCount++;
-                        GAHealth.secondTimer += delta;
+                        GAHealth.fpsTimer += delta;
                         GAHealth.memTimer += delta;
-                        if (GAHealth.secondTimer >= 1000) {
+                        if (GAHealth.fpsTimer >= 1000) {
                             var avgFps = Math.min(GAHealth.FPS_MAX, Math.max(0, Math.round(GAHealth.frameAccum / GAHealth.frameCount)));
                             GAHealth.fpsBuckets[avgFps]++;
                             GAHealth.frameAccum = 0;
                             GAHealth.frameCount = 0;
-                            GAHealth.secondTimer -= 1000;
+                            GAHealth.fpsTimer -= 1000;
                         }
                         if (GAHealth.memTimer >= GAHealth.MEM_INTERVAL) {
                             GAHealth.sampleMemory();
@@ -2865,7 +2873,7 @@ var gameanalytics;
             GAHealth.fpsBuckets = [];
             GAHealth.frameAccum = 0;
             GAHealth.frameCount = 0;
-            GAHealth.secondTimer = 0;
+            GAHealth.fpsTimer = 0;
             GAHealth.memTimer = 0;
             GAHealth.memSysBuckets = [];
             GAHealth.memAppBuckets = [];
@@ -2944,7 +2952,6 @@ var gameanalytics;
                     GALogger.w("Session length was calculated to be less then 0. Should not be possible. Resetting to 0.");
                     sessionLength = 0;
                 }
-                sessionLength = 1000;
                 var eventDict = {};
                 eventDict["category"] = GAEvents.CategorySessionEnd;
                 eventDict["length"] = sessionLength;
@@ -2963,6 +2970,10 @@ var gameanalytics;
                     if (!gameanalytics.health.GAHealth.isEnabled()) {
                         return;
                     }
+                    if (GAEvents.wasSDKInitEventSent) {
+                        return;
+                    }
+                    GAEvents.wasSDKInitEventSent = true;
                     var eventDict = {};
                     eventDict["category"] = GAEvents.CategorySDKInit;
                     var sessionNum = GAState.getSessionNum();
@@ -3386,6 +3397,8 @@ var gameanalytics;
                     var start_ts = sessions[i]["timestamp"];
                     var length = event_ts - start_ts;
                     length = Math.max(0, length);
+                    if (length === null)
+                        length = 0;
                     sessionEndEvent["category"] = GAEvents.CategorySessionEnd;
                     sessionEndEvent["length"] = length;
                     GAEvents.addEventToStore(sessionEndEvent);
@@ -3594,6 +3607,7 @@ var gameanalytics;
             GAEvents.MAX_ERROR_COUNT = 10;
             GAEvents.countMap = {};
             GAEvents.timestampMap = {};
+            GAEvents.wasSDKInitEventSent = false;
             return GAEvents;
         }());
         events_1.GAEvents = GAEvents;
@@ -3706,6 +3720,7 @@ var gameanalytics;
             GameAnalytics.methodMap['configureSdkGameEngineVersion'] = GameAnalytics.configureSdkGameEngineVersion;
             GameAnalytics.methodMap['configureGameEngineVersion'] = GameAnalytics.configureGameEngineVersion;
             GameAnalytics.methodMap['configureUserId'] = GameAnalytics.configureUserId;
+            GameAnalytics.methodMap['getUserId'] = GameAnalytics.getUserId;
             GameAnalytics.methodMap['setExtUserId'] = GameAnalytics.setExtUserId;
             GameAnalytics.methodMap['getExtUserId'] = GameAnalytics.getExtUserId;
             GameAnalytics.methodMap['initialize'] = GameAnalytics.initialize;
@@ -3732,6 +3747,7 @@ var gameanalytics;
             GameAnalytics.methodMap['addRemoteConfigsListener'] = GameAnalytics.addRemoteConfigsListener;
             GameAnalytics.methodMap['removeRemoteConfigsListener'] = GameAnalytics.removeRemoteConfigsListener;
             GameAnalytics.methodMap['getRemoteConfigsValueAsString'] = GameAnalytics.getRemoteConfigsValueAsString;
+            GameAnalytics.methodMap['getRemoteConfigsValueAsJSON'] = GameAnalytics.getRemoteConfigsValueAsJSON;
             GameAnalytics.methodMap['isRemoteConfigsReady'] = GameAnalytics.isRemoteConfigsReady;
             GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
             GameAnalytics.methodMap['addOnBeforeUnloadListener'] = GameAnalytics.addOnBeforeUnloadListener;
@@ -3878,6 +3894,9 @@ var gameanalytics;
         };
         GameAnalytics.getExtUserId = function () {
             return GAState.getExtUserId();
+        };
+        GameAnalytics.getUserId = function () {
+            return GAState.getIdentifier();
         };
         GameAnalytics.initialize = function (gameKey, gameSecret) {
             if (gameKey === void 0) { gameKey = ""; }
@@ -4211,6 +4230,10 @@ var gameanalytics;
             if (defaultValue === void 0) { defaultValue = null; }
             return GAState.getConfigurationStringValue(key, defaultValue);
         };
+        GameAnalytics.getRemoteConfigsValueAsJSON = function (key, defaultValue) {
+            if (defaultValue === void 0) { defaultValue = null; }
+            return GAState.getConfigurationJsonValue(key, defaultValue);
+        };
         GameAnalytics.isRemoteConfigsReady = function () {
             return GAState.isRemoteConfigsReady();
         };
@@ -4243,7 +4266,6 @@ var gameanalytics;
             if (GAState.isEnabled()) {
                 GAThreading.ensureEventQueueIsRunning();
             }
-            GAEvents.addSDKInitEvent();
         };
         GameAnalytics.newSession = function () {
             GALogger.i("Starting a new session.");
@@ -4324,6 +4346,7 @@ var gameanalytics;
             GAState.instance.sessionId = newSessionId;
             GAState.instance.sessionStart = GAState.getClientTsAdjusted();
             GAEvents.addSessionStartEvent();
+            GAEvents.addSDKInitEvent();
         };
         GameAnalytics.resumeSessionAndStartQueue = function () {
             if (!GAState.isInitialized()) {

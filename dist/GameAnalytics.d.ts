@@ -478,6 +478,7 @@ declare module gameanalytics {
             };
             static validateAndFixCurrentDimensions(): void;
             static getConfigurationStringValue(key: string, defaultValue: string): string;
+            static getConfigurationJsonValue(key: string, defaultValue: any): any;
             static isRemoteConfigsReady(): boolean;
             static addRemoteConfigsListener(listener: {
                 onRemoteConfigsUpdated: () => void;
@@ -570,7 +571,7 @@ declare module gameanalytics {
             private static fpsBuckets;
             private static frameAccum;
             private static frameCount;
-            private static secondTimer;
+            private static fpsTimer;
             private static memTimer;
             private static memSysBuckets;
             private static memAppBuckets;
@@ -618,6 +619,7 @@ declare module gameanalytics {
             private static readonly MAX_ERROR_COUNT;
             private static readonly countMap;
             private static readonly timestampMap;
+            private static wasSDKInitEventSent;
             private constructor();
             private static customEventFieldsErrorCallback;
             static addSessionStartEvent(): void;
@@ -697,6 +699,7 @@ declare module gameanalytics {
         static configureUserId(uId?: string): void;
         static setExtUserId(uId?: string): void;
         static getExtUserId(): string;
+        static getUserId(): string;
         static initialize(gameKey?: string, gameSecret?: string): void;
         static addBusinessEvent(currency?: string, amount?: number, itemType?: string, itemId?: string, cartType?: string, customFields?: {
             [id: string]: any;
@@ -739,6 +742,7 @@ declare module gameanalytics {
         static onStop(): void;
         static onResume(): void;
         static getRemoteConfigsValueAsString(key: string, defaultValue?: string): string;
+        static getRemoteConfigsValueAsJSON(key: string, defaultValue?: any): any;
         static isRemoteConfigsReady(): boolean;
         static addRemoteConfigsListener(listener: {
             onRemoteConfigsUpdated: () => void;
