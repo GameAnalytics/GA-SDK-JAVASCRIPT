@@ -22,6 +22,7 @@
         "./src/state/GAState.ts",
         "./src/tasks/SdkErrorTask.ts",
         "./src/http/GAHTTPApi.ts",
+        "./src/health/GAHealth.ts",
         "./src/events/GAEvents.ts",
         "./src/threading/GAThreading.ts",
         "./src/GameAnalytics.ts"

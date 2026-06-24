@@ -23,11 +23,15 @@ module gameanalytics
             private static readonly CategoryResource:string = "resource";
             private static readonly CategoryError:string = "error";
             private static readonly CategoryAds:string = "ads";
+            private static readonly CategorySDKInit:string = "sdk_init";
+            private static readonly CategoryHealth:string = "health";
             private static readonly MaxEventCount:number = 500;
 
             private static readonly MAX_ERROR_COUNT:number = 10;
             private static readonly countMap: { [key: string]: number } = {};
             private static readonly timestampMap: { [key: string]: Date } = {};
+
+            private static wasSDKInitEventSent: boolean = false;
 
             private constructor()
             {
@@ -136,6 +140,81 @@ module gameanalytics
 
                 // Send all event right away
                 GAEvents.processEvents("", false);
+            }
+
+            public static addSDKInitEvent(): void
+            {
+                try
+                {
+                    if(!GAState.isEventSubmissionEnabled())
+                    {
+                        return;
+                    }
+
+                    if(!gameanalytics.health.GAHealth.isEnabled())
+                    {
+                        return;
+                    }
+
+                    if(GAEvents.wasSDKInitEventSent)
+                    {
+                        return;
+                    }
+
+                    // sdk init needs to be sent only once on app open
+                    GAEvents.wasSDKInitEventSent = true;
+
+                    var eventDict:{[key:string]: any} = {};
+                    eventDict["category"] = GAEvents.CategorySDKInit;
+
+                    var sessionNum:number = GAState.getSessionNum();
+                    eventDict["is_first_sdk_init"] = sessionNum === 1;
+
+                    gameanalytics.health.GAHealth.addHealthAnnotations(eventDict);
+                    gameanalytics.health.GAHealth.addSDKInitData(eventDict);
+
+                    GAEvents.addDimensionsToEvent(eventDict);
+
+                    GALogger.i("Added sdk init event");
+
+                    GAEvents.addEventToStore(eventDict);
+                }
+                catch(e)
+                {
+                    GALogger.e("addSDKInitEvent - Exception thrown: " + e);
+                }
+            }
+
+            public static addHealthEvent(): void
+            {
+                try
+                {
+                    if(!GAState.isEventSubmissionEnabled())
+                    {
+                        return;
+                    }
+
+                    if(!gameanalytics.health.GAHealth.isEnabled())
+                    {
+                        return;
+                    }
+
+                    var eventDict:{[key:string]: any} = {};
+                    eventDict["category"] = GAEvents.CategoryHealth;
+
+                    gameanalytics.health.GAHealth.addHealthAnnotations(eventDict);
+                    gameanalytics.health.GAHealth.addPerformanceData(eventDict);
+
+                    GAEvents.addDimensionsToEvent(eventDict);
+
+                    GALogger.i("Added health event");
+
+                    GAEvents.addEventToStore(eventDict);
+                }
+                catch(e)
+                {
+                    GALogger.e("addHealthEvent - Exception thrown: " + e);
+                }
             }
 
             public static addBusinessEvent(currency:string, amount:number, itemType:string, itemId:string, cartType:string = null, fields:{[id:string]: any}, mergeFields:boolean): void
@@ -764,6 +843,9 @@ module gameanalytics
                     var length:number = event_ts - start_ts;
                     length = Math.max(0, length);
 
+                    if(length === null)
+                        length = 0;
+                    
                     GALogger.d("fixMissingSessionEndEvents length calculated: " + length);
 
                     sessionEndEvent["category"] = GAEvents.CategorySessionEnd;

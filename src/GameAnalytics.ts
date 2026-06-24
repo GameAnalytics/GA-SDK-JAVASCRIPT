@@ -1,7 +1,6 @@
 module gameanalytics
 {
     import GAThreading = gameanalytics.threading.GAThreading;
-    import TimedBlock = gameanalytics.threading.TimedBlock;
     import GALogger = gameanalytics.logging.GALogger;
     import GAStore = gameanalytics.store.GAStore;
     import GAState = gameanalytics.state.GAState;
@@ -11,11 +10,11 @@ module gameanalytics
     import EGAHTTPApiResponse = gameanalytics.http.EGAHTTPApiResponse;
     import GAUtilities = gameanalytics.utilities.GAUtilities;
     import GAEvents = gameanalytics.events.GAEvents;
+    import GAHealth = gameanalytics.health.GAHealth;
 
     export class GameAnalytics
     {
-        private static initTimedBlockId:number = -1;
-        public static methodMap:{[id:string]: (...args: any[]) => void} = {};
+public static methodMap:{[id:string]: (...args: any[]) => void} = {};
 
         private static getGlobalObject(): any
         {
@@ -38,6 +37,9 @@ module gameanalytics
             GameAnalytics.methodMap['configureSdkGameEngineVersion'] = GameAnalytics.configureSdkGameEngineVersion;
             GameAnalytics.methodMap['configureGameEngineVersion'] = GameAnalytics.configureGameEngineVersion;
             GameAnalytics.methodMap['configureUserId'] = GameAnalytics.configureUserId;
+            GameAnalytics.methodMap['getUserId'] = GameAnalytics.getUserId;
+            GameAnalytics.methodMap['setExtUserId'] = GameAnalytics.setExtUserId;
+            GameAnalytics.methodMap['getExtUserId'] = GameAnalytics.getExtUserId;
             GameAnalytics.methodMap['initialize'] = GameAnalytics.initialize;
             GameAnalytics.methodMap['addBusinessEvent'] = GameAnalytics.addBusinessEvent;
             GameAnalytics.methodMap['addResourceEvent'] = GameAnalytics.addResourceEvent;
@@ -49,6 +51,7 @@ module gameanalytics
             GameAnalytics.methodMap['setEnabledVerboseLog'] = GameAnalytics.setEnabledVerboseLog;
             GameAnalytics.methodMap['setEnabledManualSessionHandling'] = GameAnalytics.setEnabledManualSessionHandling;
             GameAnalytics.methodMap['setEnabledEventSubmission'] = GameAnalytics.setEnabledEventSubmission;
+            GameAnalytics.methodMap['enableHealthEvent'] = GameAnalytics.enableHealthEvent;
             GameAnalytics.methodMap['setCustomDimension01'] = GameAnalytics.setCustomDimension01;
             GameAnalytics.methodMap['setCustomDimension02'] = GameAnalytics.setCustomDimension02;
             GameAnalytics.methodMap['setCustomDimension03'] = GameAnalytics.setCustomDimension03;
@@ -61,10 +64,12 @@ module gameanalytics
             GameAnalytics.methodMap['addRemoteConfigsListener'] = GameAnalytics.addRemoteConfigsListener;
             GameAnalytics.methodMap['removeRemoteConfigsListener'] = GameAnalytics.removeRemoteConfigsListener;
             GameAnalytics.methodMap['getRemoteConfigsValueAsString'] = GameAnalytics.getRemoteConfigsValueAsString;
+            GameAnalytics.methodMap['getRemoteConfigsValueAsJSON'] = GameAnalytics.getRemoteConfigsValueAsJSON;
             GameAnalytics.methodMap['isRemoteConfigsReady'] = GameAnalytics.isRemoteConfigsReady;
             GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
             GameAnalytics.methodMap['addOnBeforeUnloadListener'] = GameAnalytics.addOnBeforeUnloadListener;
             GameAnalytics.methodMap['removeOnBeforeUnloadListener'] = GameAnalytics.removeOnBeforeUnloadListener;
+            
 
             if (typeof GameAnalytics.getGlobalObject() !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics'] !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics']['q'] !== 'undefined')
             {
@@ -239,14 +244,29 @@ module gameanalytics
             });
         }
 
+        public static setExtUserId(uId:string = ""): void
+        {
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                GAState.setExtUserId(uId);
+            });
+        }
+
+        public static getExtUserId(): string
+        {
+            return GAState.getExtUserId();
+        }
+
+        public static getUserId() : string
+        {
+            return GAState.getIdentifier();
+        }
+
         public static initialize(gameKey:string = "", gameSecret:string = ""): void
         {
             GADevice.updateConnectionType();
 
-            var timedBlock:TimedBlock = GAThreading.createTimedBlock();
-            timedBlock.async = true;
-            GameAnalytics.initTimedBlockId = timedBlock.id;
-            timedBlock.block = () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 if (GameAnalytics.isSdkReady(true, false))
                 {
@@ -262,9 +282,7 @@ module gameanalytics
                 GAState.setKeys(gameKey, gameSecret);
 
                 GameAnalytics.internalInitialize();
-            };
-
-            GAThreading.performTimedBlockOnGAThread(timedBlock);
+            });
         }
 
         public static addBusinessEvent(currency:string = "", amount:number = 0, itemType:string = "", itemId:string = "", cartType:string = "", customFields:{[id:string]: any} = {}, mergeFields:boolean = false): void
@@ -514,6 +532,14 @@ module gameanalytics
             });
         }
 
+        public static enableHealthEvent(flag:boolean = false): void
+        {
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                gameanalytics.health.GAHealth.configure(flag);
+            });
+        }
+
         public static setCustomDimension01(dimension:string = ""): void
         {
             GAThreading.performTaskOnGAThread(() =>
@@ -579,10 +605,7 @@ module gameanalytics
                     return;
                 }
 
-                var timedBlock:TimedBlock = GAThreading.createTimedBlock();
-                timedBlock.async = true;
-                GameAnalytics.initTimedBlockId = timedBlock.id;
-                timedBlock.block = () =>
+                GAThreading.performTaskOnGAThread(() =>
                 {
                     if(GAState.isEnabled() && GAState.sessionIsStarted())
                     {
@@ -590,9 +613,7 @@ module gameanalytics
                     }
 
                     GameAnalytics.resumeSessionAndStartQueue();
-                };
-
-                GAThreading.performTimedBlockOnGAThread(timedBlock);
+                });
             }
         }
 
@@ -620,20 +641,20 @@ module gameanalytics
 
         public static onResume(): void
         {
-            var timedBlock:TimedBlock = GAThreading.createTimedBlock();
-            timedBlock.async = true;
-            GameAnalytics.initTimedBlockId = timedBlock.id;
-            timedBlock.block = () =>
+            GAThreading.performTaskOnGAThread(() =>
             {
                 GameAnalytics.resumeSessionAndStartQueue();
-            };
-
-            GAThreading.performTimedBlockOnGAThread(timedBlock);
+            });
         }
 
         public static getRemoteConfigsValueAsString(key:string, defaultValue:string = null):string
         {
             return GAState.getConfigurationStringValue(key, defaultValue);
+        }
+
+        public static getRemoteConfigsValueAsJSON(key:string, defaultValue:any = null):any
+        {
+            return GAState.getConfigurationJsonValue(key, defaultValue);
         }
 
         public static isRemoteConfigsReady():boolean
@@ -826,14 +847,8 @@ module gameanalytics
             // Add session start event
             GAEvents.addSessionStartEvent();
 
-            var timedBlock:TimedBlock = GAThreading.getTimedBlockById(GameAnalytics.initTimedBlockId);
-
-            if(timedBlock != null)
-            {
-                timedBlock.running = false;
-            }
-
-            GameAnalytics.initTimedBlockId = -1;
+            // Add sdk init event if enabled
+            GAEvents.addSDKInitEvent();
         }
 
         private static resumeSessionAndStartQueue(): void

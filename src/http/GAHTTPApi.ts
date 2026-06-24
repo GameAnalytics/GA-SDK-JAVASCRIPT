@@ -49,7 +49,7 @@ module gameanalytics
                 var gameKey:string = GAState.getGameKey();
 
                 // Generate URL
-                var url:string = this.remoteConfigsBaseUrl + "/" + this.initializeUrlPath + "?game_key=" + gameKey + "&interval_seconds=0&configs_hash=" + configsHash;
+                var url:string = this.remoteConfigsBaseUrl + "/" + this.initializeUrlPath + "?game_key=" + gameKey + "&interval_seconds=0&configs_hash=" + configsHash + "&config_vsn_supported=3";
                 GALogger.d("Sending 'init' URL: " + url);
 
                 var initAnnotations:{[key:string]: any} = GAState.getInitAnnotations();

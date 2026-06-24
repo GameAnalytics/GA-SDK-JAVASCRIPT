@@ -30,7 +30,7 @@ module gameanalytics
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 4.4.6";
+            private static readonly sdkWrapperVersion:string = "javascript 5.0.0";
             private static readonly osVersionPair:NameVersion = GADevice.matchItem([
                 navigator.platform,
                 navigator.userAgent,
@@ -110,8 +110,8 @@ module gameanalytics
             private static getBrowserVersionString(): string
             {
                 var ua:string = navigator.userAgent;
-                var tem:RegExpMatchArray;
-                var M:RegExpMatchArray = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident|fbav(?=\/))\/?\s*(\d+)/i) || [];
+                var tem:string[] | null;
+                var M:string[] = ua.match(/(opera|chrome|safari|firefox|ubrowser|msie|trident|fbav(?=\/))\/?\s*(\d+)/i) || [];
 
                 if(M.length == 0)
                 {

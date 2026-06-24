@@ -1,4 +1,14 @@
 var gulp = require('gulp');
+// source-map 0.7.x (bundled in gulp-typescript) uses fetch-based wasm loading when
+// global `fetch` exists (Node 18+), so we must supply a data: URL for the wasm.
+var path = require('path');
+try {
+    var smDir = path.join(require.resolve('gulp-typescript'), '..', '..', 'node_modules', 'source-map');
+    var wasmBuf = require('fs').readFileSync(path.join(smDir, 'lib', 'mappings.wasm'));
+    var wasmDataUrl = 'data:application/wasm;base64,' + wasmBuf.toString('base64');
+    var SourceMapConsumer = require(smDir).SourceMapConsumer;
+    SourceMapConsumer.initialize({'lib/mappings.wasm': wasmDataUrl});
+} catch(e) { /* source-map wasm not needed in this env */ }
 var ts = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
@@ -127,4 +137,17 @@ var debug = function() {
 };
 gulp.task('debug', gulp.series(gulp.parallel('bundle_min_js', 'build_debug'), debug));
 
-gulp.task('default', gulp.series('debug', 'mini', 'unity', 'ga_node', 'construct', 'normal', 'declaration'));
+// P2 — ESM output target
+// Appends named ESM exports to the standard bundle so bundlers that understand
+// the package.json "exports" → "import" field can consume it as an ES module.
+// Not tree-shakeable (the namespace bundle stays monolithic) but enables
+// `import GameAnalytics from 'gameanalytics'` and proper bundler resolution.
+var esm = function() {
+    return gulp.src(['./vendor/bundle.min.js', './dist/GameAnalytics.js'])
+        .pipe(concat('GameAnalytics.esm.js'))
+        .pipe(insert.wrap("", "\nexport { gameanalytics };\nexport default GameAnalytics;\n"))
+        .pipe(gulp.dest('./dist'));
+};
+gulp.task('esm', gulp.series(gulp.parallel('bundle_min_js', 'build_normal'), esm));
+
+gulp.task('default', gulp.series('debug', 'mini', 'unity', 'ga_node', 'construct', 'normal', 'esm', 'declaration'));

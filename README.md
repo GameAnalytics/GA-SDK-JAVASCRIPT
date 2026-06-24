@@ -9,9 +9,49 @@ Official repository for GameAnalytics JavaScript SDK. Written in Typescript.
 
 Documentation can be found [here](https://gameanalytics.com/docs/javascript-sdk).
 
+Installation
+------------
+
+npm
+---
+
+```bash
+npm install gameanalytics
+```
+
+Browser (UMD)
+-------------
+
+```html
+<script src="https://unpkg.com/gameanalytics/dist/GameAnalytics.min.js"></script>
+```
+
+ES module
+---------
+
+```js
+import { GameAnalytics } from 'gameanalytics';
+```
+
+CommonJS / Node
+---------------
+
+```js
+const { GameAnalytics } = require('gameanalytics');
+```
+
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**5.0.0**
+* refactor the threading model
+* add support for ext_user_id
+* support for remote configs v3
+* add SDK init and health event
+* add CI workflow
+* add test application
+* various bug fixes and improvements
+
 **4.4.6**
 * fixed timestamps for daylight saving time
 
