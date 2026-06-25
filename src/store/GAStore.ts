@@ -407,7 +407,7 @@ module gameanalytics
                 catch(e)
                 {
                     GALogger.w("Load failed for 'items' store. Using empty store.");
-                    GAStore.instance.progressionStore = [];
+                    GAStore.instance.storeItems = [];
                 }
             }
 
