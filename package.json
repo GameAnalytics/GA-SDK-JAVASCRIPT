@@ -65,7 +65,7 @@
         "postcss": "^8.4.7",
         "set-value": "^4.1.0",
         "tar": "^7.5.16",
-        "typescript": "^4.6.2",
+        "typescript": "^6.0.3",
         "ws": "^8.5.0",
         "yargs": "^17.3.0",
         "yargs-parser": "^21.0.1"
