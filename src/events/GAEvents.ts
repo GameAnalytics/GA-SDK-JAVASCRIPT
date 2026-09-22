@@ -1117,23 +1117,23 @@ module gameanalytics
                 {
                     return "video";
                 }
-                else if(value == EGAAdType.RewardedVideo || value == EGAAdError[EGAAdType.RewardedVideo])
+                else if(value == EGAAdType.RewardedVideo || value == EGAAdType[EGAAdType.RewardedVideo])
                 {
                     return "rewarded_video";
                 }
-                else if(value == EGAAdType.Playable || value == EGAAdError[EGAAdType.Playable])
+                else if(value == EGAAdType.Playable || value == EGAAdType[EGAAdType.Playable])
                 {
                     return "playable";
                 }
-                else if(value == EGAAdType.Interstitial || value == EGAAdError[EGAAdType.Interstitial])
+                else if(value == EGAAdType.Interstitial || value == EGAAdType[EGAAdType.Interstitial])
                 {
                     return "interstitial";
                 }
-                else if(value == EGAAdType.OfferWall || value == EGAAdError[EGAAdType.OfferWall])
+                else if(value == EGAAdType.OfferWall || value == EGAAdType[EGAAdType.OfferWall])
                 {
                     return "offer_wall";
                 }
-                else if(value == EGAAdType.Banner || value == EGAAdError[EGAAdType.Banner])
+                else if(value == EGAAdType.Banner || value == EGAAdType[EGAAdType.Banner])
                 {
                     return "banner";
                 }

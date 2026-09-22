@@ -82,7 +82,7 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
 
 
             window.addEventListener("beforeunload", (e) => {
-                console.log('addEventListener unload');
+                GALogger.d('addEventListener unload');
                 GAState.instance.isUnloading = true;
                 GAState.notifyBeforeUnloadListeners();
                 GAThreading.endSessionAndStopQueue();
