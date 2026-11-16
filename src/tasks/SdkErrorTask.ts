@@ -38,41 +38,22 @@ module gameanalytics
 
                 var hashHmac:string = GAUtilities.getHmac(secretKey, payloadData);
 
-                var request:XMLHttpRequest = new XMLHttpRequest();
-
-                request.onreadystatechange = () => {
-                    if(request.readyState === 4)
+                var client = gameanalytics.http.GAHTTPApi.getClient();
+                if (!client) { return; }
+                client.sendRequest(url, hashHmac, new TextEncoder().encode(payloadData), false).then((r) => {
+                    var text:string = r.packet && r.packet.length ? new TextDecoder().decode(r.packet) : "";
+                    if(!text)
                     {
-                        if(!request.responseText)
-                        {
-                            GALogger.d("sdk error failed. Might be no connection. Description: " + request.statusText + ", Status code: " + request.status);
-                            return;
-                        }
-
-                        if(request.status != 200)
-                        {
-                            GALogger.w("sdk error failed. response code not 200. status code: " + request.status + ", description: " + request.statusText + ", body: " + request.responseText);
-                            return;
-                        }
-                        else
-                        {
-                            SdkErrorTask.countMap[type] = SdkErrorTask.countMap[type] + 1;
-                        }
+                        GALogger.d("sdk error failed. Might be no connection. Description: " + (r.statusText || "") + ", Status code: " + r.code);
+                        return;
                     }
-                };
-
-                request.open("POST", url, true);
-                request.setRequestHeader("Content-Type", "application/json");
-                request.setRequestHeader("Authorization", hashHmac);
-
-                try
-                {
-                    request.send(payloadData);
-                }
-                catch(e)
-                {
-                    console.error(e);
-                }
+                    if(r.code != 200)
+                    {
+                        GALogger.w("sdk error failed. response code not 200. status code: " + r.code + ", description: " + (r.statusText || "") + ", body: " + text);
+                        return;
+                    }
+                    SdkErrorTask.countMap[type] = SdkErrorTask.countMap[type] + 1;
+                }).catch((e:any) => { GALogger.e("sdk error request failed: " + e); });
             }
         }
     }

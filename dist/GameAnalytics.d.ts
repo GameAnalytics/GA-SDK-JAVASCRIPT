@@ -197,6 +197,37 @@ declare module gameanalytics {
     }
 }
 declare module gameanalytics {
+    module storage {
+        interface IGAStorage {
+            getItem(key: string): string | null;
+            setItem(key: string, value: string): void;
+            removeItem(key: string): void;
+            isAvailable(): boolean;
+            getSizeBytes(): number;
+            deleteSessionCache(): void;
+        }
+    }
+}
+declare module gameanalytics {
+    module http {
+        interface GAHttpResponse {
+            code: number;
+            packet: Uint8Array;
+            statusText?: string;
+        }
+        interface IGAHttpClient {
+            initialize(): void;
+            cleanup(): void;
+            sendRequest(url: string, auth: string, payload: Uint8Array, useGzip: boolean): Promise<GAHttpResponse>;
+        }
+        interface GAHttpResponseLike {
+            status: number;
+            statusText: string;
+            responseText: string;
+        }
+    }
+}
+declare module gameanalytics {
     module utilities {
         class GAUtilities {
             static getHmac(key: string, data: string): string;
@@ -209,6 +240,20 @@ declare module gameanalytics {
             static timeIntervalSince1970(): number;
             static createGuid(): string;
         }
+    }
+}
+declare module gameanalytics {
+    module http {
+        class GAHttpClientBrowser implements IGAHttpClient {
+            initialize(): void;
+            cleanup(): void;
+            sendRequest(url: string, auth: string, payload: Uint8Array, useGzip: boolean): Promise<GAHttpResponse>;
+        }
+    }
+}
+declare module gameanalytics {
+    module http {
+        function makeHttpClient(): IGAHttpClient;
     }
 }
 declare module gameanalytics {
@@ -264,6 +309,30 @@ declare module gameanalytics {
     }
 }
 declare module gameanalytics {
+    module platform {
+        abstract class GAPlatform {
+            abstract getOSVersion(): string;
+            abstract getDeviceManufacturer(): string;
+            abstract getBuildPlatform(): string;
+            abstract getPersistentPath(): string;
+            abstract getDeviceModel(): string;
+            abstract getConnectionType(): string;
+            getAdvertisingId(): string;
+            getDeviceId(): string;
+            getCpuModel(): string;
+            getGpuModel(): string;
+            getNumCpuCores(): number;
+            getTotalDeviceMemory(): number;
+            getAppMemoryUsage(): number;
+            getSysMemoryUsage(): number;
+            getBootTime(): number;
+            getBrowserVersion(): string;
+            onInit(): void;
+            setupUncaughtExceptionHandler(): void;
+        }
+    }
+}
+declare module gameanalytics {
     module device {
         class NameValueVersion {
             name: string;
@@ -278,30 +347,55 @@ declare module gameanalytics {
         }
         class GADevice {
             private static readonly sdkWrapperVersion;
-            private static readonly osVersionPair;
-            static readonly buildPlatform: string;
-            static readonly deviceModel: string;
-            static readonly deviceManufacturer: string;
-            static readonly osVersion: string;
-            static readonly browserVersion: string;
+            private static platform;
             static sdkGameEngineVersion: string;
             static gameEngineVersion: string;
             private static connectionType;
+            static setPlatform(p: gameanalytics.platform.GAPlatform): void;
+            static getPlatform(): gameanalytics.platform.GAPlatform;
+            static getWritablePath(): string;
+            static get buildPlatform(): string;
+            static get deviceModel(): string;
+            static get deviceManufacturer(): string;
+            static get osVersion(): string;
+            static get browserVersion(): string;
             static touch(): void;
             static getRelevantSdkVersion(): string;
             static getConnectionType(): string;
             static updateConnectionType(): void;
-            private static getOSVersionString;
-            private static runtimePlatformToString;
-            private static getBrowserVersionString;
-            private static getDeviceModel;
-            private static getDeviceManufacturer;
+        }
+    }
+}
+declare module gameanalytics {
+    module platform {
+        class GAPlatformBrowser extends GAPlatform {
+            private osVersionPair;
+            private getOsVersionPair;
+            getOSVersion(): string;
+            getBuildPlatform(): string;
+            getDeviceManufacturer(): string;
+            getDeviceModel(): string;
+            getPersistentPath(): string;
+            getConnectionType(): string;
+            getNumCpuCores(): number;
+            getTotalDeviceMemory(): number;
+            getAppMemoryUsage(): number;
+            getBootTime(): number;
+            getGpuModel(): string;
+            getBrowserVersion(): string;
+            onInit(): void;
             private static matchItem;
         }
     }
 }
 declare module gameanalytics {
+    module platform {
+        function makePlatform(): GAPlatform;
+    }
+}
+declare module gameanalytics {
     module store {
+        import IGAStorage = gameanalytics.storage.IGAStorage;
         enum EGAStoreArgsOperator {
             Equal = 0,
             LessOrEqual = 1,
@@ -314,8 +408,9 @@ declare module gameanalytics {
         }
         class GAStore {
             private static readonly instance;
-            private static storageAvailable;
+            private static storage;
             private static readonly MaxNumberOfEntries;
+            private static readonly MaxDbSizeBytes;
             private eventsStore;
             private sessionsStore;
             private progressionStore;
@@ -327,8 +422,11 @@ declare module gameanalytics {
             private static readonly ProgressionStoreKey;
             private static readonly ItemsStoreKey;
             private constructor();
+            static setStorage(s: IGAStorage): void;
             static isStorageAvailable(): boolean;
             static isStoreTooLargeForEvents(): boolean;
+            static deleteSessionCache(): void;
+            private static put;
             static select(store: EGAStore, args?: Array<[string, EGAStoreArgsOperator, any]>, sort?: boolean, maxCount?: number): Array<{
                 [key: string]: any;
             }>;
@@ -343,6 +441,25 @@ declare module gameanalytics {
             static getItem(gameKey: string, key: string): string;
             private static getStore;
         }
+    }
+}
+declare module gameanalytics {
+    module storage {
+        class GAStorageBrowser implements IGAStorage {
+            private available;
+            constructor();
+            getItem(key: string): string | null;
+            setItem(key: string, value: string): void;
+            removeItem(key: string): void;
+            isAvailable(): boolean;
+            getSizeBytes(): number;
+            deleteSessionCache(): void;
+        }
+    }
+}
+declare module gameanalytics {
+    module storage {
+        function makeStorage(): IGAStorage;
     }
 }
 declare module gameanalytics {
@@ -455,6 +572,9 @@ declare module gameanalytics {
             static clearProgressionTries(progression: string): void;
             static setKeys(gameKey: string, gameSecret: string): void;
             static setManualSessionHandling(flag: boolean): void;
+            private _enableErrorReporting;
+            static setEnableErrorReporting(flag: boolean): void;
+            static useErrorReporting(): boolean;
             static setEnabledEventSubmission(flag: boolean): void;
             static getEventAnnotations(): {
                 [key: string]: any;
@@ -528,6 +648,13 @@ declare module gameanalytics {
             private eventsUrlPath;
             private useGzip;
             private static readonly MAX_ERROR_MESSAGE_LENGTH;
+            private static client;
+            private static inFlight;
+            static setClient(c: IGAHttpClient): void;
+            static getClient(): IGAHttpClient;
+            static inFlightCount(): number;
+            static whenIdle(): Promise<void>;
+            private static track;
             private constructor();
             requestInit(configsHash: string, callback: (response: EGAHTTPApiResponse, json: {
                 [key: string]: any;
@@ -575,9 +702,14 @@ declare module gameanalytics {
             private static memTimer;
             private static memSysBuckets;
             private static memAppBuckets;
-            private static _gpuModel;
+            private static platform;
+            private static _cpuModel;
+            private static _numCores;
             private static _hardware;
+            private static _gpuModel;
+            private static _totalMemory;
             private static _screenResolution;
+            static setPlatform(p: gameanalytics.platform.GAPlatform): void;
             private constructor();
             private static reset;
             private static sampleMemory;
@@ -667,9 +799,14 @@ declare module gameanalytics {
             private static readonly instance;
             private readonly taskQueue;
             private static eventIntervalId;
+            private static pumpId;
+            private static unref;
             private static ProcessEventsIntervalInSeconds;
             private isRunning;
             private constructor();
+            static flush(): void;
+            static pendingTaskCount(): number;
+            static stopPump(): void;
             static performTaskOnGAThread(taskBlock: () => void): void;
             static ensureEventQueueIsRunning(): void;
             static endSessionAndStopQueue(): void;
@@ -740,6 +877,10 @@ declare module gameanalytics {
         static startSession(): void;
         static endSession(): void;
         static onStop(): void;
+        static setEnabledErrorReporting(flag?: boolean): void;
+        private static quitPromise;
+        static onQuit(): Promise<void>;
+        private static settle;
         static onResume(): void;
         static getRemoteConfigsValueAsString(key: string, defaultValue?: string): string;
         static getRemoteConfigsValueAsJSON(key: string, defaultValue?: any): any;

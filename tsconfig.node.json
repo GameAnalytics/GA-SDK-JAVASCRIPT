@@ -1,0 +1,38 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outFile": "./build/GameAnalytics.node.core.js",
+        "declaration": false
+    },
+    "files": [
+        "./src/Enums.ts",
+        "./src/PublicEnums.ts",
+        "./src/logging/GALogger.ts",
+        "./src/storage/IGAStorage.ts",
+        "./src/http/IGAHttpClient.ts",
+        "./src/utilities/GAUtilities.ts",
+        "./src/http/GAHttpClientNode.ts",
+        "./src/http/makeHttpClient.node.ts",
+        "./src/validators/GAValidator.ts",
+        "./src/platform/GAPlatform.ts",
+        "./src/device/GADevice.ts",
+        "./src/platform/GAPlatformNode.ts",
+        "./src/platform/makePlatform.node.ts",
+        "./src/threading/TimedBlock.ts",
+        "./src/threading/PriorityQueue.ts",
+        "./src/store/GAStore.ts",
+        "./src/storage/GAStorageNode.ts",
+        "./src/storage/makeStorage.node.ts",
+        "./src/state/GAState.ts",
+        "./src/tasks/SdkErrorTask.ts",
+        "./src/http/GAHTTPApi.ts",
+        "./src/health/GAHealth.ts",
+        "./src/events/GAEvents.ts",
+        "./src/threading/GAThreading.ts",
+        "./src/GameAnalytics.ts"
+    ],
+    "include": [
+        "./vendor/*.d.ts",
+        "./src/ga.d.ts"
+    ]
+}

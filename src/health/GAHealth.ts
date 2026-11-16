@@ -30,9 +30,29 @@ module gameanalytics
             private static memSysBuckets: number[] = [];
             private static memAppBuckets: number[] = [];
 
-            private static _gpuModel: string | null = null;
-            private static _hardware: string | null = null;
+            // Injected by GameAnalytics.init(), mirroring GAHealth(GAPlatform*) in C++.
+            // The five values C++ reads in its constructor are cached once here;
+            // getBootTime/getAppMemoryUsage/getSysMemoryUsage stay live calls.
+            private static platform: gameanalytics.platform.GAPlatform = null;
+            private static _cpuModel: string = "";
+            private static _numCores: number = -1;
+            private static _hardware: string = "";
+            private static _gpuModel: string = "";
+            private static _totalMemory: number = -1;
             private static _screenResolution: string | null = null;
+
+            public static setPlatform(p: gameanalytics.platform.GAPlatform): void
+            {
+                GAHealth.platform = p;
+                if (p)
+                {
+                    GAHealth._cpuModel    = p.getCpuModel();
+                    GAHealth._numCores    = p.getNumCpuCores();
+                    GAHealth._hardware    = p.getDeviceModel();
+                    GAHealth._gpuModel    = p.getGpuModel();
+                    GAHealth._totalMemory = p.getTotalDeviceMemory();
+                }
+            }
 
             private constructor() {}
 
@@ -46,66 +66,29 @@ module gameanalytics
 
             private static sampleMemory(): void
             {
-                if (typeof performance === 'undefined' || !(performance as any).memory)
+                if (!GAHealth.platform) { return; }
+                var total: number = GAHealth._totalMemory;
+                var app: number = GAHealth.platform.getAppMemoryUsage();
+                var sys: number = GAHealth.platform.getSysMemoryUsage();
+                if (total > 0 && sys >= 0)
                 {
-                    return;
+                    GAHealth.memSysBuckets[Math.min(100, Math.max(0, Math.round(sys / total * 100)))]++;
                 }
-                var mem: any = (performance as any).memory;
-
-                var deviceBytes: number = GAHealth.getDeviceMemoryBytes();
-                if (deviceBytes > 0)
+                if (total > 0 && app >= 0)
                 {
-                    var sysPct: number = Math.min(100, Math.max(0, Math.round(mem.totalJSHeapSize / deviceBytes * 100)));
-                    GAHealth.memSysBuckets[sysPct]++;
-                }
-
-                if (mem.jsHeapSizeLimit > 0)
-                {
-                    var appPct: number = Math.min(100, Math.max(0, Math.round(mem.usedJSHeapSize / mem.jsHeapSizeLimit * 100)));
-                    GAHealth.memAppBuckets[appPct]++;
+                    GAHealth.memAppBuckets[Math.min(100, Math.max(0, Math.round(app / total * 100)))]++;
                 }
             }
 
-            private static getGpuModel(): string
-            {
-                if (GAHealth._gpuModel !== null) { return GAHealth._gpuModel; }
-                GAHealth._gpuModel = '';
-                try
-                {
-                    if (typeof document !== 'undefined')
-                    {
-                        var canvas = document.createElement('canvas');
-                        var gl: any = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                        if (gl)
-                        {
-                            var ext = gl.getExtension('WEBGL_debug_renderer_info');
-                            if (ext) { GAHealth._gpuModel = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || ''; }
-                        }
-                    }
-                }
-                catch (e) {}
-                return GAHealth._gpuModel!;
-            }
-
-            private static getHardware(): string
-            {
-                if (GAHealth._hardware !== null) { return GAHealth._hardware; }
-                GAHealth._hardware = 'unknown';
-                return GAHealth._hardware;
-            }
-
-            private static getDeviceMemoryBytes(): number
-            {
-                return (typeof navigator !== 'undefined' && (navigator as any).deviceMemory)
-                    ? (navigator as any).deviceMemory * 1073741824
-                    : 0;
-            }
+            private static getGpuModel(): string { return GAHealth._gpuModel; }
+            private static getHardware(): string { return GAHealth._hardware; }
+            private static getDeviceMemoryBytes(): number { return GAHealth._totalMemory; }
 
             private static getScreenResolution(): string
             {
                 if (GAHealth._screenResolution !== null) { return GAHealth._screenResolution; }
-                var w: number = (typeof screen !== 'undefined') ? screen.width : 0;
-                var h: number = (typeof screen !== 'undefined') ? screen.height : 0;
+                var w: number = (typeof screen !== 'undefined') ? screen.width : -1;
+                var h: number = (typeof screen !== 'undefined') ? screen.height : -1;
                 GAHealth._screenResolution = w + 'x' + h;
                 return GAHealth._screenResolution;
             }
@@ -183,18 +166,15 @@ module gameanalytics
 
             public static getSnapshot(): HealthSnapshot
             {
-                var memMb: number = -1;
-                if (typeof performance !== 'undefined' && (performance as any).memory)
-                {
-                    memMb = Math.round((performance as any).memory.usedJSHeapSize / 1048576);
-                }
+                var appBytes: number = GAHealth.platform ? GAHealth.platform.getAppMemoryUsage() : -1;
+                var memMb: number = appBytes >= 0 ? Math.round(appBytes / 1048576) : -1;
 
                 return {
                     memory_used_mb: memMb,
-                    hardware_concurrency: (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : 1,
-                    screen_width: (typeof screen !== 'undefined') ? screen.width : 0,
-                    screen_height: (typeof screen !== 'undefined') ? screen.height : 0,
-                    cpu_model: 'unknown',
+                    hardware_concurrency: GAHealth._numCores,
+                    screen_width: (typeof screen !== 'undefined') ? screen.width : -1,
+                    screen_height: (typeof screen !== 'undefined') ? screen.height : -1,
+                    cpu_model: GAHealth._cpuModel || 'unknown',
                     hardware: GAHealth.getHardware(),
                     gpu_model: GAHealth.getGpuModel(),
                     screen_resolution: GAHealth.getScreenResolution()
@@ -203,14 +183,14 @@ module gameanalytics
 
             public static addHealthAnnotations(out: {[key: string]: any}): void
             {
-                out['cpu_model'] = 'unknown';
+                out['cpu_model'] = GAHealth._cpuModel || 'unknown';
 
-                out['hardware'] = GAHealth.getHardware();
+                out['hardware'] = GAHealth.getHardware() || 'unknown';
 
                 var gpuModel: string = GAHealth.getGpuModel();
                 if (gpuModel) { out['gpu_model'] = gpuModel; }
 
-                var numCores: number = (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) ? navigator.hardwareConcurrency : 0;
+                var numCores: number = GAHealth._numCores;
                 if (numCores > 0) { out['cpu_num_cores'] = numCores; }
             }
 
@@ -227,7 +207,7 @@ module gameanalytics
 
             public static addSDKInitData(out: {[key: string]: any}): void
             {
-                var bootTime: number = (typeof performance !== 'undefined') ? Math.round(performance.now()) : -1;
+                var bootTime: number = GAHealth.platform ? GAHealth.platform.getBootTime() : -1;
                 if (bootTime > 0) { out['app_boot_time'] = bootTime; }
             }
 

@@ -11,13 +11,25 @@ module gameanalytics
             private static readonly instance:GAThreading = new GAThreading();
             private readonly taskQueue:Array<() => void> = [];
             private static eventIntervalId:ReturnType<typeof setInterval>;
+            private static pumpId:ReturnType<typeof setInterval>;
+
+            // In Node, an active interval keeps the process alive; unref() lets it exit
+            // naturally once the application is done. No-op in the browser.
+            private static unref(t:any): void { if (t && typeof t.unref === 'function') { t.unref(); } }
             private static ProcessEventsIntervalInSeconds:number = 8.0;
             private isRunning:boolean = false;
 
             private constructor()
             {
-                setInterval(GAThreading.run, 100);
+                GAThreading.pumpId = setInterval(GAThreading.run, 100);
+                GAThreading.unref(GAThreading.pumpId);
             }
+
+            // Run every queued task now. onQuit() uses this instead of waiting for the
+            // 100 ms tick; the C++ busy-wait cannot be ported (spec, "not its spin").
+            public static flush(): void { GAThreading.run(); }
+            public static pendingTaskCount(): number { return GAThreading.instance.taskQueue.length; }
+            public static stopPump(): void { clearInterval(GAThreading.pumpId); }
 
             public static performTaskOnGAThread(taskBlock:() => void): void
             {
@@ -33,6 +45,7 @@ module gameanalytics
                         () => GAThreading.performTaskOnGAThread(GAThreading.processEventQueue),
                         GAThreading.ProcessEventsIntervalInSeconds * 1000
                     );
+                    GAThreading.unref(GAThreading.eventIntervalId);
                 }
             }
 

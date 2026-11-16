@@ -5,3 +5,6 @@ vendor
 gulpfile.js
 karma.conf.js
 tsconfig.json
+app_node
+build
+tsconfig.node.json

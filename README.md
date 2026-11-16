@@ -40,6 +40,26 @@ CommonJS / Node
 const { GameAnalytics } = require('gameanalytics');
 ```
 
+Node / headless
+---------------
+
+The SDK runs in Node 18+ with no browser globals. Three things differ from a
+page, all covered by the sample under [`app_node/`](app_node/):
+
+- **Add events after init completes.** Events added before the init response
+  are dropped ("SDK is disabled"); add them from `addRemoteConfigsListener`,
+  which fires on every init outcome.
+- **Call `await GameAnalytics.onQuit()` before the process exits.** It drains
+  the queue and deletes the per-session cache. A process that falls off the end
+  of `main` is drained automatically on `beforeExit`; one that calls
+  `process.exit()` or handles its own signals must call `onQuit()` first.
+- **Crash reporting is opt-in:** `GameAnalytics.setEnabledErrorReporting(true)`.
+
+Queued events are cached in `os.tmpdir()/GameAnalytics/<gameKey>/` and
+recovered by the next run if the process dies; the generated user id and
+progression state live in `$HOME/GameAnalytics/<gameKey>/`. Design notes are
+in [`headless_specs.md`](headless_specs.md).
+
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->

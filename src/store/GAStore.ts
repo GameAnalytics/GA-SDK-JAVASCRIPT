@@ -3,6 +3,7 @@ module gameanalytics
     export module store
     {
         import GALogger = gameanalytics.logging.GALogger;
+        import IGAStorage = gameanalytics.storage.IGAStorage;
 
         export enum EGAStoreArgsOperator
         {
@@ -21,8 +22,9 @@ module gameanalytics
         export class GAStore
         {
             private static readonly instance:GAStore = new GAStore();
-            private static storageAvailable:boolean;
-            private static readonly MaxNumberOfEntries:number = 2000;
+            private static storage:IGAStorage = null;
+            private static readonly MaxNumberOfEntries:number = 2000;   // browser: entry count
+            private static readonly MaxDbSizeBytes:number = 6291456;     // Node: bytes, GAStore.cpp:19
             private eventsStore:Array<{[key:string]: any}> = [];
             private sessionsStore:Array<{[key:string]: any}> = [];
             private progressionStore:Array<{[key:string]: any}> = [];
@@ -34,36 +36,38 @@ module gameanalytics
             private static readonly ProgressionStoreKey:string = "ga_progression";
             private static readonly ItemsStoreKey:string = "ga_items";
 
-            private constructor()
-            {
-                try
-                {
-                    if (typeof localStorage === 'object')
-                    {
-                        localStorage.setItem('testingLocalStorage', 'yes');
-                        localStorage.removeItem('testingLocalStorage');
-                        GAStore.storageAvailable = true;
-                    }
-                    else
-                    {
-                        GAStore.storageAvailable = false;
-                    }
-                }
-                catch (e)
-                {
-                }
+            private constructor() {}
 
-                GALogger.d("Storage is available?: " + GAStore.storageAvailable);
+            // Injected by GameAnalytics.init(): localStorage in the browser, the
+            // two-tier file store in Node (spec, "Storage").
+            public static setStorage(s:IGAStorage): void
+            {
+                GAStore.storage = s;
+                GALogger.d("Storage is available?: " + GAStore.isStorageAvailable());
             }
 
             public static isStorageAvailable():boolean
             {
-                return GAStore.storageAvailable;
+                return GAStore.storage !== null && GAStore.storage.isAvailable();
             }
 
             public static isStoreTooLargeForEvents(): boolean
             {
+                var bytes:number = GAStore.storage ? GAStore.storage.getSizeBytes() : -1;
+                if (bytes >= 0) { return bytes > GAStore.MaxDbSizeBytes; }
                 return GAStore.instance.eventsStore.length + GAStore.instance.sessionsStore.length > GAStore.MaxNumberOfEntries;
+            }
+
+            public static deleteSessionCache(): void
+            {
+                if (GAStore.storage) { GAStore.storage.deleteSessionCache(); }
+            }
+
+            private static put(key:string, value:string): void
+            {
+                // A failed write used to be swallowed by addEventToStore's catch; log it.
+                try { GAStore.storage.setItem(key, value); }
+                catch (e) { GALogger.w("Store write failed for " + key + ": " + (e && e.name ? e.name : e)); }
             }
 
             public static select(store:EGAStore, args:Array<[string, EGAStoreArgsOperator, any]> = [], sort:boolean = false, maxCount:number = 0): Array<{[key:string]: any}>
@@ -336,10 +340,10 @@ module gameanalytics
                     return;
                 }
 
-                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey), JSON.stringify(GAStore.instance.eventsStore));
-                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey), JSON.stringify(GAStore.instance.sessionsStore));
-                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey), JSON.stringify(GAStore.instance.progressionStore));
-                localStorage.setItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey), JSON.stringify(GAStore.instance.storeItems));
+                GAStore.put(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey), JSON.stringify(GAStore.instance.eventsStore));
+                GAStore.put(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey), JSON.stringify(GAStore.instance.sessionsStore));
+                GAStore.put(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey), JSON.stringify(GAStore.instance.progressionStore));
+                GAStore.put(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey), JSON.stringify(GAStore.instance.storeItems));
             }
 
             public static load(gameKey:string): void
@@ -352,7 +356,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.eventsStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey)));
+                    GAStore.instance.eventsStore = JSON.parse(GAStore.storage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.EventsStoreKey)));
 
                     if(!GAStore.instance.eventsStore)
                     {
@@ -367,7 +371,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.sessionsStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey)));
+                    GAStore.instance.sessionsStore = JSON.parse(GAStore.storage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.SessionsStoreKey)));
 
                     if(!GAStore.instance.sessionsStore)
                     {
@@ -382,7 +386,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.progressionStore = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey)));
+                    GAStore.instance.progressionStore = JSON.parse(GAStore.storage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ProgressionStoreKey)));
 
                     if(!GAStore.instance.progressionStore)
                     {
@@ -397,7 +401,7 @@ module gameanalytics
 
                 try
                 {
-                    GAStore.instance.storeItems = JSON.parse(localStorage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey)));
+                    GAStore.instance.storeItems = JSON.parse(GAStore.storage.getItem(GAStore.StringFormat(GAStore.KeyFormat, gameKey, GAStore.ItemsStoreKey)));
 
                     if(!GAStore.instance.storeItems)
                     {
