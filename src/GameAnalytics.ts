@@ -672,6 +672,10 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             if (GameAnalytics.quitPromise) { return GameAnalytics.quitPromise; }
             return GameAnalytics.quitPromise = GameAnalytics.settle(10)
                 .then(() => {
+                    // The 8 s tick is the only caller of processEvents with cleanup, which
+                    // is what synthesises session_end for adopted orphan sessions. A
+                    // process that exits in a second never reaches it, so do one pass here.
+                    GAThreading.performTaskOnGAThread(() => { GAEvents.processEvents("", true); });
                     GAThreading.performTaskOnGAThread(() => { GAThreading.endSessionAndStopQueue(); });
                     return GameAnalytics.settle(10);
                 })

@@ -191,9 +191,9 @@ unchanged. `GAPlatformNode` answers from `os` and `process`:
 
 | Method | Node source | C++ reference |
 |---|---|---|
-| `getOSVersion()` | `os.platform() + " " + os.release()` | `uname` on Linux |
+| `getOSVersion()` | `getBuildPlatform() + " " + os.release()` — e.g. `mac_osx 25.6.0` | `uname` on Linux |
 | `getDeviceManufacturer()` | `""` (sentinel) | |
-| `getBuildPlatform()` | `os.platform()` | |
+| `getBuildPlatform()` | `os.platform()` mapped to the collector's names: `darwin→mac_osx`, `win32→windows`, `linux→linux`, `android→android`, else `unknown` | |
 | `getPersistentPath()` | `$HOME/GameAnalytics` (persistent tier; the session cache is `os.tmpdir()`, inside `IGAStorage`) | `GALinux.cpp:118` uses exactly this |
 | `getDeviceModel()` | `os.arch()` or `""` | |
 | `getConnectionType()` | `"lan"`, `"offline"` if no non-loopback interface | `GACommon.h:104-107` |
@@ -210,6 +210,12 @@ Connection values are fixed vocabulary: `"offline"`, `"lan"`, `"wifi"`,
 `"wwan"` (`GACommon.h:104-107`). The JS SDK already emits `"lan"` and
 `"wwan"` from `GADevice.updateConnectionType()`, so this maps without a
 vocabulary change.
+
+*Tested against the collector:* an earlier draft of this table sent raw
+`os.platform()`. The events endpoint answered `400` with `/platform
+not_in_range` and `/os_version no_match` — nothing else; `manufacturer` and
+`browser_version` as `""` were accepted, so the sentinel convention holds on
+the wire and only the platform name needed mapping.
 
 ### Storage
 
@@ -267,9 +273,12 @@ processes never share a file and no locking is needed.
 - **On a dirty exit the file survives**, and the next `initialize()` sweeps
   the game-key directory from `GAStore.load()` (`GAState.ts:613`), which runs
   before the first tick. Orphan rows are loaded into memory; the existing
-  `fixMissingSessionEndEvents()` (`GAEvents.ts:816`, run every tick via
-  `GAThreading.ts:88`) then synthesises their `session_end`, and their events
-  join the queue. The orphan file is deleted after *its* drain. This routes
+  `fixMissingSessionEndEvents()` (`GAEvents.ts:816`) then synthesises their
+  `session_end`, and their events join the queue. *Found by the sample:* that
+  function runs only from the 8-second tick (`GAThreading.ts:88`), which a
+  process exiting in a second never reaches — the adopted session was sent but
+  never closed. `onQuit()` therefore runs one cleanup pass itself before ending
+  the session; the browser, which never calls `onQuit()`, is unchanged. The orphan file is deleted after *its* drain. This routes
   through a mechanism the SDK already has rather than adding one.
 - **The sweep must distinguish orphans from live sessions, and the recovery
   function cannot.** `fixMissingSessionEndEvents()` filters only
@@ -568,6 +577,17 @@ to add events from `onRemoteConfigsUpdated`, which `populateConfigurations()`
 is set and before the session starts; queued event tasks then run with the
 session live. A dedicated "initialized" hook would be clearer and is a
 candidate follow-up, but it is new API.
+
+#### A dropped `session_end`, found by the sample
+
+`GAEvents.processEvents` built the payload behind `if (eventDict.length != 0)`
+— meant as a non-empty check, but a session_end event carries its own
+`length` (session seconds), so any session under one second had its
+`session_end` silently skipped, logged as sent, and deleted. The Node sample
+showed it as "Sending 4 events" answered by "3 events sent". Latent in the
+browser, where sessions are rarely that short; systematic for a CLI. Fixed by
+checking for an object; the browser's only visible change is that sub-second
+sessions now end.
 
 #### "Enforcing" the call
 

@@ -1382,9 +1382,9 @@ var gameanalytics;
                 _this.path = require("path");
                 return _this;
             }
-            GAPlatformNode.prototype.getOSVersion = function () { return this.os.platform() + " " + this.os.release(); };
+            GAPlatformNode.prototype.getOSVersion = function () { return this.getBuildPlatform() + " " + this.os.release(); };
             GAPlatformNode.prototype.getDeviceManufacturer = function () { return ""; };
-            GAPlatformNode.prototype.getBuildPlatform = function () { return this.os.platform(); };
+            GAPlatformNode.prototype.getBuildPlatform = function () { return GAPlatformNode.PlatformNames[this.os.platform()] || "unknown"; };
             GAPlatformNode.prototype.getDeviceModel = function () { return this.os.arch() || ""; };
             GAPlatformNode.prototype.getPersistentPath = function () {
                 var p = this.path.join(this.os.homedir(), "GameAnalytics");
@@ -1451,6 +1451,7 @@ var gameanalytics;
                 });
             };
             GAPlatformNode.MaxErrorReports = 5;
+            GAPlatformNode.PlatformNames = { darwin: "mac_osx", win32: "windows", linux: "linux", android: "android" };
             return GAPlatformNode;
         }(platform.GAPlatform));
         platform.GAPlatformNode = GAPlatformNode;
@@ -3689,7 +3690,7 @@ var gameanalytics;
                     for (var i = 0; i < events.length; ++i) {
                         var ev = events[i];
                         var eventDict = JSON.parse(GAUtilities.decode64(ev["event"]));
-                        if (eventDict.length != 0) {
+                        if (eventDict && typeof eventDict === "object") {
                             var clientTs = eventDict["client_ts"];
                             if (clientTs && !GAValidator.validateClientTs(clientTs)) {
                                 delete eventDict["client_ts"];
@@ -4606,6 +4607,7 @@ var gameanalytics;
             }
             return GameAnalytics.quitPromise = GameAnalytics.settle(10)
                 .then(function () {
+                GAThreading.performTaskOnGAThread(function () { GAEvents.processEvents("", true); });
                 GAThreading.performTaskOnGAThread(function () { GAThreading.endSessionAndStopQueue(); });
                 return GameAnalytics.settle(10);
             })

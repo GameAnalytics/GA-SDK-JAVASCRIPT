@@ -52,5 +52,5 @@ default) the process must still exit 1 — that is the guarantee
 
 - **Phase 1** — `node app_node/index.js` gets past `require()` and `initialize()`.
 - **Phase 2** — device/health annotations come from `GAPlatformNode`, not `navigator`.
-- **Phase 3** — events are drained to the collector endpoint, and `--progression` then `--progression-complete` shows `attempt:3` across runs. Delivery itself needs valid keys; the bundled test pair exercises the pipeline, it does not confirm acceptance.
+- **Phase 3** — events are drained to the collector endpoint, and `--progression` then `--progression-complete` shows `attempt:3` across runs. The bundled test pair is accepted by the collector, so every mode shows `N events sent`; it is a shared demo game, so use `GA_GAME_KEY` / `GA_SECRET_KEY` for real data.
 - **Phase 4** — default mode exits cleanly via `onQuit()`; `--no-quit` exits on its own.

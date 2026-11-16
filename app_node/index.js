@@ -34,7 +34,7 @@ const SECRET_KEY = process.env.GA_SECRET_KEY || 'e0ae4809f70e2fa96916c7060f417ae
 
 const args = new Set(process.argv.slice(2));
 if (args.has('--help') || args.has('-h')) {
-    process.stdout.write(require('fs').readFileSync(__filename, 'utf8').split('*/')[0].split('\n').slice(2).map(l => l.replace(/^ \* ?/, '')).join('\n') + '\n');
+    process.stdout.write(require('fs').readFileSync(__filename, 'utf8').split('*/')[0].split('\n').slice(2).map(l => l.replace(/^ \* ?/, '')).join('\n').trimEnd() + '\n');
     process.exit(0);
 }
 const MODE = {
@@ -86,8 +86,9 @@ async function main() {
     GameAnalytics.setEnabledInfoLog(true);
     GameAnalytics.setEnabledVerboseLog(MODE.verbose);
     GameAnalytics.configureBuild('app_node 1.0.0');
-    GameAnalytics.configureSdkGameEngineVersion(`node ${process.version}`);
-    GameAnalytics.configureGameEngineVersion(process.version);
+    // Not called: configureSdkGameEngineVersion / configureGameEngineVersion are
+    // for engine wrappers (unity, godot, …) and reject anything else. A direct
+    // Node consumer reports sdk_version "javascript <sdk version>", which is right.
     GameAnalytics.configureAvailableCustomDimensions01(['cli', 'ci']);
     GameAnalytics.setGlobalCustomEventFields({ runtime: 'node', platform: process.platform });
 
@@ -171,7 +172,7 @@ async function main() {
     // cache file is deleted. No busy-wait — see "Port onQuit(), but not its spin".
     log('awaiting onQuit() ...');
     await optional(GameAnalytics, 'onQuit');
-    log('done');
+    log(process.env.GA_GAME_KEY ? 'done' : 'done (using the bundled test keys; set GA_GAME_KEY / GA_SECRET_KEY for your game)');
 }
 
 main().catch((e) => {

@@ -3203,7 +3203,7 @@ var gameanalytics;
                     for (var i = 0; i < events.length; ++i) {
                         var ev = events[i];
                         var eventDict = JSON.parse(GAUtilities.decode64(ev["event"]));
-                        if (eventDict.length != 0) {
+                        if (eventDict && typeof eventDict === "object") {
                             var clientTs = eventDict["client_ts"];
                             if (clientTs && !GAValidator.validateClientTs(clientTs)) {
                                 delete eventDict["client_ts"];
@@ -4120,6 +4120,7 @@ var gameanalytics;
             }
             return GameAnalytics.quitPromise = GameAnalytics.settle(10)
                 .then(function () {
+                GAThreading.performTaskOnGAThread(function () { GAEvents.processEvents("", true); });
                 GAThreading.performTaskOnGAThread(function () { GAThreading.endSessionAndStopQueue(); });
                 return GameAnalytics.settle(10);
             })

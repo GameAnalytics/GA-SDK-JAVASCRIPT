@@ -17,9 +17,14 @@ module gameanalytics
                 this.os = require("os"); this.fs = require("fs"); this.path = require("path");
             }
 
-            public getOSVersion(): string { return this.os.platform() + " " + this.os.release(); }
+            // The collector validates platform against a fixed vocabulary — the one the
+            // browser platform has always sent — and rejects raw os.platform() values
+            // ("darwin" -> /platform not_in_range, and /os_version no_match with it).
+            private static readonly PlatformNames:{[k:string]: string} = { darwin: "mac_osx", win32: "windows", linux: "linux", android: "android" };
+
+            public getOSVersion(): string { return this.getBuildPlatform() + " " + this.os.release(); }
             public getDeviceManufacturer(): string { return ""; }
-            public getBuildPlatform(): string { return this.os.platform(); }
+            public getBuildPlatform(): string { return GAPlatformNode.PlatformNames[this.os.platform()] || "unknown"; }
             public getDeviceModel(): string { return this.os.arch() || ""; }
 
             // $HOME/GameAnalytics, created on demand — GALinux.cpp:118 does exactly this.
