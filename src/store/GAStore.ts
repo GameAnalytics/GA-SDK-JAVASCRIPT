@@ -40,9 +40,9 @@ module gameanalytics
 
             // Injected by GameAnalytics.init(): localStorage in the browser, the
             // two-tier file store in Node (spec, "Storage").
-            public static setStorage(s:IGAStorage): void
+            public static setStorage(storage:IGAStorage): void
             {
-                GAStore.storage = s;
+                GAStore.storage = storage;
                 GALogger.d("Storage is available?: " + GAStore.isStorageAvailable());
             }
 

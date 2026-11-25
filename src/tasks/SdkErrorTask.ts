@@ -40,16 +40,16 @@ module gameanalytics
 
                 var client = gameanalytics.http.GAHTTPApi.getClient();
                 if (!client) { return; }
-                client.sendRequest(url, hashHmac, new TextEncoder().encode(payloadData), false).then((r) => {
-                    var text:string = r.packet && r.packet.length ? new TextDecoder().decode(r.packet) : "";
+                client.sendRequest(url, hashHmac, new TextEncoder().encode(payloadData), false).then((response) => {
+                    var text:string = response.packet && response.packet.length ? new TextDecoder().decode(response.packet) : "";
                     if(!text)
                     {
-                        GALogger.d("sdk error failed. Might be no connection. Description: " + (r.statusText || "") + ", Status code: " + r.code);
+                        GALogger.d("sdk error failed. Might be no connection. Description: " + (response.statusText || "") + ", Status code: " + response.code);
                         return;
                     }
-                    if(r.code != 200)
+                    if(response.code != 200)
                     {
-                        GALogger.w("sdk error failed. response code not 200. status code: " + r.code + ", description: " + (r.statusText || "") + ", body: " + text);
+                        GALogger.w("sdk error failed. response code not 200. status code: " + response.code + ", description: " + (response.statusText || "") + ", body: " + text);
                         return;
                     }
                     SdkErrorTask.countMap[type] = SdkErrorTask.countMap[type] + 1;

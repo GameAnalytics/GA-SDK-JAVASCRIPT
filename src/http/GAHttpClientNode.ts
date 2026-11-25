@@ -13,11 +13,20 @@ module gameanalytics
             // NoResponse, so events are kept for the next run, same as offline.
             private static readonly TimeoutMs:number = 10000;
 
+            private pending:Array<any> = [];
+            private closed:boolean = false;
+
             public initialize(): void {}
-            public cleanup(): void {}
+
+            public cleanup(): void
+            {
+                this.closed = true;
+                this.pending.forEach((controller:any) => controller.abort());
+            }
 
             public sendRequest(url:string, auth:string, payload:Uint8Array, useGzip:boolean): Promise<GAHttpResponse>
             {
+                if (this.closed) { return Promise.resolve({code: -1, packet: new Uint8Array(0), statusText: "closed"}); }
                 var body:any = payload;
                 var headers:{[k:string]: string} = {"Content-Type": "application/json", "Authorization": auth};
                 if (useGzip)
@@ -25,25 +34,19 @@ module gameanalytics
                     body = require("zlib").gzipSync(payload);
                     headers["Content-Encoding"] = "gzip";
                 }
-                var ctl:any = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-                var timer:any = ctl ? setTimeout(() => ctl.abort(), GAHttpClientNode.TimeoutMs) : null;
-                if (timer && typeof timer.unref === 'function') { timer.unref(); }
-                return fetch(url, {method: "POST", headers: headers, body: body, signal: ctl ? ctl.signal : undefined})
-                    .then((res:any) => res.arrayBuffer().then((buf:ArrayBuffer) => { if (timer) { clearTimeout(timer); } return {code: res.status, packet: new Uint8Array(buf), statusText: res.statusText || ""}; }))
+                var controller:any = new AbortController();
+                var timer:any = setTimeout(() => controller.abort(), GAHttpClientNode.TimeoutMs);
+                timer.unref();
+                this.pending.push(controller);
+                var done = () => { clearTimeout(timer); this.pending = this.pending.filter((other:any) => other !== controller); };
+                return fetch(url, {method: "POST", headers: headers, body: body, signal: controller.signal})
+                    .then((res:any) => res.arrayBuffer().then((buf:ArrayBuffer) => { done(); return {code: res.status, packet: new Uint8Array(buf), statusText: res.statusText || ""}; }))
                     .catch((e:any) => {
-                        if (timer) { clearTimeout(timer); }
+                        done();
                         GALogger.d("HTTP request failed: " + (e && e.message ? e.message : String(e)));
                         return {code: -1, packet: new Uint8Array(0), statusText: String(e && e.message || e)};
                     });
             }
-        }
-
-        // Mirrors Http/GAHttpStub: a no-op client for tests.
-        export class GAHttpClientStub implements IGAHttpClient
-        {
-            public initialize(): void {}
-            public cleanup(): void {}
-            public sendRequest(): Promise<GAHttpResponse> { return Promise.resolve({code: -1, packet: new Uint8Array(0), statusText: "stub"}); }
         }
     }
 }

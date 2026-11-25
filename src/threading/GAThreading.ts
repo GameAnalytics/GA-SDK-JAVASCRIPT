@@ -12,10 +12,12 @@ module gameanalytics
             private readonly taskQueue:Array<() => void> = [];
             private static eventIntervalId:ReturnType<typeof setInterval>;
             private static pumpId:ReturnType<typeof setInterval>;
+            public static held:boolean = false;
+            public static stopped:boolean = false;
 
             // In Node, an active interval keeps the process alive; unref() lets it exit
             // naturally once the application is done. No-op in the browser.
-            private static unref(t:any): void { if (t && typeof t.unref === 'function') { t.unref(); } }
+            private static unref(timer:any): void { if (timer && typeof timer.unref === 'function') { timer.unref(); } }
             private static ProcessEventsIntervalInSeconds:number = 8.0;
             private isRunning:boolean = false;
 
@@ -29,7 +31,7 @@ module gameanalytics
             // 100 ms tick; the C++ busy-wait cannot be ported (spec, "not its spin").
             public static flush(): void { GAThreading.run(); }
             public static pendingTaskCount(): number { return GAThreading.instance.taskQueue.length; }
-            public static stopPump(): void { clearInterval(GAThreading.pumpId); }
+            public static stopPump(): void { clearInterval(GAThreading.pumpId); GAThreading.stopped = true; }
 
             public static performTaskOnGAThread(taskBlock:() => void): void
             {
@@ -80,7 +82,7 @@ module gameanalytics
 
             private static run(): void
             {
-                while (GAThreading.instance.taskQueue.length > 0)
+                while (!GAThreading.held && GAThreading.instance.taskQueue.length > 0)
                 {
                     const task = GAThreading.instance.taskQueue.shift();
                     if (task)
@@ -97,6 +99,7 @@ module gameanalytics
 
             private static processEventQueue(): void
             {
+                if (gameanalytics.http.GAHTTPApi.inFlightCount() > 0) { return; }
                 GALogger.d("Processing event queue...");
                 GAEvents.processEvents("", true);
             }

@@ -100,7 +100,6 @@ async function main() {
             log('remote configs ready:', GameAnalytics.isRemoteConfigsReady());
             log('remote configs:', GameAnalytics.getRemoteConfigsContentAsString());
             log('example key:', GameAnalytics.getRemoteConfigsValueAsString('app_node_example', '<default>'));
-            addEvents();   // see 'Event timing' in the README
         },
     });
 
@@ -114,34 +113,23 @@ async function main() {
     GameAnalytics.setCustomDimension01('cli');
 
     // ── Events ──────────────────────────────────────────────────────────────
-    // The SDK drops events added before the init response arrives ("SDK is
-    // disabled": initAuthorized is unset until then). In a browser that window
-    // is a few hundred ms and rarely hit; in a CLI it is the common path. So
-    // events are added from onRemoteConfigsUpdated, which the SDK fires on every
-    // init outcome — success, 401, or offline fallback — right before the
-    // session starts. Each call below queues a task that runs after that.
-    let eventsAdded = false;
-    function addEvents() {
-        if (eventsAdded) return;
-        eventsAdded = true;
-        GameAnalytics.addDesignEvent('app_node:started', 1, { mode: Object.keys(MODE).filter(k => MODE[k]).join(',') || 'default' });
-        GameAnalytics.addBusinessEvent('USD', 499, 'iap', 'starter_pack', 'shop');
-        GameAnalytics.addErrorEvent(EGAErrorSeverity.Warning, 'app_node: sample warning event');
+    GameAnalytics.addDesignEvent('app_node:started', 1, { mode: Object.keys(MODE).filter(k => MODE[k]).join(',') || 'default' });
+    GameAnalytics.addBusinessEvent('USD', 499, 'iap', 'starter_pack', 'shop');
+    GameAnalytics.addErrorEvent(EGAErrorSeverity.Warning, 'app_node: sample warning event');
 
-        // Attempt counting lives in the PERSISTENT tier (headless_specs.md,
-        // Storage) and survives across runs:
-        //   --progression          Start, Fail, Fail  -> tries = 2 written to disk
-        //   --progression-complete Complete           -> attempt_num 3, read from
-        //                                                disk, then the row is cleared
-        const P = EGAProgressionStatus;
-        if (MODE.progression) {
-            GameAnalytics.addProgressionEvent(P.Start, 'world01', 'level01', '', 0);
-            GameAnalytics.addProgressionEvent(P.Fail,  'world01', 'level01', '', 10);
-            GameAnalytics.addProgressionEvent(P.Fail,  'world01', 'level01', '', 20);
-        }
-        if (MODE.progressionComplete) {
-            GameAnalytics.addProgressionEvent(P.Complete, 'world01', 'level01', '', 100);
-        }
+    // Attempt counting lives in the PERSISTENT tier (headless_specs.md,
+    // Storage) and survives across runs:
+    //   --progression          Start, Fail, Fail  -> tries = 2 written to disk
+    //   --progression-complete Complete           -> attempt_num 3, read from
+    //                                                disk, then the row is cleared
+    const P = EGAProgressionStatus;
+    if (MODE.progression) {
+        GameAnalytics.addProgressionEvent(P.Start, 'world01', 'level01', '', 0);
+        GameAnalytics.addProgressionEvent(P.Fail,  'world01', 'level01', '', 10);
+        GameAnalytics.addProgressionEvent(P.Fail,  'world01', 'level01', '', 20);
+    }
+    if (MODE.progressionComplete) {
+        GameAnalytics.addProgressionEvent(P.Complete, 'world01', 'level01', '', 100);
     }
 
     // ── Shutdown ─────────────────────────────────────────────────────────────

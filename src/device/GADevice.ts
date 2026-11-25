@@ -30,7 +30,7 @@ module gameanalytics
 
         export class GADevice
         {
-            private static readonly sdkWrapperVersion:string = "javascript 5.0.0";
+            private static readonly sdkWrapperVersion:string = "javascript 5.1.0";
 
             // Owned here, mirroring GADevice::_platform in the C++ SDK. Set by
             // GameAnalytics.init() before anything reads device information, so
@@ -40,10 +40,11 @@ module gameanalytics
             public static sdkGameEngineVersion:string;
             public static gameEngineVersion:string;
             private static connectionType:string;
+            public static writablePath:string = "";
 
-            public static setPlatform(p:gameanalytics.platform.GAPlatform): void
+            public static setPlatform(platform:gameanalytics.platform.GAPlatform): void
             {
-                GADevice.platform = p;
+                GADevice.platform = platform;
             }
 
             public static getPlatform(): gameanalytics.platform.GAPlatform
@@ -54,7 +55,7 @@ module gameanalytics
             // Wraps getPersistentPath(), as GADevice::getWritablePath() does in C++.
             public static getWritablePath(): string
             {
-                return GADevice.platform ? GADevice.platform.getPersistentPath() : "";
+                return GADevice.writablePath || (GADevice.platform ? GADevice.platform.getPersistentPath() : "");
             }
 
             public static get buildPlatform(): string { return GADevice.platform ? GADevice.platform.getBuildPlatform() : "unknown"; }

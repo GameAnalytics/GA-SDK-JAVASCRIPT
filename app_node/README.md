@@ -22,14 +22,19 @@ expected outcome. Methods the spec added (`setEnabledErrorReporting`,
 
 ## Event timing
 
-The SDK drops any event added before the init response arrives — `initAuthorized`
-is unset until then, so `isEnabled()` is false and the call logs "SDK is
-disabled". A browser page rarely hits that window; a CLI that does
-`initialize(); addEvent(); await onQuit()` hits it every time. This is
-pre-existing SDK behaviour, kept as is (the spec rules out changing existing
-calls), so the headless idiom is: **add events from `onRemoteConfigsUpdated`**.
-The SDK fires it on every init outcome, right before the session starts, and
-each `add*Event` call queues a task that runs after that.
+Events can be added right after `initialize()`. The SDK holds its task queue
+while the init request is in flight and runs the queued calls, in order, once
+the response (or a failure) arrives.
+
+## Short commands
+
+[`command.js`](command.js) shows the pattern for a command that must not wait
+for the network: it prints its result, hands one event to a detached helper
+process on stdin and exits. The helper runs the SDK and waits at most 10 s.
+
+```sh
+node app_node/command.js
+```
 
 ## Modes, and what each exercises
 

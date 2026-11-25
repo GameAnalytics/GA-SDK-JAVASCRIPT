@@ -72,6 +72,8 @@ jobs:
         run: node app_node/index.js
       - name: --no-quit — beforeExit drains, exit 0
         run: node app_node/index.js --no-quit
+      - name: command.js — hands the event to a detached helper, exit 0
+        run: node app_node/command.js
       - name: --progression then --progression-complete — persistent tier survives across runs
         run: |
           node app_node/index.js --progression

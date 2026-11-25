@@ -27,6 +27,7 @@ module gameanalytics
                         }
                     };
                     request.open("POST", url, true);
+                    request.timeout = 10000;
                     request.setRequestHeader("Content-Type", "application/json");
                     request.setRequestHeader("Authorization", auth);
                     try { request.send(payload); }

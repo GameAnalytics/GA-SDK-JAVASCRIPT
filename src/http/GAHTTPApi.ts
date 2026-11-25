@@ -32,7 +32,7 @@ module gameanalytics
             private static client:IGAHttpClient = null;
             private static inFlight:Array<Promise<void>> = [];
 
-            public static setClient(c:IGAHttpClient): void { GAHTTPApi.client = c; }
+            public static setClient(client:IGAHttpClient): void { GAHTTPApi.client = client; }
             public static getClient(): IGAHttpClient { return GAHTTPApi.client; }
             public static inFlightCount(): number { return GAHTTPApi.inFlight.length; }
             public static whenIdle(): Promise<void>
@@ -40,11 +40,11 @@ module gameanalytics
                 if (GAHTTPApi.inFlight.length === 0) { return Promise.resolve(); }
                 return Promise.all(GAHTTPApi.inFlight.slice()).then(() => GAHTTPApi.whenIdle());
             }
-            private static track(p:Promise<void>): void
+            private static track(request:Promise<void>): void
             {
-                GAHTTPApi.inFlight.push(p);
-                var done = () => { var i = GAHTTPApi.inFlight.indexOf(p); if (i >= 0) { GAHTTPApi.inFlight.splice(i, 1); } };
-                p.then(done, done);
+                GAHTTPApi.inFlight.push(request);
+                var done = () => { GAHTTPApi.inFlight = GAHTTPApi.inFlight.filter((other) => other !== request); };
+                request.then(done, done);
             }
 
             private constructor()
@@ -245,19 +245,19 @@ module gameanalytics
                     args.push(extraArgs[s]);
                 }
 
-                var p:Promise<void> = GAHTTPApi.client.sendRequest(url, authorization, new TextEncoder().encode(payloadData), gzip)
-                    .then((r:GAHttpResponse) => {
+                var request:Promise<void> = GAHTTPApi.client.sendRequest(url, authorization, new TextEncoder().encode(payloadData), gzip)
+                    .then((response:GAHttpResponse) => {
                         // code -1 maps to status 0, which is what XMLHttpRequest reported on a
                         // network failure, so processRequestResponse behaves exactly as before.
                         var like:GAHttpResponseLike = {
-                            status: r.code < 0 ? 0 : r.code,
-                            statusText: r.statusText || "",
-                            responseText: r.packet && r.packet.length ? new TextDecoder().decode(r.packet) : ""
+                            status: response.code < 0 ? 0 : response.code,
+                            statusText: response.statusText || "",
+                            responseText: response.packet && response.packet.length ? new TextDecoder().decode(response.packet) : ""
                         };
                         callback(like, url, callback2, args);
                     })
                     .catch((e:any) => { GALogger.e("HTTP callback failed: " + (e && e.stack ? e.stack : e)); });
-                GAHTTPApi.track(p);
+                GAHTTPApi.track(request);
             }
 
             private static initRequestCallback(request:GAHttpResponseLike, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string> = null): void
@@ -273,7 +273,8 @@ module gameanalytics
                 // process the response
                 GALogger.d("init request content : " + body + ", JSONstring: " + JSONstring);
 
-                var requestJsonDict:{[key:string]: any} = body ? JSON.parse(body) : {};
+                var requestJsonDict:{[key:string]: any} = null;
+                try { requestJsonDict = body ? JSON.parse(body) : {}; } catch (e) {}
                 var requestResponseEnum:EGAHTTPApiResponse = GAHTTPApi.instance.processRequestResponse(responseCode, request.statusText, body, "Init");
 
                 // if not 200 result
@@ -335,7 +336,7 @@ module gameanalytics
             private processRequestResponse(responseCode:number, responseMessage:string, body:string, requestId:string): EGAHTTPApiResponse
             {
                 // if no result - often no connection
-                if(!body)
+                if(!body || /^\s*</.test(body))
                 {
                     GALogger.d(requestId + " request. failed. Might be no connection. Description: " + responseMessage + ", Status code: " + responseCode);
                     return EGAHTTPApiResponse.NoResponse;

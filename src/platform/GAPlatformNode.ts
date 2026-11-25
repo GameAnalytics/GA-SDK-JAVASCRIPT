@@ -30,9 +30,9 @@ module gameanalytics
             // $HOME/GameAnalytics, created on demand — GALinux.cpp:118 does exactly this.
             public getPersistentPath(): string
             {
-                var p:string = this.path.join(this.os.homedir(), "GameAnalytics");
-                try { this.fs.mkdirSync(p, {recursive: true}); } catch (e) {}
-                return p;
+                var dir:string = this.path.join(this.os.homedir(), "GameAnalytics");
+                try { this.fs.mkdirSync(dir, {recursive: true}); } catch (e) {}
+                return dir;
             }
 
             public getConnectionType(): string
@@ -46,12 +46,12 @@ module gameanalytics
                 return "offline";
             }
 
-            public getCpuModel(): string { var c = this.os.cpus(); return c && c.length ? c[0].model : ""; }
-            public getNumCpuCores(): number { var c = this.os.cpus(); return c && c.length ? c.length : -1; }
+            public getCpuModel(): string { var cpus = this.os.cpus(); return cpus && cpus.length ? cpus[0].model : ""; }
+            public getNumCpuCores(): number { var cpus = this.os.cpus(); return cpus && cpus.length ? cpus.length : -1; }
             public getTotalDeviceMemory(): number { return this.os.totalmem(); }
             public getAppMemoryUsage(): number { return process.memoryUsage().rss; }
             public getSysMemoryUsage(): number { return this.os.totalmem() - this.os.freemem(); }
-            public getBootTime(): number { return Date.now() - Math.round(this.os.uptime() * 1000); }
+            public getBootTime(): number { return Math.round(process.uptime() * 1000); }
 
             // Called unconditionally (where C++'s initPlatform() gates the call) so that
             // enabling error reporting after initialize() still works: the monitor is
@@ -73,6 +73,7 @@ module gameanalytics
                 process.on("exit", () => {
                     try
                     {
+                        if (gameanalytics.threading.GAThreading.stopped) { return; }
                         var pending = gameanalytics.store.GAStore.select(gameanalytics.store.EGAStore.Events);
                         if (pending && pending.length > 0)
                         {

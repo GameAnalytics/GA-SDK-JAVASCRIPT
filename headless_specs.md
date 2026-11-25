@@ -202,7 +202,7 @@ unchanged. `GAPlatformNode` answers from `os` and `process`:
 | `getTotalDeviceMemory()` | `os.totalmem()` | |
 | `getAppMemoryUsage()` | `process.memoryUsage().rss` | |
 | `getSysMemoryUsage()` | `os.totalmem() - os.freemem()` | |
-| `getBootTime()` | `Date.now() - os.uptime() * 1000` | |
+| `getBootTime()` | `process.uptime() * 1000` — ms since process start | `GAWin32.cpp:446`, `GAMacOS.cpp:240` |
 | `getGpuModel()` | `""` (sentinel) | Linux overrides this natively |
 | `setupUncaughtExceptionHandler()` | `process.on('uncaughtExceptionMonitor', …)` | always installed; gated at fire time; never `uncaughtException` |
 
@@ -764,6 +764,41 @@ at minimum a smoke test asserting `require()` succeeds, `initialize()` runs,
 and the process exits cleanly — run on the Node 18 leg specifically, since
 that is where any API newer than the floor would surface. That test would have caught the current
 breakage.
+
+## Command-line clients
+
+Added after running the Node build the way a bundled CLI would use it. Where an
+item contradicts earlier text in this document, this section is the current
+behaviour.
+
+- **The retry tick skips while a request is in flight.** The 8 s tick used to
+  start a new upload while the previous one was still waiting out its 10 s
+  timeout, so with a collector that never answers there was always a request in
+  flight, `beforeExit` never fired and `onQuit()` never resolved.
+- **`onQuit(timeoutMs)` caps the wait.** When the time is up the Node HTTP
+  client aborts open requests and fails later ones at once; the existing
+  `NoResponse` path keeps the events in the session cache for a later run.
+  Without an argument it waits for delivery, as before.
+- **Tasks are held while the init request is in flight** and run in order when
+  it resolves. `initialize(); addDesignEvent(); await onQuit()` now records the
+  event. This replaces "Event timing in headless" above and applies to the
+  browser build too.
+- **`configureLogHandler(handler)`** routes every log line to the host instead
+  of the console. **`configureWritablePath(dir)`** keeps both storage tiers
+  under `dir/<gameKey>/`, the session cache in `sessions/`.
+- **Orphan session caches are claimed by rename** to the adopting process's
+  pid before they are read, so concurrent processes cannot adopt and resend
+  the same file.
+- **Nothing is written before `initialize()`.** The automatic drain on
+  `beforeExit` used to save an empty store under an empty game key.
+- **The Node build exports `gameanalytics`, `GameAnalytics` and `default` by
+  name**, so named imports work from Node ESM; the declaration file exports the
+  whole namespace and passes a strict check.
+
+A command that must not wait for the network hands its event to a detached
+helper process and exits; the helper runs the SDK with `onQuit(10000)`
+(`app_node/command.js`). A long-running interactive tool uses the SDK
+in-process and calls `onQuit(1000)` when it closes.
 
 ## Out of scope
 

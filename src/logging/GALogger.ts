@@ -20,6 +20,7 @@ module gameanalytics
             private infoLogVerboseEnabled:boolean;
             private static debugEnabled:boolean;
             private static readonly Tag:string = "GameAnalytics";
+            private static handler:(message:string, level:string) => void = null;
 
             // Fields and properties: END
 
@@ -33,6 +34,11 @@ module gameanalytics
             public static setInfoLog(value:boolean): void
             {
                 GALogger.instance.infoLogEnabled = value;
+            }
+
+            public static setHandler(handler:(message:string, level:string) => void): void
+            {
+                GALogger.handler = handler;
             }
 
             public static setVerboseLog(value:boolean): void
@@ -87,6 +93,12 @@ module gameanalytics
 
             private sendNotificationMessage(message:string, type:EGALoggerMessageType): void
             {
+                if (GALogger.handler)
+                {
+                    GALogger.handler(message, EGALoggerMessageType[type]);
+                    return;
+                }
+
                 switch(type)
                 {
                     case EGALoggerMessageType.Error:

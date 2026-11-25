@@ -16,7 +16,6 @@ module gameanalytics
         // them by the key's store suffix.
         export class GAStorageNode implements IGAStorage
         {
-            private static readonly MaxDbSizeBytes:number = 6291456;          // GAStore.cpp:19
             private static readonly MaxDbSizeBytesBeforeTrim:number = 5242880; // GAStore.cpp:20
             private static readonly TrimOrphanCount:number = 3;                // trimEventTable: 3 oldest sessions
 
@@ -45,11 +44,14 @@ module gameanalytics
             }
             private static isSessionStore(store:string): boolean { return store === "ga_event" || store === "ga_session"; }
 
-            private tmpDir(): string { return this.path.join(this.os.tmpdir(), "GameAnalytics", this.gameKey); }
+            private tmpDir(): string
+            {
+                var custom:string = gameanalytics.device.GADevice.writablePath;
+                return custom ? this.path.join(custom, this.gameKey, "sessions") : this.path.join(this.os.tmpdir(), "GameAnalytics", this.gameKey);
+            }
             private persistDir(): string
             {
-                var root:string = gameanalytics.device.GADevice.getWritablePath() || this.path.join(this.os.homedir(), "GameAnalytics");
-                return this.path.join(root, this.gameKey);
+                return this.path.join(gameanalytics.device.GADevice.getWritablePath(), this.gameKey);
             }
             private persistFile(): string { return this.path.join(this.persistDir(), "persistent.json"); }
 
@@ -99,24 +101,24 @@ module gameanalytics
                     var names:string[] = this.fs.readdirSync(dir);
                     for (var i = 0; i < names.length; ++i)
                     {
-                        var m = /^(\d+)-(.+)\.json$/.exec(names[i]);
-                        if (!m) { continue; }
-                        var pid:number = parseInt(m[1], 10);
-                        if (pid === process.pid) { continue; }
-                        var alive:boolean = true;
-                        try { process.kill(pid, 0); } catch (e) { alive = (e && e.code !== "ESRCH"); }
+                        var match = /^(\d+)-(.+)\.json$/.exec(names[i]);
+                        if (!match) { continue; }
+                        var pid:number = parseInt(match[1], 10);
+                        var alive:boolean = pid !== process.pid;
+                        if (alive) { try { process.kill(pid, 0); } catch (e) { alive = (e && e.code !== "ESRCH"); } }
                         if (alive) { continue; }
-                        var full:string = this.path.join(dir, names[i]);
+                        var claimed:string = this.path.join(dir, process.pid + "-" + match[2] + ".json");
+                        try { this.fs.renameSync(this.path.join(dir, names[i]), claimed); } catch (e) { continue; }
                         try
                         {
-                            var obj:any = JSON.parse(this.fs.readFileSync(full, "utf8"));
-                            var ev:any[] = JSON.parse(obj["ga_event"] || "[]");
-                            var se:any[] = JSON.parse(obj["ga_session"] || "[]");
+                            var obj:any = JSON.parse(this.fs.readFileSync(claimed, "utf8"));
+                            var events:any[] = JSON.parse(obj["ga_event"] || "[]");
+                            var sessions:any[] = JSON.parse(obj["ga_session"] || "[]");
                             var newest:number = 0;
-                            for (var j = 0; j < ev.length; ++j) { newest = Math.max(newest, Number(ev[j]["client_ts"]) || 0); }
-                            orphans.push({file: full, events: ev, sessions: se, newest: newest, size: this.fs.statSync(full).size});
+                            for (var j = 0; j < events.length; ++j) { newest = Math.max(newest, Number(events[j]["client_ts"]) || 0); }
+                            orphans.push({file: claimed, events: events, sessions: sessions, newest: newest, size: this.fs.statSync(claimed).size});
                         }
-                        catch (e) { GALogger.w("Orphan session cache unreadable, deleting: " + full); try { this.fs.unlinkSync(full); } catch (_) {} }
+                        catch (e) { GALogger.w("Orphan session cache unreadable, deleting: " + claimed); try { this.fs.unlinkSync(claimed); } catch (_) {} }
                     }
                 }
                 catch (e) { GALogger.w("Session cache sweep failed: " + e); return; }
