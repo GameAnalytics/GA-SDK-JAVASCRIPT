@@ -1385,6 +1385,9 @@ var gameanalytics;
                 _this.os = require("os");
                 _this.fs = require("fs");
                 _this.path = require("path");
+                if (typeof crypto === "undefined") {
+                    globalThis.crypto = require("crypto").webcrypto;
+                }
                 return _this;
             }
             GAPlatformNode.prototype.getOSVersion = function () { return this.getBuildPlatform() + " " + this.os.release(); };

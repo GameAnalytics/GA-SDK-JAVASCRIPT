@@ -15,6 +15,7 @@ module gameanalytics
             {
                 super();
                 this.os = require("os"); this.fs = require("fs"); this.path = require("path");
+                if (typeof crypto === "undefined") { (globalThis as any).crypto = require("crypto").webcrypto; }
             }
 
             // The collector validates platform against a fixed vocabulary — the one the
