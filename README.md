@@ -101,16 +101,16 @@ Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
 **5.1.0**
-* add Node support (Node 18+) for servers, tools and command-line apps: file storage, session end on exit and opt-in crash reporting
-* add `onQuit(maxWaitMs)`: ends the session and sends queued events before exit, waiting at most `maxWaitMs`
-* add `configureLogHandler` to receive SDK log messages instead of having them printed
-* add `configureWritablePath` to choose where the Node build stores its files
-* events added right after `initialize()` are now recorded instead of dropped
-* events are now kept and retried when a proxy or gateway answers with an error page, instead of being deleted
-* browser requests now time out after 10 seconds, so a stuck request no longer blocks later uploads
-* corrected TypeScript declarations; `import { GameAnalytics } from 'gameanalytics'` now works in Node
-* fix `dist/GameAnalytics.js` shipping without its bundled crypto library
-* fix the session end event being dropped for sessions shorter than one second
+* add Node support (Node 18+) for servers and command-line tools
+* add `onQuit(maxWaitMs)` to end the session and send queued events before exit
+* add `configureLogHandler` to receive SDK log messages
+* add `configureWritablePath` to set where the Node build stores its files
+* add 10 second timeout to browser requests
+* fix events added right after `initialize()` being dropped
+* fix events being deleted when a proxy answers with an error page
+* fix session end event missing for sessions under one second
+* fix TypeScript declarations and the named import in Node
+* fix `dist/GameAnalytics.js` shipping without its crypto library
 
 **5.0.0**
 * refactor the threading model
