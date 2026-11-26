@@ -10,6 +10,9 @@
     "main": "./dist/GameAnalytics.node.js",
     "module": "./dist/GameAnalytics.esm.js",
     "types": "./dist/GameAnalytics.d.ts",
+    "files": [
+        "dist"
+    ],
     "exports": {
         ".": {
             "types": "./dist/GameAnalytics.d.ts",
