@@ -11,13 +11,27 @@ module gameanalytics
             private static readonly instance:GAThreading = new GAThreading();
             private readonly taskQueue:Array<() => void> = [];
             private static eventIntervalId:ReturnType<typeof setInterval>;
+            private static pumpId:ReturnType<typeof setInterval>;
+            public static held:boolean = false;
+            public static stopped:boolean = false;
+
+            // In Node, an active interval keeps the process alive; unref() lets it exit
+            // naturally once the application is done. No-op in the browser.
+            private static unref(timer:any): void { if (timer && typeof timer.unref === 'function') { timer.unref(); } }
             private static ProcessEventsIntervalInSeconds:number = 8.0;
             private isRunning:boolean = false;
 
             private constructor()
             {
-                setInterval(GAThreading.run, 100);
+                GAThreading.pumpId = setInterval(GAThreading.run, 100);
+                GAThreading.unref(GAThreading.pumpId);
             }
+
+            // Run every queued task now. onQuit() uses this instead of waiting for the
+            // 100 ms tick; the C++ busy-wait cannot be ported (spec, "not its spin").
+            public static flush(): void { GAThreading.run(); }
+            public static pendingTaskCount(): number { return GAThreading.instance.taskQueue.length; }
+            public static stopPump(): void { clearInterval(GAThreading.pumpId); GAThreading.stopped = true; }
 
             public static performTaskOnGAThread(taskBlock:() => void): void
             {
@@ -33,6 +47,7 @@ module gameanalytics
                         () => GAThreading.performTaskOnGAThread(GAThreading.processEventQueue),
                         GAThreading.ProcessEventsIntervalInSeconds * 1000
                     );
+                    GAThreading.unref(GAThreading.eventIntervalId);
                 }
             }
 
@@ -67,7 +82,7 @@ module gameanalytics
 
             private static run(): void
             {
-                while (GAThreading.instance.taskQueue.length > 0)
+                while (!GAThreading.held && GAThreading.instance.taskQueue.length > 0)
                 {
                     const task = GAThreading.instance.taskQueue.shift();
                     if (task)
@@ -84,6 +99,7 @@ module gameanalytics
 
             private static processEventQueue(): void
             {
+                if (gameanalytics.http.GAHTTPApi.inFlightCount() > 0) { return; }
                 GALogger.d("Processing event queue...");
                 GAEvents.processEvents("", true);
             }

@@ -40,9 +40,78 @@ CommonJS / Node
 const { GameAnalytics } = require('gameanalytics');
 ```
 
+Node / headless
+---------------
+
+The SDK runs in Node 18+ with no browser globals. The samples are under
+[`app_node/`](app_node/).
+
+```js
+import { gameanalytics, GameAnalytics } from 'gameanalytics';
+
+GameAnalytics.initialize(gameKey, secretKey);
+GameAnalytics.addDesignEvent('tool:started');
+GameAnalytics.addErrorEvent(gameanalytics.EGAErrorSeverity.Warning, 'something odd');
+await GameAnalytics.onQuit(1000);
+```
+
+- **Events can be added right after `initialize()`.** They are held until the
+  init response arrives and then recorded in order.
+- **Call `await GameAnalytics.onQuit(maxWaitMs)` before the process exits.** It
+  ends the session and sends what is queued. With `maxWaitMs` it stops waiting
+  after that many milliseconds; anything unsent stays on disk and is sent by a
+  later run. Without it, it waits until everything is sent. A process that falls
+  off the end of `main` is drained automatically on `beforeExit`; one that calls
+  `process.exit()` or handles its own signals must call `onQuit()` first.
+- **Crash reporting is opt-in:** `GameAnalytics.setEnabledErrorReporting(true)`.
+- **Log output is yours to route:**
+  `GameAnalytics.configureLogHandler((message, level) => { ... })` replaces the
+  console; `level` is `Error`, `Warning`, `Info` or `Debug`.
+- **Storage folder:** `GameAnalytics.configureWritablePath(dir)`, called before
+  `initialize()`, keeps everything under `dir/<gameKey>/`. By default queued
+  events are cached in `os.tmpdir()/GameAnalytics/<gameKey>/` and the generated
+  user id and progression state live in `$HOME/GameAnalytics/<gameKey>/`.
+  Nothing is written before `initialize()`.
+
+### Command-line tools
+
+A short command should not wait for the network. Hand the event to a detached
+helper process and exit; the helper runs the SDK and is the only one that waits.
+[`app_node/command.js`](app_node/command.js) is a complete example:
+
+```js
+const helper = spawn(process.execPath, [__filename, '--send'], {
+    detached: true, stdio: ['pipe', 'ignore', 'ignore'], windowsHide: true,
+});
+helper.stdin.end(JSON.stringify({ event: 'tool:command', ms: elapsed }));
+helper.unref();
+```
+
+```js
+GameAnalytics.initialize(gameKey, secretKey);
+GameAnalytics.addDesignEvent(event, ms);
+await GameAnalytics.onQuit(10000);
+```
+
+A long-running interactive tool can use the SDK in-process and call
+`onQuit(1000)` when it closes. Design notes are in
+[`headless_specs.md`](headless_specs.md).
+
 Changelog
 ---------
 <!--(CHANGELOG_TOP)-->
+**5.1.0**
+* add Node support (Node 18+) for servers and command-line tools
+* add `onQuit(maxWaitMs)` to end the session and send queued events before exit
+* add `configureLogHandler` to receive SDK log messages
+* add `configureWritablePath` to set where the Node build stores its files
+* add 10 second timeout to browser requests
+* fix events added right after `initialize()` being dropped
+* fix events being deleted when a proxy answers with an error page
+* fix session end event missing for sessions under one second
+* fix TypeScript declarations and the named import in Node
+* fix `dist/GameAnalytics.js` shipping without its crypto library
+
 **5.0.0**
 * refactor the threading model
 * add support for ext_user_id

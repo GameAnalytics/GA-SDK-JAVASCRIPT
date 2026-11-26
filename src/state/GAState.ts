@@ -413,6 +413,23 @@ module gameanalytics
                 GALogger.i("Use manual session handling: " + flag);
             }
 
+            // Port of GAState::useErrorReporting(). C++ defaults this to true; the
+            // JS SDK has never reported crashes, so it defaults OFF here (spec,
+            // divergence 4). The Node platform installs its monitor regardless and
+            // checks this flag when it fires, so enabling late still works.
+            private _enableErrorReporting:boolean = false;
+
+            public static setEnableErrorReporting(flag:boolean): void
+            {
+                GAState.instance._enableErrorReporting = flag;
+                GALogger.i("Use error reporting: " + flag);
+            }
+
+            public static useErrorReporting(): boolean
+            {
+                return GAState.instance._enableErrorReporting;
+            }
+
             public static setEnabledEventSubmission(flag:boolean): void
             {
                 GAState.instance._isEventSubmissionEnabled = flag;

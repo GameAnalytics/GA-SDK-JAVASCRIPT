@@ -47,3 +47,39 @@ jobs:
           name: dist-node${{ matrix.node-version }}
           path: dist/
           retention-days: 3
+
+  node-smoke:
+    # Headless acceptance (headless_specs.md, "Testing"): the SDK must load,
+    # initialise, deliver, and exit cleanly in Node — on 18, the floor — with no
+    # browser involved. The sample app under app_node/ is the harness.
+    name: Node headless smoke (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['18', '20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: require() loads and the process exits on its own
+        run: node -e "require('./dist/GameAnalytics.node.js')"
+      - name: default — awaits onQuit(), exit 0
+        run: node app_node/index.js
+      - name: --no-quit — beforeExit drains, exit 0
+        run: node app_node/index.js --no-quit
+      - name: command.js — hands the event to a detached helper, exit 0
+        run: node app_node/command.js
+      - name: --progression then --progression-complete — persistent tier survives across runs
+        run: |
+          node app_node/index.js --progression
+          node app_node/index.js --progression-complete | tee /tmp/pc.log
+          grep -q 'attempt:3' /tmp/pc.log
+      - name: --crash — uncaughtExceptionMonitor never swallows the crash, exit 1
+        run: |
+          set +e; node app_node/index.js --crash; code=$?; set -e
+          echo "exit code: $code"; test "$code" -eq 1

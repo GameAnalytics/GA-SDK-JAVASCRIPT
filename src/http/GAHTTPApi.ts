@@ -26,6 +26,27 @@ module gameanalytics
             private useGzip:boolean;
             private static readonly MAX_ERROR_MESSAGE_LENGTH:number = 256;
 
+            // Injected by GameAnalytics.init(). In-flight requests are tracked so
+            // onQuit() can await delivery; each promise wraps the response CALLBACK,
+            // not just the transport, because the callback mutates the store.
+            private static client:IGAHttpClient = null;
+            private static inFlight:Array<Promise<void>> = [];
+
+            public static setClient(client:IGAHttpClient): void { GAHTTPApi.client = client; }
+            public static getClient(): IGAHttpClient { return GAHTTPApi.client; }
+            public static inFlightCount(): number { return GAHTTPApi.inFlight.length; }
+            public static whenIdle(): Promise<void>
+            {
+                if (GAHTTPApi.inFlight.length === 0) { return Promise.resolve(); }
+                return Promise.all(GAHTTPApi.inFlight.slice()).then(() => GAHTTPApi.whenIdle());
+            }
+            private static track(request:Promise<void>): void
+            {
+                GAHTTPApi.inFlight.push(request);
+                var done = () => { GAHTTPApi.inFlight = GAHTTPApi.inFlight.filter((other) => other !== request); };
+                request.then(done, done);
+            }
+
             private constructor()
             {
                 // base url settings
@@ -164,7 +185,7 @@ module gameanalytics
                 SdkErrorTask.execute(url, errorType, payloadJSONString, secretKey);
             }
 
-            private static sendEventInArrayRequestCallback(request:XMLHttpRequest, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string> = null): void
+            private static sendEventInArrayRequestCallback(request:GAHttpResponseLike, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string> = null): void
             {
                 var authorization:string = extra[0];
                 var JSONstring:string = extra[1];
@@ -208,9 +229,9 @@ module gameanalytics
                 callback(requestResponseEnum, requestJsonDict, requestId, eventCount);
             }
 
-            private static sendRequest(url:string, payloadData:string, extraArgs:Array<string>, gzip:boolean, callback:(request:XMLHttpRequest, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string>) => void, callback2:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void): void
+            private static sendRequest(url:string, payloadData:string, extraArgs:Array<string>, gzip:boolean, callback:(request:GAHttpResponseLike, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string>) => void, callback2:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void): void
             {
-                var request:XMLHttpRequest = new XMLHttpRequest();
+                if (!GAHTTPApi.client) { GALogger.w("No HTTP client configured"); return; }
 
                 // create authorization hash
                 var key:string = GAState.getGameSecret();
@@ -224,35 +245,22 @@ module gameanalytics
                     args.push(extraArgs[s]);
                 }
 
-                request.onreadystatechange = () => {
-                    if(request.readyState === 4)
-                    {
-                        callback(request, url, callback2, args);
-                    }
-                };
-
-                request.open("POST", url, true);
-                request.setRequestHeader("Content-Type", "application/json");
-
-                request.setRequestHeader("Authorization", authorization);
-
-                if(gzip)
-                {
-                    throw new Error("gzip not supported");
-                    //request.setRequestHeader("Content-Encoding", "gzip");
-                }
-
-                try
-                {
-                    request.send(payloadData);
-                }
-                catch(e)
-                {
-                    console.error(e.stack);
-                }
+                var request:Promise<void> = GAHTTPApi.client.sendRequest(url, authorization, new TextEncoder().encode(payloadData), gzip)
+                    .then((response:GAHttpResponse) => {
+                        // code -1 maps to status 0, which is what XMLHttpRequest reported on a
+                        // network failure, so processRequestResponse behaves exactly as before.
+                        var like:GAHttpResponseLike = {
+                            status: response.code < 0 ? 0 : response.code,
+                            statusText: response.statusText || "",
+                            responseText: response.packet && response.packet.length ? new TextDecoder().decode(response.packet) : ""
+                        };
+                        callback(like, url, callback2, args);
+                    })
+                    .catch((e:any) => { GALogger.e("HTTP callback failed: " + (e && e.stack ? e.stack : e)); });
+                GAHTTPApi.track(request);
             }
 
-            private static initRequestCallback(request:XMLHttpRequest, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string> = null): void
+            private static initRequestCallback(request:GAHttpResponseLike, url:string, callback:(response:EGAHTTPApiResponse, json:{[key:string]: any}, requestId:string, eventCount:number) => void, extra:Array<string> = null): void
             {
                 var authorization:string = extra[0];
                 var JSONstring:string = extra[1];
@@ -265,7 +273,8 @@ module gameanalytics
                 // process the response
                 GALogger.d("init request content : " + body + ", JSONstring: " + JSONstring);
 
-                var requestJsonDict:{[key:string]: any} = body ? JSON.parse(body) : {};
+                var requestJsonDict:{[key:string]: any} = null;
+                try { requestJsonDict = body ? JSON.parse(body) : {}; } catch (e) {}
                 var requestResponseEnum:EGAHTTPApiResponse = GAHTTPApi.instance.processRequestResponse(responseCode, request.statusText, body, "Init");
 
                 // if not 200 result
@@ -327,7 +336,7 @@ module gameanalytics
             private processRequestResponse(responseCode:number, responseMessage:string, body:string, requestId:string): EGAHTTPApiResponse
             {
                 // if no result - often no connection
-                if(!body)
+                if(!body || /^\s*</.test(body))
                 {
                     GALogger.d(requestId + " request. failed. Might be no connection. Description: " + responseMessage + ", Status code: " + responseCode);
                     return EGAHTTPApiResponse.NoResponse;

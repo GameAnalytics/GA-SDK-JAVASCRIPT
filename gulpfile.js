@@ -19,6 +19,7 @@ var tsProject = ts.createProject('tsconfig.json');
 var tsProjectMini = ts.createProject('tsconfig.json', { outFile: "./dist/GameAnalytics.min.js" });
 var tsProjectDebug = ts.createProject('tsconfig.json', { outFile: "./dist/GameAnalytics.debug.js" });
 var tsDeclaration = ts.createProject('tsconfig.json');
+var tsProjectNode = ts.createProject('tsconfig.node.json');
 var replace = require('gulp-replace');
 var concat = require('gulp-concat');
 var insert = require('gulp-insert');
@@ -38,7 +39,9 @@ gulp.task('declaration', function() {
         .pipe(tsDeclaration());
 
     return tsResult.dts
-        .pipe(replace('declare module public_enums', 'export module gameanalytics'))
+        .pipe(replace(/declare module public_enums \{[\s\S]*?\n\}\n/, ''))
+        .pipe(replace('declare module gameanalytics', 'export declare namespace gameanalytics'))
+        .pipe(replace(/^(\s+)module /gm, '$1namespace '))
         .pipe(replace('declare var GameAnalytics', 'declare var GameAnalyticsCommand'))
         .pipe(insert.wrap("", "export declare var GameAnalytics: typeof gameanalytics.GameAnalytics;\n"))
         .pipe(insert.wrap("", "export default GameAnalytics;\n"))
@@ -113,13 +116,33 @@ var unity = function() {
 };
 gulp.task('unity', gulp.series(gulp.parallel('bundle_js', 'build_normal'), unity));
 
+// Node target: compiled from tsconfig.node.json, emitted to build/ — NOT dist/:
+// karma loads dist/*.js and npm ships dist/, and this intermediate is neither a
+// test subject nor a shipping artefact. Moving it back breaks karma silently.
+// Compiled from tsconfig.node.json, which swaps in the Node platform,
+// storage and HTTP client — build-time selection, the JS analogue of C++'s
+// GADevicePlatform.h (headless_specs.md, "Platform selection").
+gulp.task('build_node_core', function() {
+    var tsResult = tsProjectNode.src()
+        .pipe(replace('GALogger.debugEnabled = true', 'GALogger.debugEnabled = false'))
+        .pipe(replace('GALogger.d(', '//GALogger.d('))
+        .pipe(tsProjectNode());
+
+    return tsResult.js
+        .pipe(gulp.dest('.'));
+});
+
 var ga_node = function() {
-    return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
+    return gulp.src(['./vendor/bundle.js', './build/GameAnalytics.node.core.js'])
         .pipe(concat('GameAnalytics.node.js'))
-        .pipe(insert.wrap("'use strict';\n", "module.exports = gameanalytics;"))
+        .pipe(insert.wrap("'use strict';\n", "module.exports = gameanalytics;\nmodule.exports.gameanalytics = gameanalytics;\nmodule.exports.GameAnalytics = gameanalytics.GameAnalytics;\nmodule.exports.default = gameanalytics.GameAnalytics;\n"))
         .pipe(gulp.dest('./dist'));
 };
-gulp.task('ga_node', gulp.series(gulp.parallel('bundle_js', 'build_normal'), ga_node));
+var ga_node_esm = function() {
+    return gulp.src('./src/node/GameAnalytics.node.mjs')
+        .pipe(gulp.dest('./dist'));
+};
+gulp.task('ga_node', gulp.series(gulp.parallel('bundle_js', 'build_node_core'), ga_node, ga_node_esm));
 
 var construct = function () {
     return gulp.src(['./vendor/bundle.js', './dist/GameAnalytics.js'])
@@ -150,4 +173,4 @@ var esm = function() {
 };
 gulp.task('esm', gulp.series(gulp.parallel('bundle_min_js', 'build_normal'), esm));
 
-gulp.task('default', gulp.series('debug', 'mini', 'unity', 'ga_node', 'construct', 'normal', 'esm', 'declaration'));
+gulp.task('default', gulp.series('debug', 'mini', 'unity', 'ga_node', 'construct', 'esm', 'normal', 'declaration'));

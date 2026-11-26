@@ -1,4 +1,4 @@
-declare module gameanalytics {
+export declare namespace gameanalytics {
     enum EGAErrorSeverity {
         Undefined = 0,
         Debug = 1,
@@ -43,7 +43,7 @@ declare module gameanalytics {
         OfferWall = 5,
         Banner = 6
     }
-    module http {
+    namespace http {
         enum EGAHTTPApiResponse {
             NoResponse = 0,
             BadResponse = 1,
@@ -58,7 +58,7 @@ declare module gameanalytics {
             Created = 10
         }
     }
-    module events {
+    namespace events {
         enum EGASdkErrorCategory {
             Undefined = 0,
             EventValidation = 1,
@@ -130,62 +130,18 @@ declare module gameanalytics {
         }
     }
 }
-export module gameanalytics {
-    enum EGAErrorSeverity {
-        Undefined = 0,
-        Debug = 1,
-        Info = 2,
-        Warning = 3,
-        Error = 4,
-        Critical = 5
-    }
-    enum EGAProgressionStatus {
-        Undefined = 0,
-        Start = 1,
-        Complete = 2,
-        Fail = 3
-    }
-    enum EGAResourceFlowType {
-        Undefined = 0,
-        Source = 1,
-        Sink = 2
-    }
-    enum EGAAdAction {
-        Undefined = 0,
-        Clicked = 1,
-        Show = 2,
-        FailedShow = 3,
-        RewardReceived = 4
-    }
-    enum EGAAdError {
-        Undefined = 0,
-        Unknown = 1,
-        Offline = 2,
-        NoFill = 3,
-        InternalError = 4,
-        InvalidRequest = 5,
-        UnableToPrecache = 6
-    }
-    enum EGAAdType {
-        Undefined = 0,
-        Video = 1,
-        RewardedVideo = 2,
-        Playable = 3,
-        Interstitial = 4,
-        OfferWall = 5,
-        Banner = 6
-    }
-}
-declare module gameanalytics {
-    module logging {
+export declare namespace gameanalytics {
+    namespace logging {
         class GALogger {
             private static readonly instance;
             private infoLogEnabled;
             private infoLogVerboseEnabled;
             private static debugEnabled;
             private static readonly Tag;
+            private static handler;
             private constructor();
             static setInfoLog(value: boolean): void;
+            static setHandler(handler: (message: string, level: string) => void): void;
             static setVerboseLog(value: boolean): void;
             static i(format: string): void;
             static w(format: string): void;
@@ -196,8 +152,39 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module utilities {
+export declare namespace gameanalytics {
+    namespace storage {
+        interface IGAStorage {
+            getItem(key: string): string | null;
+            setItem(key: string, value: string): void;
+            removeItem(key: string): void;
+            isAvailable(): boolean;
+            getSizeBytes(): number;
+            deleteSessionCache(): void;
+        }
+    }
+}
+export declare namespace gameanalytics {
+    namespace http {
+        interface GAHttpResponse {
+            code: number;
+            packet: Uint8Array;
+            statusText?: string;
+        }
+        interface IGAHttpClient {
+            initialize(): void;
+            cleanup(): void;
+            sendRequest(url: string, auth: string, payload: Uint8Array, useGzip: boolean): Promise<GAHttpResponse>;
+        }
+        interface GAHttpResponseLike {
+            status: number;
+            statusText: string;
+            responseText: string;
+        }
+    }
+}
+export declare namespace gameanalytics {
+    namespace utilities {
         class GAUtilities {
             static getHmac(key: string, data: string): string;
             static stringMatch(s: string, pattern: RegExp): boolean;
@@ -211,8 +198,22 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module validators {
+export declare namespace gameanalytics {
+    namespace http {
+        class GAHttpClientBrowser implements IGAHttpClient {
+            initialize(): void;
+            cleanup(): void;
+            sendRequest(url: string, auth: string, payload: Uint8Array, useGzip: boolean): Promise<GAHttpResponse>;
+        }
+    }
+}
+export declare namespace gameanalytics {
+    namespace http {
+        function makeHttpClient(): IGAHttpClient;
+    }
+}
+export declare namespace gameanalytics {
+    namespace validators {
         import EGASdkErrorCategory = gameanalytics.events.EGASdkErrorCategory;
         import EGASdkErrorArea = gameanalytics.events.EGASdkErrorArea;
         import EGASdkErrorAction = gameanalytics.events.EGASdkErrorAction;
@@ -263,8 +264,32 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module device {
+export declare namespace gameanalytics {
+    namespace platform {
+        abstract class GAPlatform {
+            abstract getOSVersion(): string;
+            abstract getDeviceManufacturer(): string;
+            abstract getBuildPlatform(): string;
+            abstract getPersistentPath(): string;
+            abstract getDeviceModel(): string;
+            abstract getConnectionType(): string;
+            getAdvertisingId(): string;
+            getDeviceId(): string;
+            getCpuModel(): string;
+            getGpuModel(): string;
+            getNumCpuCores(): number;
+            getTotalDeviceMemory(): number;
+            getAppMemoryUsage(): number;
+            getSysMemoryUsage(): number;
+            getBootTime(): number;
+            getBrowserVersion(): string;
+            onInit(): void;
+            setupUncaughtExceptionHandler(): void;
+        }
+    }
+}
+export declare namespace gameanalytics {
+    namespace device {
         class NameValueVersion {
             name: string;
             value: string;
@@ -278,30 +303,56 @@ declare module gameanalytics {
         }
         class GADevice {
             private static readonly sdkWrapperVersion;
-            private static readonly osVersionPair;
-            static readonly buildPlatform: string;
-            static readonly deviceModel: string;
-            static readonly deviceManufacturer: string;
-            static readonly osVersion: string;
-            static readonly browserVersion: string;
+            private static platform;
             static sdkGameEngineVersion: string;
             static gameEngineVersion: string;
             private static connectionType;
+            static writablePath: string;
+            static setPlatform(platform: gameanalytics.platform.GAPlatform): void;
+            static getPlatform(): gameanalytics.platform.GAPlatform;
+            static getWritablePath(): string;
+            static get buildPlatform(): string;
+            static get deviceModel(): string;
+            static get deviceManufacturer(): string;
+            static get osVersion(): string;
+            static get browserVersion(): string;
             static touch(): void;
             static getRelevantSdkVersion(): string;
             static getConnectionType(): string;
             static updateConnectionType(): void;
-            private static getOSVersionString;
-            private static runtimePlatformToString;
-            private static getBrowserVersionString;
-            private static getDeviceModel;
-            private static getDeviceManufacturer;
+        }
+    }
+}
+export declare namespace gameanalytics {
+    namespace platform {
+        class GAPlatformBrowser extends GAPlatform {
+            private osVersionPair;
+            private getOsVersionPair;
+            getOSVersion(): string;
+            getBuildPlatform(): string;
+            getDeviceManufacturer(): string;
+            getDeviceModel(): string;
+            getPersistentPath(): string;
+            getConnectionType(): string;
+            getNumCpuCores(): number;
+            getTotalDeviceMemory(): number;
+            getAppMemoryUsage(): number;
+            getBootTime(): number;
+            getGpuModel(): string;
+            getBrowserVersion(): string;
+            onInit(): void;
             private static matchItem;
         }
     }
 }
-declare module gameanalytics {
-    module store {
+export declare namespace gameanalytics {
+    namespace platform {
+        function makePlatform(): GAPlatform;
+    }
+}
+export declare namespace gameanalytics {
+    namespace store {
+        import IGAStorage = gameanalytics.storage.IGAStorage;
         enum EGAStoreArgsOperator {
             Equal = 0,
             LessOrEqual = 1,
@@ -314,8 +365,9 @@ declare module gameanalytics {
         }
         class GAStore {
             private static readonly instance;
-            private static storageAvailable;
+            private static storage;
             private static readonly MaxNumberOfEntries;
+            private static readonly MaxDbSizeBytes;
             private eventsStore;
             private sessionsStore;
             private progressionStore;
@@ -327,8 +379,11 @@ declare module gameanalytics {
             private static readonly ProgressionStoreKey;
             private static readonly ItemsStoreKey;
             private constructor();
+            static setStorage(storage: IGAStorage): void;
             static isStorageAvailable(): boolean;
             static isStoreTooLargeForEvents(): boolean;
+            static deleteSessionCache(): void;
+            private static put;
             static select(store: EGAStore, args?: Array<[string, EGAStoreArgsOperator, any]>, sort?: boolean, maxCount?: number): Array<{
                 [key: string]: any;
             }>;
@@ -345,8 +400,27 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module state {
+export declare namespace gameanalytics {
+    namespace storage {
+        class GAStorageBrowser implements IGAStorage {
+            private available;
+            constructor();
+            getItem(key: string): string | null;
+            setItem(key: string, value: string): void;
+            removeItem(key: string): void;
+            isAvailable(): boolean;
+            getSizeBytes(): number;
+            deleteSessionCache(): void;
+        }
+    }
+}
+export declare namespace gameanalytics {
+    namespace storage {
+        function makeStorage(): IGAStorage;
+    }
+}
+export declare namespace gameanalytics {
+    namespace state {
         class GAState {
             private static readonly CategorySdkError;
             private static readonly MAX_CUSTOM_FIELDS_COUNT;
@@ -455,6 +529,9 @@ declare module gameanalytics {
             static clearProgressionTries(progression: string): void;
             static setKeys(gameKey: string, gameSecret: string): void;
             static setManualSessionHandling(flag: boolean): void;
+            private _enableErrorReporting;
+            static setEnableErrorReporting(flag: boolean): void;
+            static useErrorReporting(): boolean;
             static setEnabledEventSubmission(flag: boolean): void;
             static getEventAnnotations(): {
                 [key: string]: any;
@@ -500,8 +577,8 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module tasks {
+export declare namespace gameanalytics {
+    namespace tasks {
         class SdkErrorTask {
             private static readonly MaxCount;
             private static readonly countMap;
@@ -510,8 +587,8 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module http {
+export declare namespace gameanalytics {
+    namespace http {
         import EGASdkErrorCategory = gameanalytics.events.EGASdkErrorCategory;
         import EGASdkErrorArea = gameanalytics.events.EGASdkErrorArea;
         import EGASdkErrorAction = gameanalytics.events.EGASdkErrorAction;
@@ -528,6 +605,13 @@ declare module gameanalytics {
             private eventsUrlPath;
             private useGzip;
             private static readonly MAX_ERROR_MESSAGE_LENGTH;
+            private static client;
+            private static inFlight;
+            static setClient(client: IGAHttpClient): void;
+            static getClient(): IGAHttpClient;
+            static inFlightCount(): number;
+            static whenIdle(): Promise<void>;
+            private static track;
             private constructor();
             requestInit(configsHash: string, callback: (response: EGAHTTPApiResponse, json: {
                 [key: string]: any;
@@ -550,8 +634,8 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module health {
+export declare namespace gameanalytics {
+    namespace health {
         interface HealthSnapshot {
             memory_used_mb: number;
             hardware_concurrency: number;
@@ -575,9 +659,14 @@ declare module gameanalytics {
             private static memTimer;
             private static memSysBuckets;
             private static memAppBuckets;
-            private static _gpuModel;
+            private static platform;
+            private static _cpuModel;
+            private static _numCores;
             private static _hardware;
+            private static _gpuModel;
+            private static _totalMemory;
             private static _screenResolution;
+            static setPlatform(p: gameanalytics.platform.GAPlatform): void;
             private constructor();
             private static reset;
             private static sampleMemory;
@@ -602,8 +691,8 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module events {
+export declare namespace gameanalytics {
+    namespace events {
         class GAEvents {
             private static readonly CategorySessionStart;
             private static readonly CategorySessionEnd;
@@ -661,15 +750,22 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
-    module threading {
+export declare namespace gameanalytics {
+    namespace threading {
         class GAThreading {
             private static readonly instance;
             private readonly taskQueue;
             private static eventIntervalId;
+            private static pumpId;
+            static held: boolean;
+            static stopped: boolean;
+            private static unref;
             private static ProcessEventsIntervalInSeconds;
             private isRunning;
             private constructor();
+            static flush(): void;
+            static pendingTaskCount(): number;
+            static stopPump(): void;
             static performTaskOnGAThread(taskBlock: () => void): void;
             static ensureEventQueueIsRunning(): void;
             static endSessionAndStopQueue(): void;
@@ -680,7 +776,7 @@ declare module gameanalytics {
         }
     }
 }
-declare module gameanalytics {
+export declare namespace gameanalytics {
     class GameAnalytics {
         static methodMap: {
             [id: string]: (...args: any[]) => void;
@@ -694,6 +790,8 @@ declare module gameanalytics {
         static configureAvailableResourceCurrencies(resourceCurrencies?: Array<string>): void;
         static configureAvailableResourceItemTypes(resourceItemTypes?: Array<string>): void;
         static configureBuild(build?: string): void;
+        static configureWritablePath(path?: string): void;
+        static configureLogHandler(handler?: (message: string, level: string) => void): void;
         static configureSdkGameEngineVersion(sdkGameEngineVersion?: string): void;
         static configureGameEngineVersion(gameEngineVersion?: string): void;
         static configureUserId(uId?: string): void;
@@ -740,6 +838,10 @@ declare module gameanalytics {
         static startSession(): void;
         static endSession(): void;
         static onStop(): void;
+        static setEnabledErrorReporting(flag?: boolean): void;
+        private static quitPromise;
+        static onQuit(timeoutMs?: number): Promise<void>;
+        private static settle;
         static onResume(): void;
         static getRemoteConfigsValueAsString(key: string, defaultValue?: string): string;
         static getRemoteConfigsValueAsJSON(key: string, defaultValue?: any): any;

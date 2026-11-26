@@ -27,6 +27,13 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
 
         public static init(): void
         {
+            // Build-time platform selection, the JS analogue of C++ MakePlatform().
+            // GADevice owns it; GAHealth caches its five constructor-time reads.
+            var platform:gameanalytics.platform.GAPlatform = gameanalytics.platform.makePlatform();
+            GADevice.setPlatform(platform);
+            GAHealth.setPlatform(platform);
+            GAStore.setStorage(gameanalytics.storage.makeStorage());
+            GAHTTPApi.setClient(gameanalytics.http.makeHttpClient());
             GADevice.touch();
             GameAnalytics.methodMap['configureAvailableCustomDimensions01'] = GameAnalytics.configureAvailableCustomDimensions01;
             GameAnalytics.methodMap['configureAvailableCustomDimensions02'] = GameAnalytics.configureAvailableCustomDimensions02;
@@ -69,6 +76,10 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             GameAnalytics.methodMap['getRemoteConfigsContentAsString'] = GameAnalytics.getRemoteConfigsContentAsString;
             GameAnalytics.methodMap['addOnBeforeUnloadListener'] = GameAnalytics.addOnBeforeUnloadListener;
             GameAnalytics.methodMap['removeOnBeforeUnloadListener'] = GameAnalytics.removeOnBeforeUnloadListener;
+            GameAnalytics.methodMap['setEnabledErrorReporting'] = GameAnalytics.setEnabledErrorReporting;
+            GameAnalytics.methodMap['configureWritablePath'] = GameAnalytics.configureWritablePath;
+            GameAnalytics.methodMap['configureLogHandler'] = GameAnalytics.configureLogHandler;
+            GameAnalytics.methodMap['onQuit'] = GameAnalytics.onQuit;
             
 
             if (typeof GameAnalytics.getGlobalObject() !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics'] !== 'undefined' && typeof GameAnalytics.getGlobalObject()['GameAnalytics']['q'] !== 'undefined')
@@ -81,13 +92,9 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             }
 
 
-            window.addEventListener("beforeunload", (e) => {
-                GALogger.d('addEventListener unload');
-                GAState.instance.isUnloading = true;
-                GAState.notifyBeforeUnloadListeners();
-                GAThreading.endSessionAndStopQueue();
-                GAState.instance.isUnloading = false;
-            });
+            // Platform hooks: beforeunload in the browser, beforeExit + the
+            // uncaught-exception monitor in Node. Both live in the platform now.
+            platform.onInit();
         }
 
         public static gaCommand(...args: any[]): void
@@ -189,6 +196,24 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
                 }
                 GAState.setBuild(build);
             });
+        }
+
+        public static configureWritablePath(path:string = ""): void
+        {
+            GAThreading.performTaskOnGAThread(() =>
+            {
+                if (GameAnalytics.isSdkReady(true, false))
+                {
+                    GALogger.w("Writable path must be set before SDK is initialized.");
+                    return;
+                }
+                GADevice.writablePath = path;
+            });
+        }
+
+        public static configureLogHandler(handler:(message:string, level:string) => void = null): void
+        {
+            GALogger.setHandler(handler);
         }
 
         public static configureSdkGameEngineVersion(sdkGameEngineVersion:string = ""): void
@@ -639,6 +664,70 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             });
         }
 
+        /**
+         * Port of GameAnalytics::setEnabledErrorReporting (GameAnalytics.h:105).
+         * Off by default (spec, divergence 4). Set synchronously rather than on the
+         * task queue so a crash that follows immediately is still reported.
+         */
+        public static setEnabledErrorReporting(flag:boolean = false): void
+        {
+            GAState.setEnableErrorReporting(flag);
+        }
+
+        /**
+         * Port of GameAnalytics::onQuit (GameAnalytics.h:149) — REQUIRED in headless
+         * before the process exits. Resolves once the queue has drained and the
+         * session cache file is deleted. Never busy-waits: there is one thread.
+         *
+         * Order matters: a queued initialize() starts its session only inside the
+         * async init callback, so settle that first, then end the session, then
+         * settle the session_end send.
+         */
+        private static quitPromise:Promise<void> = null;
+
+        public static onQuit(timeoutMs?:number): Promise<void>
+        {
+            // One-shot, like C++'s `if(_endThread) return;`: an explicit call and the
+            // platform's beforeExit handler must not drain twice.
+            if (GameAnalytics.quitPromise) { return GameAnalytics.quitPromise; }
+            var deadline:any = typeof timeoutMs === "number" ? setTimeout(() => GAHTTPApi.getClient().cleanup(), timeoutMs) : null;
+            return GameAnalytics.quitPromise = GameAnalytics.settle(10)
+                .then(() => {
+                    // The 8 s tick is the only caller of processEvents with cleanup, which
+                    // is what synthesises session_end for adopted orphan sessions. A
+                    // process that exits in a second never reaches it, so do one pass here.
+                    GAThreading.performTaskOnGAThread(() => { if (GAState.isInitialized()) { GAEvents.processEvents("", true); } });
+                    GAThreading.performTaskOnGAThread(() => { GAThreading.endSessionAndStopQueue(); });
+                    return GameAnalytics.settle(10);
+                })
+                .then(() => {
+                    // Spec: the cache is deleted after a SUCCESSFUL drain. On a
+                    // NoResponse the events were put back as 'new' and must survive
+                    // for the next run's sweep; deleting here would lose them.
+                    var left = GAStore.select(gameanalytics.store.EGAStore.Events);
+                    if (!left || left.length === 0)
+                    {
+                        GAStore.deleteSessionCache();
+                    }
+                    else
+                    {
+                        GALogger.w("onQuit: " + left.length + " event(s) could not be delivered; session cache kept for the next run");
+                    }
+                    clearTimeout(deadline);
+                    GAThreading.stopPump();
+                });
+        }
+
+        private static settle(maxRounds:number): Promise<void>
+        {
+            GAThreading.flush();
+            if (maxRounds <= 0 || (GAHTTPApi.inFlightCount() === 0 && GAThreading.pendingTaskCount() === 0))
+            {
+                return Promise.resolve();
+            }
+            return GAHTTPApi.whenIdle().then(() => GameAnalytics.settle(maxRounds - 1));
+        }
+
         public static onResume(): void
         {
             GAThreading.performTaskOnGAThread(() =>
@@ -701,6 +790,7 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
         {
             GAState.ensurePersistedStates();
             GAStore.setItem(GAState.getGameKey(), GAState.DefaultUserIdKey, GAState.getDefaultId());
+            GAStore.save(GAState.getGameKey());
 
             GAState.setInitialized(true);
 
@@ -719,11 +809,14 @@ public static methodMap:{[id:string]: (...args: any[]) => void} = {};
             // make sure the current custom dimensions are valid
             GAState.validateAndFixCurrentDimensions();
 
-            GAHTTPApi.instance.requestInit(GAState.instance.configsHash, GameAnalytics.startNewSessionCallback);
+            GAThreading.held = true;
+            try { GAHTTPApi.instance.requestInit(GAState.instance.configsHash, GameAnalytics.startNewSessionCallback); }
+            catch (e) { GAThreading.held = false; throw e; }
         }
 
         private static startNewSessionCallback(initResponse:EGAHTTPApiResponse, initResponseDict:{[key:string]: any}): void
         {
+            GAThreading.held = false;
             // init is ok
             if((initResponse === EGAHTTPApiResponse.Ok || initResponse === EGAHTTPApiResponse.Created) && initResponseDict)
             {

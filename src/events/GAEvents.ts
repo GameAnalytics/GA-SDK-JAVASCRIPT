@@ -731,7 +731,10 @@ module gameanalytics
                     {
                         var ev:{[key:string]: any} = events[i];
                         var eventDict = JSON.parse(GAUtilities.decode64(ev["event"]));
-                        if (eventDict.length != 0)
+                        // Was `eventDict.length != 0`, which on a session_end event read
+                        // its own `length` (session seconds) and silently dropped any
+                        // session shorter than a second — the common case headless.
+                        if (eventDict && typeof eventDict === "object")
                         {
                             var clientTs: number = eventDict["client_ts"] as number;
                             if (clientTs && !GAValidator.validateClientTs(clientTs))

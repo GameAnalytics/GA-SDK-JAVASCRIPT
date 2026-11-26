@@ -1,7 +1,7 @@
 {
     "name": "gameanalytics",
     "author": "GameAnalytics",
-    "version": "5.0.0",
+    "version": "5.1.0",
     "description": "Official JavaScript SDK for GameAnalytics. GameAnalytics is a free analytics platform that helps game developers understand their players' behaviour by delivering relevant insights.",
     "keywords": [
         "GameAnalytics",
@@ -12,9 +12,13 @@
     "types": "./dist/GameAnalytics.d.ts",
     "exports": {
         ".": {
+            "types": "./dist/GameAnalytics.d.ts",
+            "node": {
+                "import": "./dist/GameAnalytics.node.mjs",
+                "require": "./dist/GameAnalytics.node.js"
+            },
             "import": "./dist/GameAnalytics.esm.js",
-            "require": "./dist/GameAnalytics.node.js",
-            "types": "./dist/GameAnalytics.d.ts"
+            "require": "./dist/GameAnalytics.node.js"
         }
     },
     "contributors": [
@@ -73,6 +77,10 @@
     "scripts": {
         "test": "gulp test",
         "dev": "node app/server.js",
+        "dev:node": "node app_node/index.js",
         "build": "gulp default"
+    },
+    "engines": {
+        "node": ">=18"
     }
 }
